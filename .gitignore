@@ -1,0 +1,32 @@
+# DEPENDENCIES
+node_modules/
+
+# ENVIRONMENT VARIABLES
+.env*
+!.env.example
+
+# LOGS
+logs/
+*.log
+npm-debug.log*
+
+# CACHE
+.npm
+.eslintcache
+
+# BUILD
+dist/
+build/
+coverage/
+
+# TEMP FILES
+.tmp/
+temp/
+
+# SYSTEM FILES
+.DS_Store
+Thumbs.db
+
+# IDES
+.idea/
+.vscode/*

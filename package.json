@@ -1,0 +1,37 @@
+{
+  "name": "o-que-e-que-tem-backend",
+  "version": "1.0.0",
+  "description": "Backend de uma plataforma sustentável voltada à redução do desperdício de alimentos, com sistema de assinatura flexível, catálogo de produtos e gestão de pedidos.",
+  "keywords": [
+    "backend",
+    "api",
+    "rest-api",
+    "nodejs",
+    "express",
+    "mongodb",
+    "mongoose",
+    "javascript",
+    "sustainability",
+    "food-waste",
+    "subscription",
+    "ecommerce"
+  ],
+  "author": "Vanessa Yuri A. Brito",
+  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": "^22.23.3"
+  },
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VanessaYuriAB/o-que-e-que-tem-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VanessaYuriAB/o-que-e-que-tem-backend/issues"
+  },
+  "homepage": "https://github.com/VanessaYuriAB/o-que-e-que-tem-backend#readme"
+}
