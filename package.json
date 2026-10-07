@@ -11,6 +11,7 @@
     "mongodb",
     "mongoose",
     "javascript",
+    "cookie-parser",
     "sustainability",
     "food-waste",
     "subscription",
@@ -24,6 +25,8 @@
   },
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -55,6 +58,20 @@
     "globals": "17.13.0",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
+    "nodemon": "3.1.14",
     "prettier": "3.9.9"
+  },
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "celebrate": "16.0.0",
+    "cookie-parser": "1.4.7",
+    "cors": "2.8.6",
+    "dotenv": "18.0.6",
+    "express": "5.2.1",
+    "express-rate-limit": "8.7.1",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "mongoose": "9.11.0",
+    "validator": "13.15.35"
   }
 }
