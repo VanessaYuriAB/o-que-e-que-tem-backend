@@ -217,6 +217,19 @@ Benefícios:
 - Facilidade de compartilhamento de código entre aplicações (backend e frontend)
 - Compatibilidade com bibliotecas ESM-only (muitos pacotes novos já são ESM-first ou ESM-only)
 
+Convenções adotadas:
+
+- Imports locais utilizam extensões explícitas (`.js`)
+- Uso de `import` e `export` em vez de `require` e `module.exports`
+   
+  Exemplo:
+   
+
+```js
+import app from './app.js';
+import connectDb from './config/database.js';
+```
+
 ### Express 5
 
 O projeto utiliza Express 5.
@@ -328,7 +341,7 @@ Cada módulo concentra seus próprios arquivos:
   chama o service
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.routes.js`: definição das rotas
-- `.service.js`: integração com API externa
+- `.service.js`: lógica de negócio e integrações externas quando necessário
 - `.validation.js`: validação dos dados recebidos do frontend
 
 [Voltar ao topo 🔝](#top)
