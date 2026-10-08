@@ -48,6 +48,14 @@ export default [
       'import/no-duplicates': 'error',
       // Verifica se o caminho importado realmente existe, ex.: import User from './User.js'
       'import/no-unresolved': 'error',
+      // Exige extensão nos imports ESM
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        {
+          js: 'always',
+        },
+      ],
     },
   },
 
