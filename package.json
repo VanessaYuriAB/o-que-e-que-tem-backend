@@ -25,8 +25,8 @@
   },
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start": "cross-env NODE_ENV=production node server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -52,6 +52,7 @@
   "homepage": "https://github.com/VanessaYuriAB/o-que-e-que-tem-backend#readme",
   "devDependencies": {
     "@eslint/js": "9.39.5",
+    "cross-env": "10.1.0",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
