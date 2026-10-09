@@ -2,7 +2,7 @@
 
 # 🥣 O que é que tem? Na sopa, creme ou patê
 
-![Node.js](https://img.shields.io/badge/Node.js_20_LTS-007ACC)
+![Node.js](https://img.shields.io/badge/Node.js_22_LTS-007ACC)
 ![JavaScript](https://img.shields.io/badge/JavaScript-007ACC)
 ![Express](https://img.shields.io/badge/Express-007ACC)
 ![MongoDB](https://img.shields.io/badge/MongoDB-007ACC)
@@ -14,6 +14,7 @@
 ![Prettier](https://img.shields.io/badge/Prettier-007ACC)
 ![Husky](https://img.shields.io/badge/Husky-007ACC)
 ![lint-staged](https://img.shields.io/badge/lint--staged-007ACC)
+![cross-env](https://img.shields.io/badge/cross--env-007ACC)
 
 ![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
 
@@ -74,6 +75,7 @@ desperdício de alimentos por meio do aproveitamento de produtos próximos ao ve
 ### Utilidades
 
 - dotenv
+- cross-env
 - cors
 - celebrate
 - validator
@@ -130,14 +132,46 @@ npm install
 
 ## 🔐 5. Variáveis de ambiente
 
-Crie um arquivo `.env` com base no exemplo:
+O projeto utiliza arquivos de ambiente separados para cada contexto de execução:
 
-```bash
-cp .env.example .env
+- `.env.development`
+- `.env.test`
+- `.env.production`
+
+O ambiente é definido pelos scripts do `package.json` através do `cross-env`.
+
+Exemplo:
+
+```json
+"dev": "cross-env NODE_ENV=development nodemon server.js"
+"test": "cross-env NODE_ENV=test jest"
+"start": "cross-env NODE_ENV=production node server.js"
 ```
 
-Ou copie manualmente o conteúdo do arquivo `.env.example` e preencha os valores necessários antes
-de iniciar a aplicação.
+### Variáveis obrigatórias
+
+Todos os ambientes devem possuir as variáveis:
+
+```
+PORT=
+MONGODB_URI=
+DB_NAME=
+CORS_ORIGIN=
+JWT_SECRET=
+CSP_CONNECT_SRC=
+RATE_LIMIT_MAX=
+```
+
+### Validação automática
+
+Durante a inicialização da aplicação:
+
+- o `NODE_ENV` é validado
+- o arquivo `.env` correspondente é carregado automaticamente
+- todas as variáveis obrigatórias são verificadas
+- erros de configuração impedem a inicialização da aplicação
+
+Essa estratégia evita que a aplicação execute com configurações inválidas.
 
 [Voltar ao topo 🔝](#top)
 
@@ -147,8 +181,22 @@ de iniciar a aplicação.
 
 ## ▶️ 6. Como executar
 
+### Desenvolvimento
+
 ```bash
 npm run dev
+```
+
+### Testes
+
+```bash
+npm run test
+```
+
+### Produção
+
+```bash
+npm run start
 ```
 
 [Voltar ao topo 🔝](#top)
@@ -162,7 +210,8 @@ npm run dev
 | Script               | Descrição                                   |
 | -------------------- | ------------------------------------------- |
 | npm run dev          | Executa a aplicação em modo desenvolvimento |
-| npm run start        | Executa a aplicação                         |
+| npm run test         | Executa os testes                           |
+| npm run start        | Executa a aplicação em modo produção        |
 | npm run lint         | Verifica problemas de lint                  |
 | npm run lint:fix     | Corrige problemas de lint automaticamente   |
 | npm run format       | Formata o código                            |
@@ -230,6 +279,25 @@ import app from './app.js';
 import connectDb from './config/database.js';
 ```
 
+### Configuração de ambiente
+
+O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente com `dotenv`, utilizando o valor de `NODE_ENV`.
+
+O valor de `NODE_ENV` é definido exclusivamente pelos scripts do projeto através do `cross-env`.
+
+Exemplo:
+
+```json
+"dev": "cross-env NODE_ENV=development nodemon server.js"
+```
+
+Benefícios:
+
+- Separação clara entre ambientes
+- Menor risco de configuração incorreta
+- Padronização entre sistemas operacionais
+- Falha imediata em caso de configuração inválida
+
 ### Express 5
 
 O projeto utiliza Express 5.
@@ -291,6 +359,7 @@ Local Storage.
 ├    └── images/
 ├── src/
 ├    ├── config/
+├    ├    └── env.js
 ├    ├── modules/
 ├    ├    ├── auth/
 ├    ├    ├── contact/
@@ -307,8 +376,11 @@ Local Storage.
 ├    ├    └── users/
 ├    ├── shared/
 ├    ├    ├── errors/
+├    ├    ├    └── ConfigError.js
 ├    ├    ├── middlewares/
 ├    ├    └── utils/
+├    ├         ├── errorsMessages.js
+├    ├         └── verifyEnv.js
 ├    └── app.js
 ├── tests/
 ├── .editorconfig
