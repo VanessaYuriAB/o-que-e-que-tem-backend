@@ -8,7 +8,7 @@ const verifyEnv = () => {
 
   if (!allowedNodeEnvs.includes(process.env.NODE_ENV)) {
     throw new ConfigError(
-      `${errorsMessages.nodeEnv} Atual: ${process.env.NODE_ENV}`,
+      `Erro de configuração do servidor: ${errorsMessages.nodeEnv}. NODE_ENV atual: ${process.env.NODE_ENV}.`,
     );
   }
 
@@ -25,7 +25,9 @@ const verifyEnv = () => {
 
   for (const varName of requiredEnvVars) {
     if (!process.env[varName]) {
-      throw new ConfigError(`${varName} ${errorsMessages.config}`);
+      throw new ConfigError(
+        `Erro de configuração do servidor: ${varName} ${errorsMessages.config}.`,
+      );
     }
   }
 };
