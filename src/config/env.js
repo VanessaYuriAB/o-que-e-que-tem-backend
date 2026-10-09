@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
   if (resultEnv.error) {
     console.warn(`Nenhum arquivo .env.${process.env.NODE_ENV} encontrado`);
   } else {
-    console.log(`Arquivo env carregado: .env.${process.env.NODE_ENV}`);
+    console.info(`Arquivo env carregado: .env.${process.env.NODE_ENV}`);
   }
 }
 
