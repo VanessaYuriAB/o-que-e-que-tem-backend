@@ -270,44 +270,13 @@ Convenções adotadas:
 
 - Imports locais utilizam extensões explícitas (`.js`)
 - Uso de `import` e `export` em vez de `require` e `module.exports`
-   
-  Exemplo:
-   
+
+Exemplo: 
 
 ```js
 import app from './app.js';
 import connectDb from './config/database.js';
 ```
-
-### Configuração de ambiente
-
-O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente com `dotenv`, utilizando o valor de `NODE_ENV`.
-
-O valor de `NODE_ENV` é definido exclusivamente pelos scripts do projeto através do `cross-env`.
-
-Exemplo:
-
-```json
-"dev": "cross-env NODE_ENV=development nodemon server.js"
-```
-
-Benefícios:
-
-- Separação clara entre ambientes
-- Menor risco de configuração incorreta
-- Padronização entre sistemas operacionais
-- Falha imediata em caso de configuração inválida
-
-### Express 5
-
-O projeto utiliza Express 5.
-
-Controllers assíncronos não utilizam wrappers como `asyncHandler` porque o Express 5 já captura automaticamente:
-
-- exceções lançadas em funções async
-- rejeições de Promises
-
-e encaminha o erro para o middleware centralizado de tratamento.
 
 ### ESLint
 
@@ -327,6 +296,50 @@ Exemplo de regras adotadas, alinhadas à filosofia Airbnb:
  'prefer-template': 'error',
 }
 ```
+
+### Express 5
+
+O projeto utiliza Express 5.
+
+Controllers assíncronos não utilizam wrappers como `asyncHandler` porque o Express 5 já captura
+automaticamente:
+
+- exceções lançadas em funções async
+- rejeições de Promises
+
+e encaminha o erro para o middleware centralizado de tratamento.
+
+### Configuração de ambiente
+
+O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente
+com `dotenv`, utilizando o valor de `NODE_ENV`.
+
+O valor de `NODE_ENV` é definido exclusivamente pelos scripts do projeto através do `cross-env`.
+
+Exemplo:
+
+```json
+"dev": "cross-env NODE_ENV=development nodemon server.js"
+```
+
+Benefícios:
+
+- Separação clara entre ambientes
+- Menor risco de configuração incorreta
+- Padronização entre sistemas operacionais
+- Falha imediata em caso de configuração inválida
+
+### Banco de dados
+
+A aplicação estabelece a conexão com o MongoDB durante a inicialização.
+
+Caso a conexão falhe:
+
+- Em ambiente de desenvolvimento e produção, a aplicação é encerrada imediatamente.
+- Em ambiente de teste, o erro é lançado para que o framework de testes possa tratá-lo
+  adequadamente.
+
+Essa estratégia evita que a API permaneça disponível sem acesso ao banco de dados.
 
 ### Autenticação
 
@@ -359,6 +372,7 @@ Local Storage.
 ├    └── images/
 ├── src/
 ├    ├── config/
+├    ├    ├── database.js
 ├    ├    └── env.js
 ├    ├── modules/
 ├    ├    ├── auth/
