@@ -10,6 +10,13 @@ import './src/config/env.js';
 // ------------------------
 
 import app from './src/app.js';
+import connectDb from './src/config/database.js';
+
+// --------------------
+// Conexão com MongoDB
+// --------------------
+
+await connectDb();
 
 // -----------
 // Servidor
@@ -19,6 +26,6 @@ import app from './src/app.js';
 // Configura porta a ser ouvida, apenas se não estiver executando no modo de teste
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {
-    console.log(`Servidor rodando na porta: ${process.env.PORT}`);
+    console.info(`Servidor rodando na porta: ${process.env.PORT}`);
   });
 }
