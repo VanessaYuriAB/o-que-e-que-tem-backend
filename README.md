@@ -169,9 +169,10 @@ Durante a inicialização da aplicação:
 - o `NODE_ENV` é validado
 - o arquivo `.env` correspondente é carregado automaticamente
 - todas as variáveis obrigatórias são verificadas
-- erros de configuração impedem a inicialização da aplicação
+- mensagens de erro específicas são geradas para configurações inválidas
+- a aplicação é impedida de inicializar quando existe alguma inconsistência
 
-Essa estratégia evita que a aplicação execute com configurações inválidas.
+Essa estratégia evita a execução da aplicação com configurações incompletas ou inválidas.
 
 [Voltar ao topo 🔝](#top)
 
@@ -307,7 +308,26 @@ automaticamente:
 - exceções lançadas em funções async
 - rejeições de Promises
 
-e encaminha o erro para o middleware centralizado de tratamento.
+e encaminha o erro para o middleware centralizado de tratamento de erros.
+
+### Tratamento de erros
+
+A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das requisições HTTP.
+
+Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP apropriadas:
+
+- `CastError` → `400 Bad Request`
+- `ValidationError` → `400 Bad Request`
+
+Além disso, a aplicação utiliza classes de erro customizadas para representar regras de negócio e respostas HTTP específicas:
+
+- `ConflictError`
+- `ForbiddenError`
+- `NotFoundError`
+- `RateLimitError`
+- `UnauthorizedError`
+
+Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e centralizado dos erros da aplicação.
 
 ### Configuração de ambiente
 
@@ -333,13 +353,15 @@ Benefícios:
 
 A aplicação estabelece a conexão com o MongoDB durante a inicialização.
 
-Caso a conexão falhe:
+A camada de conexão possui responsabilidade exclusiva de estabelecer a conexão com o banco de dados.
 
-- Em ambiente de desenvolvimento e produção, a aplicação é encerrada imediatamente.
-- Em ambiente de teste, o erro é lançado para que o framework de testes possa tratá-lo
-  adequadamente.
+O tratamento de falhas de inicialização foi centralizado no ponto de entrada da aplicação (`server.js`), que é responsável por:
 
-Essa estratégia evita que a API permaneça disponível sem acesso ao banco de dados.
+- inicializar a aplicação
+- registrar erros de startup
+- interromper a execução em caso de falha
+
+Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a execução de testes.
 
 ### Autenticação
 
@@ -390,8 +412,14 @@ Local Storage.
 ├    ├    └── users/
 ├    ├── shared/
 ├    ├    ├── errors/
-├    ├    ├    └── ConfigError.js
+├    ├    ├    ├── ConfigError.js
+├    ├    ├    ├── ConflictError.js
+├    ├    ├    ├── ForbiddenError.js
+├    ├    ├    ├── NotFoundError.js
+├    ├    ├    ├── RateLimitError.js
+├    ├    ├    └── UnauthorizedError.js
 ├    ├    ├── middlewares/
+├    ├         └── errorHandler.js
 ├    ├    └── utils/
 ├    ├         ├── errorsMessages.js
 ├    ├         └── verifyEnv.js
@@ -414,8 +442,8 @@ Local Storage.
 - `config`: configurações da aplicação
 - `modules`: módulos organizados por domínio de negócio
 - `shared`: recursos compartilhados entre módulos
-- `errors`: tratamento centralizado de erros
-- `middlewares`: middlewares reutilizáveis
+- `errors`: classes de erros customizados da aplicação
+- `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
 - `utils`: funções utilitárias compartilhadas
 - `tests`: testes automatizados
 
@@ -444,7 +472,9 @@ Cada módulo concentra seus próprios arquivos:
 - [x] Configuração ESLint
 - [x] Configuração Prettier
 - [x] Configuração Husky
+- [x] Validação de ambiente
 - [x] Configuração MongoDB
+- [x] Tratamento centralizado de erros
 - [ ] Testes automatizados
 - [ ] Documentação da API
 - [ ] Deploy
