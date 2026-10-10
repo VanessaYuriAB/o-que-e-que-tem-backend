@@ -312,14 +312,16 @@ e encaminha o erro para o middleware centralizado de tratamento de erros.
 
 ### Tratamento de erros
 
-A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das requisições HTTP.
+A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das
+requisições HTTP.
 
 Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP apropriadas:
 
 - `CastError` → `400 Bad Request`
 - `ValidationError` → `400 Bad Request`
 
-Além disso, a aplicação utiliza classes de erro customizadas para representar regras de negócio e respostas HTTP específicas:
+A aplicação utiliza, também, classes de erro customizadas para representar regras de negócio e
+respostas HTTP específicas:
 
 - `ConflictError`
 - `ForbiddenError`
@@ -327,7 +329,11 @@ Além disso, a aplicação utiliza classes de erro customizadas para representar
 - `RateLimitError`
 - `UnauthorizedError`
 
-Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e centralizado dos erros da aplicação.
+Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e
+centralizado dos erros da aplicação.
+
+Além dos erros gerados pela aplicação e pelo Mongoose, requisições para rotas inexistentes são
+tratadas por um middleware dedicado e retornam `404 Not Found`.
 
 ### Configuração de ambiente
 
@@ -355,13 +361,15 @@ A aplicação estabelece a conexão com o MongoDB durante a inicialização.
 
 A camada de conexão possui responsabilidade exclusiva de estabelecer a conexão com o banco de dados.
 
-O tratamento de falhas de inicialização foi centralizado no ponto de entrada da aplicação (`server.js`), que é responsável por:
+O tratamento de falhas de inicialização foi centralizado no ponto de entrada da aplicação
+(`server.js`), que é responsável por:
 
 - inicializar a aplicação
 - registrar erros de startup
 - interromper a execução em caso de falha
 
-Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a execução de testes.
+Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a
+execução de testes.
 
 ### Autenticação
 
@@ -419,7 +427,8 @@ Local Storage.
 ├    ├    ├    ├── RateLimitError.js
 ├    ├    ├    └── UnauthorizedError.js
 ├    ├    ├── middlewares/
-├    ├         └── errorHandler.js
+├    ├         ├── errorHandler.js
+├    ├         └── notFoundPage.js
 ├    ├    └── utils/
 ├    ├         ├── errorsMessages.js
 ├    ├         └── verifyEnv.js
@@ -475,6 +484,7 @@ Cada módulo concentra seus próprios arquivos:
 - [x] Validação de ambiente
 - [x] Configuração MongoDB
 - [x] Tratamento centralizado de erros
+- [x] Middleware para rotas inexistentes (404)
 - [ ] Testes automatizados
 - [ ] Documentação da API
 - [ ] Deploy
