@@ -4,6 +4,7 @@
 
 import express from 'express';
 import errorHandler from './shared/middlewares/errorHandler.js';
+import notFoundPage from './shared/middlewares/notFoundPage.js';
 
 // --------
 // Express
@@ -21,6 +22,7 @@ app.use(express.json());
 // Tratamento de erros
 // --------------------
 
+app.use(notFoundPage);
 app.use(errorHandler);
 
 // Exporta app, para uso em server.js e no Supertest
