@@ -1,3 +1,5 @@
+// Startup: inicializa produção/desenvolvimento
+
 // ---------------------
 // Importação do dotenv
 // ---------------------
@@ -12,20 +14,21 @@ import './src/config/env.js';
 import app from './src/app.js';
 import connectDb from './src/config/database.js';
 
-// --------------------
-// Conexão com MongoDB
-// --------------------
+// ---------------------------
+// Banco de dados + Servidor
+// ---------------------------
 
-await connectDb();
+try {
+  // Conexão com MongoDB
+  await connectDb();
 
-// -----------
-// Servidor
-// -----------
-
-// Sobe o servidor da aplicação
-// Configura porta a ser ouvida, apenas se não estiver executando no modo de teste
-if (process.env.NODE_ENV !== 'test') {
+  // Sobe o servidor da aplicação
   app.listen(process.env.PORT, () => {
     console.info(`Servidor rodando na porta: ${process.env.PORT}`);
   });
+} catch (error) {
+  console.error('Falha ao inicializar a aplicação:', error);
+
+  // Para evitar app rodando sem DB
+  process.exit(1);
 }
