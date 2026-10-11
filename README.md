@@ -427,8 +427,8 @@ Local Storage.
 ├    ├    ├    ├── RateLimitError.js
 ├    ├    ├    └── UnauthorizedError.js
 ├    ├    ├── middlewares/
-├    ├         ├── errorHandler.js
-├    ├         └── notFoundPage.js
+├    ├    ├    ├── errorHandler.js
+├    ├    ├    └── notFoundPage.js
 ├    ├    └── utils/
 ├    ├         ├── errorsMessages.js
 ├    ├         └── verifyEnv.js
@@ -475,30 +475,155 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 10. Roadmap
 
-### Infraestrutura
+Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio → Testes → Documentação → Deploy
 
-- [x] Estrutura inicial do projeto
+### ✅ Fase 1: Infraestrutura Base
+
+#### Projeto
+
+- [x] Configuração NVM (`.nvmrc`)
+- [x] Configuração NPM (`.npmrc`)
+- [x] Configuração do `package.json`
+- [x] Configuração `.gitignore`
+- [x] Configuração `.editorconfig`
+- [x] Estrutura e arquitetura inicial do projeto (MVC)
+- [x] README inicial
+
+#### Qualidade de Código
+
 - [x] Configuração ESLint
 - [x] Configuração Prettier
 - [x] Configuração Husky
+- [x] Configuração lint-staged
+
+#### Ambiente
+
+- [x] Configuração dotenv
 - [x] Validação de ambiente
+- [x] Configuração cross-env
+- [x] Configuração de scripts dev/start
+
+#### Servidor
+
+- [x] Configuração Nodemon
+- [x] Configuração do Express
 - [x] Configuração MongoDB
-- [x] Tratamento centralizado de erros
-- [x] Middleware para rotas inexistentes (404)
-- [ ] Testes automatizados
-- [ ] Documentação da API
-- [ ] Deploy
+- [x] Classes de erros customizadas
+- [x] Tratamento centralizado de erros (`errorHandler.js`)
+- [x] Middleware de rotas inexistentes (404)
+- [ ] Middleware para erros do Celebrate/Joi
 
-### Funcionalidades
+### 🚧 Fase 2: Segurança e Autenticação
 
-- [ ] Sistema de autenticação
-- [ ] Gestão de usuários
-- [ ] Gestão de assinaturas
-- [ ] Gestão de pedidos
-- [ ] Cardápio
-- [ ] Mercados parceiros
-- [ ] Fale Conosco
-- [ ] Receitas
-- [ ] Integração com APIs externas
+#### Segurança
+
+- [ ] CORS
+- [ ] Helmet
+- [ ] Rate Limiting
+
+#### Autenticação
+
+- [ ] Model/User Schema
+- [ ] Celebrate/Joi: validação de dados
+- [ ] Cadastro de usuário
+- [ ] Hash de senha (bcrypt)
+- [ ] Configuração cookie-parser
+- [ ] Login
+- [ ] Geração de JWT
+- [ ] Middleware de autenticação
+- [ ] Refresh Token
+- [ ] Logout
+
+#### Autorização
+
+- [ ] Controle de permissões (Roles)
+
+### 🚧 Fase 3: Observabilidade
+
+- [ ] Configuração do Winston
+- [ ] Logs de erros
+- [ ] Logs de requisições HTTP
+
+### 🚧 Fase 4: Funcionalidades Core
+
+#### Integrações
+
+- [ ] Integração com API de CEP
+- [ ] Integração com API de envio de e-mail/WhatsApp
+- [ ] Integração com API de receitas
+
+#### Usuários
+
+- [ ] Visualizar perfil
+- [ ] Atualizar perfil
+
+#### Assinaturas
+
+- [ ] Ativar assinatura
+- [ ] Pausar assinatura
+- [ ] Criar pedido de assinatura
+- [ ] Localizar pedido de assinatura
+- [ ] Histórico de pedidos de assinatura
+
+#### Pedidos
+
+- [ ] Criar pedido
+- [ ] Localizar pedido
+- [ ] Histórico de pedidos
+
+#### Cardápio
+
+- [ ] Gestão de itens do cardápio
+- [ ] Categorias
+- [ ] Controle de disponibilidade
+
+#### Mercados Parceiros
+
+- [ ] Inscrição de parceria
+
+#### Receitas
+
+- [ ] Busca de receitas
+- [ ] Filtros de receitas
+- [ ] Persistência de receitas
+
+#### Fale Conosco
+
+- [ ] Cadastro de mensagens
+- [ ] Histórico de mensagens
+
+### 🚧 Fase 5: Integrações Extras
+
+- [ ] API de clima
+- [ ] API de mapa
+
+### 🚧 Fase 6: Qualidade
+
+- [ ] Testes unitários (Jest)
+- [ ] Testes de integração (Supertest)
+
+### 🚧 Fase 7: Documentação
+
+- [ ] README final
+- [ ] README técnico
+- [ ] Coleção Postman
+
+### 🚀 Fase 8: Deploy
+
+#### Infraestrutura
+
+- [ ] Migração MongoDB Local → MongoDB Atlas
+- [ ] Ambiente de produção
+- [ ] Variáveis de ambiente de produção
+
+#### Deploy
+
+- [ ] Render
+
+### 📚 Melhorias Futuras
+
+- [ ] Documentação com Swagger/OpenAPI
+
+---
 
 [Voltar ao topo 🔝](#top)
