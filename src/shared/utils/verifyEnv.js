@@ -19,7 +19,6 @@ const verifyEnv = () => {
     'DB_NAME',
     'CORS_ORIGIN',
     'JWT_SECRET',
-    'CSP_CONNECT_SRC',
     'RATE_LIMIT_MAX',
   ];
 

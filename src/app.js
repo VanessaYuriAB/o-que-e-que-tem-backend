@@ -8,6 +8,7 @@ import notFoundPage from './shared/middlewares/notFoundPage.js';
 import { errors } from 'celebrate';
 import cors from 'cors';
 import corsOptions from './config/cors.js';
+import helmet from 'helmet';
 
 // --------
 // Express
@@ -24,6 +25,15 @@ app.use(cors(corsOptions));
 
 // Trata requisições preflight (OPTIONS)
 app.options(/.*/, cors(corsOptions));
+
+// -------
+// Helmet
+// -------
+
+// Depois do CORS
+
+// Backend REST, muitas diretivas não têm efeito prático porque a API não entrega páginas HTML; usando Helmet padrão, CSP configurado no frontend (React/Vite) - connectSrc é a diretiva mais útil (interface web servida pelo mesmo servidor)
+app.use(helmet());
 
 // ------------
 // Body-parser

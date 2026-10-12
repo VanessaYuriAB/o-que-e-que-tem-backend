@@ -158,7 +158,6 @@ MONGODB_URI=
 DB_NAME=
 CORS_ORIGIN=
 JWT_SECRET=
-CSP_CONNECT_SRC=
 RATE_LIMIT_MAX=
 ```
 
@@ -391,6 +390,22 @@ A configuração possui as seguintes características:
 Requisições sem cabeçalho `Origin` (como Curl, Postman e alguns testes automatizados)
 são permitidas.
 
+### Helmet
+
+A API utiliza Helmet com a configuração padrão para adicionar cabeçalhos HTTP relacionados à
+segurança.
+
+Entre os cabeçalhos adicionados estão:
+
+- `Content-Security-Policy`
+- `X-Frame-Options`
+- `X-Content-Type-Options`
+- `Referrer-Policy`
+- `Strict-Transport-Security`
+
+Como a aplicação atua apenas como API REST e não entrega páginas HTML, a configuração padrão do
+Helmet é suficiente para o cenário atual.
+
 ### Autenticação
 
 A autenticação é baseada em JWT armazenado em cookies HttpOnly.
@@ -539,7 +554,7 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 #### Segurança
 
 - [x] CORS
-- [ ] Helmet
+- [x] Helmet
 - [ ] Rate Limiting
 
 #### Autenticação
