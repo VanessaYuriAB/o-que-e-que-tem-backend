@@ -6,12 +6,24 @@ import express from 'express';
 import errorHandler from './shared/middlewares/errorHandler.js';
 import notFoundPage from './shared/middlewares/notFoundPage.js';
 import { errors } from 'celebrate';
+import cors from 'cors';
+import corsOptions from './config/cors.js';
 
 // --------
 // Express
 // --------
 
 const app = express();
+
+// ------
+// CORS
+// ------
+
+// Aplica CORS com opções específicas
+app.use(cors(corsOptions));
+
+// Trata requisições preflight (OPTIONS)
+app.options(/.*/, cors(corsOptions));
 
 // ------------
 // Body-parser

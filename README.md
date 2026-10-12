@@ -310,35 +310,6 @@ automaticamente:
 
 e encaminha o erro para o middleware centralizado de tratamento de erros.
 
-### Tratamento de erros
-
-A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das
-requisições HTTP.
-
-Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP apropriadas:
-
-- `CastError` → `400 Bad Request`
-- `ValidationError` → `400 Bad Request`
-
-A aplicação utiliza, também, classes de erro customizadas para representar regras de negócio e
-respostas HTTP específicas:
-
-- `ConflictError`
-- `ForbiddenError`
-- `NotFoundError`
-- `RateLimitError`
-- `UnauthorizedError`
-
-Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e
-centralizado dos erros da aplicação.
-
-Além dos erros gerados pela aplicação e pelo Mongoose:
-
-- requisições para rotas inexistentes são tratadas por um middleware dedicado, retornando
-  `404 Not Found`; e
-- erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
-  retornando respostas `400 Bad Request` adequadas.
-
 ### Configuração de ambiente
 
 O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente
@@ -375,6 +346,51 @@ O tratamento de falhas de inicialização foi centralizado no ponto de entrada d
 Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a
 execução de testes.
 
+### Tratamento de erros
+
+A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das
+requisições HTTP.
+
+Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP apropriadas:
+
+- `CastError` → `400 Bad Request`
+- `ValidationError` → `400 Bad Request`
+
+A aplicação utiliza, também, classes de erro customizadas para representar regras de negócio e
+respostas HTTP específicas:
+
+- `ConflictError`
+- `ForbiddenError`
+- `NotFoundError`
+- `RateLimitError`
+- `UnauthorizedError`
+
+Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e
+centralizado dos erros da aplicação.
+
+Além dos erros gerados pela aplicação e pelo Mongoose:
+
+- requisições para rotas inexistentes são tratadas por um middleware dedicado, retornando
+  `404 Not Found`; e
+- erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
+  retornando respostas `400 Bad Request` adequadas.
+
+### CORS
+
+A aplicação utiliza o middleware `cors` com lista de origens permitidas definida por variável de
+ambiente.
+
+A configuração possui as seguintes características:
+
+- suporte a múltiplas origens através da variável `CORS_ORIGIN`
+- validação dinâmica da origem da requisição
+- suporte a credenciais (`credentials: true`)
+- tratamento de requisições preflight (`OPTIONS`)
+- bloqueio explícito de origens não autorizadas com resposta apropriada
+
+Requisições sem cabeçalho `Origin` (como Curl, Postman e alguns testes automatizados)
+são permitidas.
+
 ### Autenticação
 
 A autenticação é baseada em JWT armazenado em cookies HttpOnly.
@@ -406,6 +422,7 @@ Local Storage.
 ├    └── images/
 ├── src/
 ├    ├── config/
+├    ├    ├── cors.js
 ├    ├    ├── database.js
 ├    ├    └── env.js
 ├    ├── modules/
@@ -521,7 +538,7 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 
 #### Segurança
 
-- [ ] CORS
+- [x] CORS
 - [ ] Helmet
 - [ ] Rate Limiting
 
