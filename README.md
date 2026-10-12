@@ -332,8 +332,12 @@ respostas HTTP específicas:
 Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e
 centralizado dos erros da aplicação.
 
-Além dos erros gerados pela aplicação e pelo Mongoose, requisições para rotas inexistentes são
-tratadas por um middleware dedicado e retornam `404 Not Found`.
+Além dos erros gerados pela aplicação e pelo Mongoose:
+
+- requisições para rotas inexistentes são tratadas por um middleware dedicado, retornando
+  `404 Not Found`; e
+- erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
+  retornando respostas `400 Bad Request` adequadas.
 
 ### Configuração de ambiente
 
@@ -511,7 +515,7 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 - [x] Classes de erros customizadas
 - [x] Tratamento centralizado de erros (`errorHandler.js`)
 - [x] Middleware de rotas inexistentes (404)
-- [ ] Middleware para erros do Celebrate/Joi
+- [x] Middleware para erros do Celebrate/Joi
 
 ### 🚧 Fase 2: Segurança e Autenticação
 
