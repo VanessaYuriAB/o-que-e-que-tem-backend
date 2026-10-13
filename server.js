@@ -13,6 +13,7 @@ import './src/config/env.js';
 
 import app from './src/app.js';
 import connectDb from './src/config/database.js';
+import logger from './src/shared/logger/logger.js';
 
 // ---------------------------
 // Banco de dados + Servidor
@@ -24,10 +25,14 @@ try {
 
   // Sobe o servidor da aplicação
   app.listen(process.env.PORT, () => {
-    console.info(`Servidor rodando na porta: ${process.env.PORT}`);
+    logger.info(`Servidor rodando na porta: ${process.env.PORT}`);
   });
 } catch (error) {
-  console.error('Falha ao inicializar a aplicação:', error);
+  logger.error({
+    message: 'Falha ao inicializar a aplicação',
+    error: error.message,
+    stack: error.stack,
+  });
 
   // Para evitar app rodando sem DB
   process.exit(1);

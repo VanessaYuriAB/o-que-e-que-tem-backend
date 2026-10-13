@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import ConfigError from '../shared/errors/ConfigError.js';
 import errorsMessages from '../shared/utils/errorsMessages.js';
 import verifyEnv from '../shared/utils/verifyEnv.js';
+import logger from '../shared/logger/logger.js';
 
 // --------
 // Dotenv
@@ -22,9 +23,9 @@ const resultEnv = dotenv.config({
 // Log sobre .env, apenas em desenvolvimento
 if (process.env.NODE_ENV === 'development') {
   if (resultEnv.error) {
-    console.warn(`Nenhum arquivo .env.${process.env.NODE_ENV} encontrado`);
+    logger.warn(`Nenhum arquivo .env.${process.env.NODE_ENV} encontrado`);
   } else {
-    console.info(`Arquivo env carregado: .env.${process.env.NODE_ENV}`);
+    logger.info(`Arquivo env carregado: .env.${process.env.NODE_ENV}`);
   }
 }
 

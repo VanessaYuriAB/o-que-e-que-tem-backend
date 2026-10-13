@@ -33,8 +33,8 @@ export default [
       // Ignora parâmetro "next" não utilizado em middlewares Express
       'no-unused-vars': ['error', { argsIgnorePattern: '^next$' }],
 
-      // Permite uso de console para logs e debug no backend, quando sem configuração de um logger
-      'no-console': 'off',
+      // Bloqueia uso de console para logs: Winston consolidado
+      'no-console': 'error',
 
       // Permite underscore apenas para o _id do MongoDB
       'no-underscore-dangle': [
