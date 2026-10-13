@@ -5,18 +5,23 @@
 ![Node.js](https://img.shields.io/badge/Node.js_22_LTS-007ACC)
 ![JavaScript](https://img.shields.io/badge/JavaScript-007ACC)
 ![Express](https://img.shields.io/badge/Express-007ACC)
-![MongoDB](https://img.shields.io/badge/MongoDB-007ACC)
-![JWT](https://img.shields.io/badge/JWT-007ACC)
+. ![MongoDB](https://img.shields.io/badge/MongoDB-007ACC)
+![Mongoose](https://img.shields.io/badge/Mongoose-007ACC)
+. ![JWT](https://img.shields.io/badge/JWT-007ACC)
 ![cookie-parser](https://img.shields.io/badge/cookie--parser-007ACC)
-
-![EditorConfig](https://img.shields.io/badge/EditorConfig-007ACC)
+. ![dotenv](https://img.shields.io/badge/dotenv-007ACC)
+![cross-env](https://img.shields.io/badge/cross--env-007ACC)
+. ![CORS](https://img.shields.io/badge/CORS-007ACC)
+![Helmet](https://img.shields.io/badge/Helmet-007ACC)
+![Express Rate Limit](https://img.shields.io/badge/Express--Rate--Limit-007ACC)
+. ![Winston](https://img.shields.io/badge/Winston-007ACC)
+![Express Winston](https://img.shields.io/badge/Express--Winston-007ACC)
+. ![EditorConfig](https://img.shields.io/badge/EditorConfig-007ACC)
 ![ESLint](https://img.shields.io/badge/ESLint-007ACC)
 ![Prettier](https://img.shields.io/badge/Prettier-007ACC)
 ![Husky](https://img.shields.io/badge/Husky-007ACC)
 ![lint-staged](https://img.shields.io/badge/lint--staged-007ACC)
-![cross-env](https://img.shields.io/badge/cross--env-007ACC)
-
-![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
+. ![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
 
 ## Índice
 
@@ -77,6 +82,8 @@ desperdício de alimentos por meio do aproveitamento de produtos próximos ao ve
 - dotenv
 - cross-env
 - cors
+- winston
+- express-winston
 - celebrate
 - validator
 
@@ -421,6 +428,31 @@ Características:
 
 A configuração atual utiliza uma janela de 15 minutos.
 
+### Observabilidade
+
+A aplicação utiliza Winston para centralização de logs e Express-Winston para registro automático de requisições HTTP.
+
+Características:
+
+- logs estruturados em formato JSON
+- separação entre logs de aplicação, erros e requisições
+- persistência em arquivos
+- exibição em console durante o desenvolvimento
+- integração com o pipeline de middlewares do Express
+
+Arquivos gerados:
+
+- `logs/app.log`: eventos gerais da aplicação
+- `logs/error.log`: erros registrados pela aplicação
+- `logs/request.log`: requisições HTTP processadas pelo servidor
+
+O diretório `logs/` é criado localmente e não é versionado pelo Git.
+
+Durante o desenvolvimento, os logs também são exibidos no terminal para facilitar a depuração.
+
+Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto de
+`console.log`, `console.warn` e `console.error` no código de produção.
+
 ### Autenticação
 
 A autenticação é baseada em JWT armazenado em cookies HttpOnly.
@@ -477,10 +509,14 @@ Local Storage.
 ├    ├    ├    ├── NotFoundError.js
 ├    ├    ├    ├── RateLimitError.js
 ├    ├    ├    └── UnauthorizedError.js
+├    ├    ├── logger/
+├    ├    ├    └── logger.js
 ├    ├    ├── middlewares/
 ├    ├    ├    ├── errorHandler.js
+├    ├    ├    ├── errorLogger.js
 ├    ├    ├    ├── limiter.js
-├    ├    ├    └── notFoundPage.js
+├    ├    ├    ├── notFoundPage.js
+├    ├    ├    └── requestLogger.js
 ├    ├    └── utils/
 ├    ├         ├── errorsMessages.js
 ├    ├         └── verifyEnv.js
@@ -504,6 +540,7 @@ Local Storage.
 - `modules`: módulos organizados por domínio de negócio
 - `shared`: recursos compartilhados entre módulos
 - `errors`: classes de erros customizados da aplicação
+- `logger`: configuração centralizada de logs da aplicação
 - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
 - `utils`: funções utilitárias compartilhadas
 - `tests`: testes automatizados
@@ -527,7 +564,7 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 10. Roadmap
 
-Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio → Testes → Documentação → Deploy
+Infraestrutura → Segurança → Observalidade → Autenticação → Funcionalidades de negócio → Testes → Documentação → Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
@@ -565,13 +602,19 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 - [x] Middleware de rotas inexistentes (404)
 - [x] Middleware para erros do Celebrate/Joi
 
-### 🚧 Fase 2: Segurança e Autenticação
-
-#### Segurança
+### ✅ Fase 2: Segurança
 
 - [x] CORS
 - [x] Helmet
 - [x] Rate Limiting
+
+### ✅ Fase 3: Observabilidade
+
+- [x] Configuração do Winston
+- [x] Logs de erros
+- [x] Logs de requisições HTTP
+
+### 🚧 Fase 4: Autenticação
 
 #### Autenticação
 
@@ -590,13 +633,7 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 
 - [ ] Controle de permissões (Roles)
 
-### 🚧 Fase 3: Observabilidade
-
-- [ ] Configuração do Winston
-- [ ] Logs de erros
-- [ ] Logs de requisições HTTP
-
-### 🚧 Fase 4: Funcionalidades Core
+### 🚧 Fase 5: Funcionalidades Core
 
 #### Integrações
 
@@ -644,23 +681,23 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 - [ ] Cadastro de mensagens
 - [ ] Histórico de mensagens
 
-### 🚧 Fase 5: Integrações Extras
+### 🚧 Fase 6: Integrações Extras
 
 - [ ] API de clima
 - [ ] API de mapa
 
-### 🚧 Fase 6: Qualidade
+### 🚧 Fase 7: Qualidade
 
 - [ ] Testes unitários (Jest)
 - [ ] Testes de integração (Supertest)
 
-### 🚧 Fase 7: Documentação
+### 🚧 Fase 8: Documentação
 
 - [ ] README final
 - [ ] README técnico
 - [ ] Coleção Postman
 
-### 🚀 Fase 8: Deploy
+### 🚀 Fase 9: Deploy
 
 #### Infraestrutura
 
