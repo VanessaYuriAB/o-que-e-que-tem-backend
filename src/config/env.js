@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 import ConfigError from '../shared/errors/ConfigError.js';
 import errorsMessages from '../shared/utils/errorsMessages.js';
-import verifyEnv from '../shared/utils/verifyEnv.js';
+import validateEnv from './validateEnv.js';
 import logger from '../shared/logger/logger.js';
 
-// --------
-// Dotenv
-// --------
+// ---------------------
+// Dotenv (carregamento)
+// ---------------------
 
 // Valida NODE_ENV existe
 if (!process.env.NODE_ENV) {
@@ -30,4 +30,22 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Valida envs (obrigatórias)
-verifyEnv();
+validateEnv(process.env);
+
+// -------------------------
+// Exportação das variáveis
+// -------------------------
+
+const env = {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: Number(process.env.PORT),
+  MONGODB_URI: process.env.MONGODB_URI,
+  DB_NAME: process.env.DB_NAME,
+  CORS_ORIGIN: process.env.CORS_ORIGIN?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+  RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX),
+  JWT_SECRET: process.env.JWT_SECRET,
+};
+
+export default env;

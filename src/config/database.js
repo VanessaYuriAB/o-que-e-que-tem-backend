@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import env from './env.js';
 import logger from '../shared/logger/logger.js';
 
 // -----------------
@@ -6,7 +7,7 @@ import logger from '../shared/logger/logger.js';
 // -----------------
 
 const connectDb = async () => {
-  await mongoose.connect(`${process.env.MONGODB_URI}/${process.env.DB_NAME}`);
+  await mongoose.connect(`${env.MONGODB_URI}/${env.DB_NAME}`);
 
   logger.info(`MongoDB conectado: ${mongoose.connection.name}`);
 };

@@ -1,14 +1,14 @@
-import ConfigError from '../errors/ConfigError.js';
-import errorsMessages from './errorsMessages.js';
+import ConfigError from '../shared/errors/ConfigError.js';
+import errorsMessages from '../shared/utils/errorsMessages.js';
 
 // Todas as variáveis obrigatórias devem estar definidas, em qualquer ambiente
-const verifyEnv = () => {
+const validateEnv = (envs) => {
   // Valida NODE_ENV permitido
   const allowedNodeEnvs = ['development', 'test', 'production'];
 
-  if (!allowedNodeEnvs.includes(process.env.NODE_ENV)) {
+  if (!allowedNodeEnvs.includes(envs.NODE_ENV)) {
     throw new ConfigError(
-      `${errorsMessages.config} NODE_ENV inválido, verifique a definição no script utilizado. Valor atual: ${process.env.NODE_ENV}. NODE_ENV deve ser development, test ou production.`,
+      `${errorsMessages.config} NODE_ENV inválido, verifique a definição no script utilizado. Valor atual: ${envs.NODE_ENV}. NODE_ENV deve ser development, test ou production.`,
     );
   }
 
@@ -23,7 +23,7 @@ const verifyEnv = () => {
   ];
 
   for (const varName of requiredEnvVars) {
-    if (!process.env[varName]) {
+    if (!envs[varName]) {
       throw new ConfigError(
         `${errorsMessages.config} ${varName} é uma variável obrigatória, é preciso defini-la no arquivo .env.`,
       );
@@ -31,4 +31,4 @@ const verifyEnv = () => {
   }
 };
 
-export default verifyEnv;
+export default validateEnv;

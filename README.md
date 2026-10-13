@@ -160,12 +160,12 @@ Exemplo:
 Todos os ambientes devem possuir as variáveis:
 
 ```
-PORT=
-MONGODB_URI=
-DB_NAME=
-CORS_ORIGIN=
-JWT_SECRET=
-RATE_LIMIT_MAX=
+PORT=3001
+MONGODB_URI=mongodb://localhost:27017
+DB_NAME=oqueequetemdb
+CORS_ORIGIN=http://localhost:3000
+RATE_LIMIT_MAX=100
+JWT_SECRET=your-secret-key
 ```
 
 ### Validação automática
@@ -179,6 +179,14 @@ Durante a inicialização da aplicação:
 - a aplicação é impedida de inicializar quando existe alguma inconsistência
 
 Essa estratégia evita a execução da aplicação com configurações incompletas ou inválidas.
+
+### Centralização das configurações
+
+A aplicação acessa variáveis de ambiente exclusivamente através do módulo `config/env.js`.
+
+O uso direto de `process.env` é restrito à camada de configuração, reduzindo acoplamento e centralizando validações.
+
+O módulo também converte valores para seus tipos apropriados, como números e arrays, antes de disponibilizá-los para a aplicação.
 
 [Voltar ao topo 🔝](#top)
 
@@ -233,7 +241,7 @@ npm run start
 
 ## 🧠 8. Decisões técnicas
 
-### Arquitetura Feature-Based
+### ✔️ Arquitetura Feature-Based
 
 O backend adota uma arquitetura orientada a features (domínios de negócio).
 
@@ -260,7 +268,7 @@ Benefícios:
 - Menor acoplamento entre módulos
 - Consistência com a arquitetura do frontend
 
-### ESM-first
+### ✔️ ESM-first
 
 O projeto utiliza ECMAScript Modules (ESM) como padrão.
 
@@ -285,7 +293,7 @@ import app from './app.js';
 import connectDb from './config/database.js';
 ```
 
-### ESLint
+### ✔️ ESLint
 
 O projeto utiliza ESLint 9 com Flat Config.
 
@@ -304,7 +312,7 @@ Exemplo de regras adotadas, alinhadas à filosofia Airbnb:
 }
 ```
 
-### Express 5
+### ✔️ Express 5
 
 O projeto utiliza Express 5.
 
@@ -316,7 +324,7 @@ automaticamente:
 
 e encaminha o erro para o middleware centralizado de tratamento de erros.
 
-### Configuração de ambiente
+### ✔️ Configuração de ambiente
 
 O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente
 com `dotenv`, utilizando o valor de `NODE_ENV`.
@@ -336,7 +344,19 @@ Benefícios:
 - Padronização entre sistemas operacionais
 - Falha imediata em caso de configuração inválida
 
-### Banco de dados
+Além do carregamento automático dos arquivos de ambiente, a aplicação centraliza todas as variáveis
+em um módulo de configuração (`config/env.js`).
+
+Esse módulo é responsável por:
+
+- carregar o arquivo `.env` correspondente ao ambiente atual
+- validar a configuração através de `validateEnv.js`
+- converter valores para os tipos apropriados
+- exportar um objeto único de configuração para toda a aplicação
+
+Essa abordagem evita o uso direto de `process.env` espalhado pelo código, centralizando o acesso às configurações da aplicação.
+
+### ✔️ Banco de dados
 
 A aplicação estabelece a conexão com o MongoDB durante a inicialização.
 
@@ -352,7 +372,7 @@ O tratamento de falhas de inicialização foi centralizado no ponto de entrada d
 Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a
 execução de testes.
 
-### Tratamento de erros
+### ✔️ Tratamento de erros
 
 A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das
 requisições HTTP.
@@ -381,7 +401,7 @@ Além dos erros gerados pela aplicação e pelo Mongoose:
 - erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
   retornando respostas `400 Bad Request` adequadas.
 
-### CORS
+### ✔️ CORS
 
 A aplicação utiliza o middleware `cors` com lista de origens permitidas definida por variável de
 ambiente.
@@ -397,7 +417,7 @@ A configuração possui as seguintes características:
 Requisições sem cabeçalho `Origin` (como Curl, Postman e alguns testes automatizados)
 são permitidas.
 
-### Helmet
+### ✔️ Helmet
 
 A API utiliza Helmet com a configuração padrão para adicionar cabeçalhos HTTP relacionados à
 segurança.
@@ -413,7 +433,7 @@ Entre os cabeçalhos adicionados estão:
 Como a aplicação atua apenas como API REST e não entrega páginas HTML, a configuração padrão do
 Helmet é suficiente para o cenário atual.
 
-### Rate Limiting
+### ✔️ Rate Limiting
 
 A aplicação utiliza `express-rate-limit` para limitar o número de requisições por endereço IP em uma
 janela de tempo configurável.
@@ -428,7 +448,7 @@ Características:
 
 A configuração atual utiliza uma janela de 15 minutos.
 
-### Observabilidade
+### ✔️ Observabilidade
 
 A aplicação utiliza Winston para centralização de logs e Express-Winston para registro automático de requisições HTTP.
 
@@ -453,15 +473,15 @@ Durante o desenvolvimento, os logs também são exibidos no terminal para facili
 Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto de
 `console.log`, `console.warn` e `console.error` no código de produção.
 
-### Autenticação
+### 🚧 Autenticação
 
-A autenticação é baseada em JWT armazenado em cookies HttpOnly.
+A autenticação planejada para a aplicação utilizará JWT armazenado em cookies `httpOnly`.
 
 Características:
 
-- HttpOnly
-- Secure
-- SameSite=Lax ou SameSite=Strict
+- `httpOnly`
+- `Secure`
+- `SameSite=Lax` ou `SameSite=Strict`
 
 Essa abordagem reduz a exposição do token a ataques de XSS quando comparada ao armazenamento em
 Local Storage.
@@ -486,7 +506,8 @@ Local Storage.
 ├    ├── config/
 ├    ├    ├── cors.js
 ├    ├    ├── database.js
-├    ├    └── env.js
+├    ├    ├── env.js
+├    ├    └── validateEnv.js
 ├    ├── modules/
 ├    ├    ├── auth/
 ├    ├    ├── contact/
@@ -518,8 +539,7 @@ Local Storage.
 ├    ├    ├    ├── notFoundPage.js
 ├    ├    ├    └── requestLogger.js
 ├    ├    └── utils/
-├    ├         ├── errorsMessages.js
-├    ├         └── verifyEnv.js
+├    ├         └── errorsMessages.js
 ├    └── app.js
 ├── tests/
 ├── .editorconfig
@@ -536,13 +556,14 @@ Local Storage.
 
 ### Diretórios principais
 
-- `config`: configurações da aplicação
+- `config`: carregamento de ambiente, validações de configuração, conexão com banco de dados e
+  configurações de infraestrutura
 - `modules`: módulos organizados por domínio de negócio
 - `shared`: recursos compartilhados entre módulos
-- `errors`: classes de erros customizados da aplicação
-- `logger`: configuração centralizada de logs da aplicação
-- `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
-- `utils`: funções utilitárias compartilhadas
+  - `errors`: classes de erros customizados da aplicação
+  - `logger`: configuração centralizada de logs da aplicação
+  - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
+  - `utils`: funções utilitárias compartilhadas
 - `tests`: testes automatizados
 
 ### Estrutura dos módulos
@@ -564,7 +585,7 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 10. Roadmap
 
-Infraestrutura → Segurança → Observalidade → Autenticação → Funcionalidades de negócio → Testes → Documentação → Deploy
+Infraestrutura → Segurança → Observabilidade → Autenticação → Funcionalidades de negócio → Testes → Documentação → Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
@@ -587,8 +608,8 @@ Infraestrutura → Segurança → Observalidade → Autenticação → Funcional
 
 #### Ambiente
 
-- [x] Configuração dotenv
-- [x] Validação de ambiente
+- [x] Configuração dinâmica de ambientes (dotenv)
+- [x] Validação centralizada de configuração (`validateEnv.js`)
 - [x] Configuração cross-env
 - [x] Configuração de scripts dev/start
 

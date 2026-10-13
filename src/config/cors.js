@@ -1,9 +1,6 @@
+import env from './env.js';
 import ForbiddenError from '../shared/errors/ForbiddenError.js';
 import errorsMessages from '../shared/utils/errorsMessages.js';
-
-const allowedCors = process.env.CORS_ORIGIN.split(',')
-  .map((url) => url.trim())
-  .filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -12,7 +9,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    if (allowedCors.includes(origin)) {
+    if (env.CORS_ORIGIN.includes(origin)) {
       return callback(null, true);
     }
 

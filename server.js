@@ -5,7 +5,8 @@
 // ---------------------
 
 // Carrega dotenv antes de qualquer uso de process.env
-import './src/config/env.js';
+// Executa o arquivo inteiro: o Node carrega, executa o dotenv, as validações, cria o objeto env e o exporta
+import env from './src/config/env.js';
 
 // ------------------------
 // Importações do servidor
@@ -24,8 +25,8 @@ try {
   await connectDb();
 
   // Sobe o servidor da aplicação
-  app.listen(process.env.PORT, () => {
-    logger.info(`Servidor rodando na porta: ${process.env.PORT}`);
+  app.listen(env.PORT, () => {
+    logger.info(`Servidor rodando na porta: ${env.PORT}`);
   });
 } catch (error) {
   logger.error({
