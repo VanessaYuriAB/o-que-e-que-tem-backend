@@ -9,6 +9,7 @@ import { errors } from 'celebrate';
 import cors from 'cors';
 import corsOptions from './config/cors.js';
 import helmet from 'helmet';
+import limiter from './shared/middlewares/limiter.js';
 
 // --------
 // Express
@@ -35,11 +36,28 @@ app.options(/.*/, cors(corsOptions));
 // Backend REST, muitas diretivas não têm efeito prático porque a API não entrega páginas HTML; usando Helmet padrão, CSP configurado no frontend (React/Vite) - connectSrc é a diretiva mais útil (interface web servida pelo mesmo servidor)
 app.use(helmet());
 
+// -----------
+// Rate limit
+// -----------
+
+// Depois do CORS, para não bloquear preflight
+
+app.use(limiter);
+
 // ------------
 // Body-parser
 // ------------
 
 app.use(express.json());
+
+// -------
+// Rotas
+// -------
+
+// Rota teste
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // --------------------
 // Tratamento de erros

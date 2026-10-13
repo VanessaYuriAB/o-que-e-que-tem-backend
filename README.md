@@ -406,6 +406,21 @@ Entre os cabeçalhos adicionados estão:
 Como a aplicação atua apenas como API REST e não entrega páginas HTML, a configuração padrão do
 Helmet é suficiente para o cenário atual.
 
+### Rate Limiting
+
+A aplicação utiliza `express-rate-limit` para limitar o número de requisições por endereço IP em uma
+janela de tempo configurável.
+
+Características:
+
+- limite configurado por variável de ambiente (`RATE_LIMIT_MAX`)
+- proteção contra abuso de endpoints
+- mitigação básica contra ataques de força bruta e negação de serviço
+- tratamento centralizado através da classe `RateLimitError`
+- retorno de `429 Too Many Requests` quando o limite é excedido
+
+A configuração atual utiliza uma janela de 15 minutos.
+
 ### Autenticação
 
 A autenticação é baseada em JWT armazenado em cookies HttpOnly.
@@ -464,6 +479,7 @@ Local Storage.
 ├    ├    ├    └── UnauthorizedError.js
 ├    ├    ├── middlewares/
 ├    ├    ├    ├── errorHandler.js
+├    ├    ├    ├── limiter.js
 ├    ├    ├    └── notFoundPage.js
 ├    ├    └── utils/
 ├    ├         ├── errorsMessages.js
@@ -555,7 +571,7 @@ Infraestrutura → Autenticação → Usuários → Funcionalidades de negócio 
 
 - [x] CORS
 - [x] Helmet
-- [ ] Rate Limiting
+- [x] Rate Limiting
 
 #### Autenticação
 
