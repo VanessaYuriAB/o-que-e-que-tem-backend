@@ -10,6 +10,8 @@ import cors from 'cors';
 import corsOptions from './config/cors.js';
 import helmet from 'helmet';
 import limiter from './shared/middlewares/limiter.js';
+import requestLogger from './shared/middlewares/requestLogger.js';
+import errorLogger from './shared/middlewares/errorLogger.js';
 
 // --------
 // Express
@@ -50,6 +52,12 @@ app.use(limiter);
 
 app.use(express.json());
 
+// ----------------
+// Logs (requests)
+// ----------------
+
+app.use(requestLogger);
+
 // -------
 // Rotas
 // -------
@@ -68,6 +76,9 @@ app.use(notFoundPage);
 
 // Erros do Celebrate/Joi
 app.use(errors());
+
+// Log de erros
+app.use(errorLogger);
 
 // Tratamento de erros centralizado
 app.use(errorHandler);
