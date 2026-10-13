@@ -10,7 +10,7 @@ import verifyEnv from '../shared/utils/verifyEnv.js';
 // Valida NODE_ENV existe
 if (!process.env.NODE_ENV) {
   throw new ConfigError(
-    `Erro de configuração do servidor: ${errorsMessages.noNodeEnv}.`,
+    `${errorsMessages.config} NODE_ENV não definido. Utilize os scripts do package.json.`,
   );
 }
 

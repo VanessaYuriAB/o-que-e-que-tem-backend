@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import RateLimitError from '../errors/RateLimitError.js';
+import errorsMessages from '../utils/errorsMessages.js';
 
 // Limita o número de requisições por IP em um intervalo de tempo
 const limiter = rateLimit({
@@ -13,7 +14,7 @@ const limiter = rateLimit({
     // Encaminha erro customizado para o middleware central de erros
     next(
       new RateLimitError(
-        'Muitas solicitações recebidas, tente novamente mais tarde.',
+        `${errorsMessages.rateLimit} Tente novamente em 15 minutos.`,
       ),
     );
   },

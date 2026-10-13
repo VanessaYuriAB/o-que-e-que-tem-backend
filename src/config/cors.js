@@ -1,4 +1,5 @@
 import ForbiddenError from '../shared/errors/ForbiddenError.js';
+import errorsMessages from '../shared/utils/errorsMessages.js';
 
 const allowedCors = process.env.CORS_ORIGIN.split(',')
   .map((url) => url.trim())
@@ -16,7 +17,9 @@ const corsOptions = {
     }
 
     return callback(
-      new ForbiddenError(`Origem não permitida pelo CORS: ${origin}`),
+      new ForbiddenError(
+        `${errorsMessages.forbidden} Origem bloqueada pelo CORS: ${origin}.`,
+      ),
     );
   },
 

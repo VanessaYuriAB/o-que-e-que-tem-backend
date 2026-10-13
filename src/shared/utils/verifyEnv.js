@@ -8,7 +8,7 @@ const verifyEnv = () => {
 
   if (!allowedNodeEnvs.includes(process.env.NODE_ENV)) {
     throw new ConfigError(
-      `Erro de configuração do servidor: ${errorsMessages.nodeEnv}. NODE_ENV atual: ${process.env.NODE_ENV}.`,
+      `${errorsMessages.config} NODE_ENV inválido, verifique a definição no script utilizado. Valor atual: ${process.env.NODE_ENV}. NODE_ENV deve ser development, test ou production.`,
     );
   }
 
@@ -25,7 +25,7 @@ const verifyEnv = () => {
   for (const varName of requiredEnvVars) {
     if (!process.env[varName]) {
       throw new ConfigError(
-        `Erro de configuração do servidor: ${varName} ${errorsMessages.config}.`,
+        `${errorsMessages.config} ${varName} é uma variável obrigatória, é preciso defini-la no arquivo .env.`,
       );
     }
   }
