@@ -34,9 +34,10 @@
 5. [Variáveis de ambiente 🔐](#-5-variáveis-de-ambiente)
 6. [Como executar ▶️](#-6-como-executar)
 7. [Scripts 📜](#-7-scripts)
-8. [Decisões técnicas 🧠](#-8-decisões-técnicas)
-9. [Estrutura do projeto 🗃️](#-9-estrutura-do-projeto)
-10. [Roadmap 🗺️](#-10-roadmap)
+8. [Testes 🧪](#-8-testes)
+9. [Decisões técnicas 🧠](#-9-decisões-técnicas)
+10. [Estrutura do projeto 🗃️](#-10-estrutura-do-projeto)
+11. [Roadmap 🗺️](#-11-roadmap)
 
 <a id="-1-descrição"></a>
 
@@ -262,9 +263,30 @@ npm run start
 
 ---
 
-<a id="-8-decisões-técnicas"></a>
+<a id="-8-testes"></a>
 
-## 🧠 8. Decisões técnicas
+## 🧪 8. Testes
+
+O projeto utiliza:
+
+- Jest para testes unitários
+- Supertest para testes de integração de rotas HTTP
+
+Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
+
+### Estratégia
+
+- Testes unitários para funções isoladas (configurações, utilitários, serviços e validações)
+- Testes de integração para fluxos HTTP completos utilizando Supertest
+- Configurações de infraestrutura com cobertura própria antes das funcionalidades de negócio
+
+[Voltar ao topo 🔝](#top)
+
+---
+
+<a id="-9-decisões-técnicas"></a>
+
+## 🧠 9. Decisões técnicas
 
 ### ✔️ Arquitetura Feature-Based
 
@@ -276,13 +298,15 @@ módulo concentra os artefatos relacionados à sua responsabilidade.
 Exemplo:
 
 ```
+
 modules/
 └── recipes/
-    ├── recipes.controller.js
-    ├── recipes.model.js
-    ├── recipes.routes.js
-    ├── recipes.service.js
-    └── recipes.validation.js
+├── recipes.controller.js
+├── recipes.model.js
+├── recipes.routes.js
+├── recipes.service.js
+└── recipes.validation.js
+
 ```
 
 Benefícios:
@@ -515,9 +539,9 @@ Local Storage.
 
 ---
 
-<a id="-9-estrutura-do-projeto"></a>
+<a id="-10-estrutura-do-projeto"></a>
 
-## 🗃️ 9. Estrutura do projeto
+## 🗃️ 10. Estrutura do projeto
 
 ```
 ├── .husky/
@@ -567,6 +591,8 @@ Local Storage.
 │    │         └── errorsMessages.js
 │    └── app.js
 ├── tests/
+│    └── config/
+│         └── validateEnv.test.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
@@ -607,9 +633,9 @@ Cada módulo concentra seus próprios arquivos:
 
 ---
 
-<a id="-10-roadmap"></a>
+<a id="-11-roadmap"></a>
 
-## 🗺️ 10. Roadmap
+## 🗺️ 11. Roadmap
 
 Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Autenticação → Funcionalidades Core → Qualidade → Documentação → Deploy
 
@@ -663,14 +689,18 @@ Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Au
 
 ### 🚧 Fase 4: Qualidade Base
 
+#### Configuração
+
 - [x] Configuração do Jest
 - [x] Configuração do Supertest
 - [x] Configuração de cobertura de testes
-- [ ] Testes dos componentes de infraestrutura:
-  - [ ] `validateEnv`
-  - [ ] `errorHandler`
-  - [ ] `notFoundPage`
-  - [ ] `limiter`
+
+#### Testes de componentes de infraestrutura
+
+- [x] `validateEnv`
+- [ ] `errorHandler`
+- [ ] `notFoundPage`
+- [ ] `limiter`
 
 ### 🚧 Fase 5: Autenticação
 
