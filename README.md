@@ -158,9 +158,11 @@ Exemplo:
 
 ```json
 "dev": "cross-env NODE_ENV=development nodemon server.js"
-"test": "cross-env NODE_ENV=test jest --runInBand"
+"test": "cross-env NODE_ENV=test node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
 "start": "cross-env NODE_ENV=production node server.js"
 ```
+
+> O projeto utiliza ECMAScript Modules (ESM). Por isso, o Jest é executado através do Node com a flag `--experimental-vm-modules`, permitindo compatibilidade com módulos ES durante a execução dos testes.
 
 ### ✔️ Variáveis obrigatórias
 
