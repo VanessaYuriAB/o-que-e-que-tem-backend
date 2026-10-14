@@ -9,13 +9,13 @@ describe('validateEnv', () => {
   it('não deve lançar erro para envs válidos', () => {
     expect(() =>
       validateEnv({
-        NODE_ENV: 'development',
-        PORT: '3001',
+        NODE_ENV: 'test',
+        PORT: '3002',
         MONGODB_URI: 'mongodb://localhost:27017',
         DB_NAME: 'oqueequetemdb_test',
         CORS_ORIGIN: 'http://localhost:3000',
         JWT_SECRET: 'secret',
-        RATE_LIMIT_MAX: '100',
+        RATE_LIMIT_MAX: '200',
       }),
     ).not.toThrow();
   });
@@ -42,7 +42,7 @@ describe('validateEnv', () => {
   it('deve lançar erro quando PORT não existir', () => {
     expect(() =>
       validateEnv({
-        NODE_ENV: 'development',
+        NODE_ENV: 'test',
       }),
     ).toThrow(ConfigError);
   });
@@ -51,7 +51,7 @@ describe('validateEnv', () => {
   it('deve lançar erro com msg "PORT é uma variável obrigatória" quando PORT não existir', () => {
     expect(() =>
       validateEnv({
-        NODE_ENV: 'development',
+        NODE_ENV: 'test',
       }),
     ).toThrow('PORT é uma variável obrigatória');
   });
@@ -60,7 +60,7 @@ describe('validateEnv', () => {
   it('deve lançar erro quando MONGODB_URI não existir', () => {
     expect(() =>
       validateEnv({
-        NODE_ENV: 'development',
+        NODE_ENV: 'test',
         PORT: '3001',
       }),
     ).toThrow(ConfigError);
@@ -70,8 +70,8 @@ describe('validateEnv', () => {
   it('deve lançar erro com msg "MONGODB_URI é uma variável obrigatória" quando MONGODB_URI não existir', () => {
     expect(() =>
       validateEnv({
-        NODE_ENV: 'development',
-        PORT: '3001',
+        NODE_ENV: 'test',
+        PORT: '3002',
       }),
     ).toThrow('MONGODB_URI é uma variável obrigatória');
   });
