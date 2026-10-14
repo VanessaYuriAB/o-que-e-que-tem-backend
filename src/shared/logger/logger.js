@@ -20,8 +20,8 @@ const logger = winston.createLogger({
   ],
 });
 
-// Console apenas fora de produção
-if (process.env.NODE_ENV !== 'production') {
+// Console apenas em desenvolvimento
+if (process.env.NODE_ENV === 'development') {
   logger.add(
     new winston.transports.Console({
       format: winston.format.simple(),
