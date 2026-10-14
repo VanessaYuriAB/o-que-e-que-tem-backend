@@ -163,7 +163,9 @@ Exemplo:
 "start": "cross-env NODE_ENV=production node server.js"
 ```
 
-> O projeto utiliza ECMAScript Modules (ESM). Por isso, o Jest é executado através do Node com a flag `--experimental-vm-modules`, permitindo compatibilidade com módulos ES durante a execução dos testes.
+> O projeto utiliza ECMAScript Modules (ESM). Por isso, o Jest é executado através do Node com a
+> flag `--experimental-vm-modules`, permitindo compatibilidade com módulos ES durante a execução
+> dos testes.
 
 ### ✔️ Variáveis obrigatórias
 
@@ -194,9 +196,11 @@ Essa estratégia evita a execução da aplicação com configurações incomplet
 
 A aplicação acessa variáveis de ambiente exclusivamente através do módulo `config/env.js`.
 
-O uso direto de `process.env` é restrito à camada de configuração, reduzindo acoplamento e centralizando validações.
+O uso direto de `process.env` é restrito à camada de configuração, reduzindo acoplamento e
+centralizando validações.
 
-O módulo também converte valores para seus tipos apropriados, como números e arrays, antes de disponibilizá-los para a aplicação.
+O módulo também converte valores para seus tipos apropriados, como números e arrays, antes de
+disponibilizá-los para a aplicação.
 
 [Voltar ao topo 🔝](#top)
 
@@ -272,7 +276,8 @@ O projeto utiliza:
 - Jest para testes unitários
 - Supertest para testes de integração de rotas HTTP
 
-Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
+Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o arquivo `.env.test`
+(exceto `validateEnv` que utiliza objeto mockado).
 
 ### Estratégia
 
@@ -403,7 +408,8 @@ Esse módulo é responsável por:
 - converter valores para os tipos apropriados
 - exportar um objeto único de configuração para toda a aplicação
 
-Essa abordagem evita o uso direto de `process.env` espalhado pelo código, centralizando o acesso às configurações da aplicação.
+Essa abordagem evita o uso direto de `process.env` espalhado pelo código, centralizando o acesso às
+configurações da aplicação.
 
 ### ✔️ Banco de dados
 
@@ -499,7 +505,8 @@ A configuração atual utiliza uma janela de 15 minutos.
 
 ### ✔️ Observabilidade
 
-A aplicação utiliza Winston para centralização de logs e Express-Winston para registro automático de requisições HTTP.
+A aplicação utiliza Winston para centralização de logs e Express-Winston para registro automático de
+requisições HTTP.
 
 Características:
 
@@ -593,6 +600,8 @@ Local Storage.
 ├── tests/
 │    └── config/
 │         └── validateEnv.test.js
+│    └── middlewares/
+│         └── notFoundPage.test.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
@@ -637,7 +646,8 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 11. Roadmap
 
-Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Autenticação → Funcionalidades Core → Qualidade → Documentação → Deploy
+Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Autenticação → Funcionalidades
+Core → Qualidade → Documentação → Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
@@ -698,8 +708,8 @@ Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Au
 #### Testes de componentes de infraestrutura
 
 - [x] `validateEnv`
+- [x] `notFoundPage`
 - [ ] `errorHandler`
-- [ ] `notFoundPage`
 - [ ] `limiter`
 
 ### 🚧 Fase 5: Autenticação
