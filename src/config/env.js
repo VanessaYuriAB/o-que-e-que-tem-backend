@@ -18,6 +18,7 @@ if (!process.env.NODE_ENV) {
 // Configura leitura do arquivo dinamicamente, de acordo com o ambiente, carregando o .env correspondente
 const resultEnv = dotenv.config({
   path: `.env.${process.env.NODE_ENV}`,
+  quiet: process.env.NODE_ENV === 'test', // silencia msgs informativas do dotenv em ambiente de testes
 });
 
 // Log sobre .env, apenas em desenvolvimento
