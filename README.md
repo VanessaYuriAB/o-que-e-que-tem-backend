@@ -16,6 +16,8 @@
 ![Express Rate Limit](https://img.shields.io/badge/Express--Rate--Limit-007ACC)
 . ![Winston](https://img.shields.io/badge/Winston-007ACC)
 ![Express Winston](https://img.shields.io/badge/Express--Winston-007ACC)
+. ![Jest](https://img.shields.io/badge/Jest-007ACC)
+![Supertest](https://img.shields.io/badge/Supertest-007ACC)
 . ![EditorConfig](https://img.shields.io/badge/EditorConfig-007ACC)
 ![ESLint](https://img.shields.io/badge/ESLint-007ACC)
 ![Prettier](https://img.shields.io/badge/Prettier-007ACC)
@@ -68,6 +70,11 @@ desperdício de alimentos por meio do aproveitamento de produtos próximos ao ve
 - Prettier
 - Husky
 - lint-staged
+
+### Testes
+
+- Jest
+- Supertest
 
 ### Segurança e Autenticação
 
@@ -151,11 +158,11 @@ Exemplo:
 
 ```json
 "dev": "cross-env NODE_ENV=development nodemon server.js"
-"test": "cross-env NODE_ENV=test jest"
+"test": "cross-env NODE_ENV=test jest --runInBand"
 "start": "cross-env NODE_ENV=production node server.js"
 ```
 
-### Variáveis obrigatórias
+### ✔️ Variáveis obrigatórias
 
 Todos os ambientes devem possuir as variáveis:
 
@@ -168,7 +175,7 @@ RATE_LIMIT_MAX=100
 JWT_SECRET=your-secret-key
 ```
 
-### Validação automática
+### ✔️ Validação automática
 
 Durante a inicialização da aplicação:
 
@@ -180,7 +187,7 @@ Durante a inicialização da aplicação:
 
 Essa estratégia evita a execução da aplicação com configurações incompletas ou inválidas.
 
-### Centralização das configurações
+### ✔️ Centralização das configurações
 
 A aplicação acessa variáveis de ambiente exclusivamente através do módulo `config/env.js`.
 
@@ -204,8 +211,22 @@ npm run dev
 
 ### Testes
 
+- Executa todos os testes:
+
 ```bash
 npm run test
+```
+
+- Executa os testes em modo observação:
+
+```bash
+npm run test:watch
+```
+
+- Gera relatório de cobertura:
+
+```bash
+npm run test:coverage
 ```
 
 ### Produção
@@ -222,16 +243,18 @@ npm run start
 
 ## 📜 7. Scripts
 
-| Script               | Descrição                                   |
-| -------------------- | ------------------------------------------- |
-| npm run dev          | Executa a aplicação em modo desenvolvimento |
-| npm run test         | Executa os testes                           |
-| npm run start        | Executa a aplicação em modo produção        |
-| npm run lint         | Verifica problemas de lint                  |
-| npm run lint:fix     | Corrige problemas de lint automaticamente   |
-| npm run format       | Formata o código                            |
-| npm run format:check | Verifica formatação                         |
-| npm run prepare      | Configura os hooks do Husky                 |
+| Script                | Descrição                                   |
+| --------------------- | ------------------------------------------- |
+| npm run dev           | Executa a aplicação em modo desenvolvimento |
+| npm run test          | Executa os testes                           |
+| npm run test:watch    | Executa os testes em modo observação        |
+| npm run test:coverage | Gera relatório de cobertura dos testes      |
+| npm run start         | Executa a aplicação em modo produção        |
+| npm run lint          | Verifica problemas de lint                  |
+| npm run lint:fix      | Corrige problemas de lint automaticamente   |
+| npm run format        | Formata o código                            |
+| npm run format:check  | Verifica formatação                         |
+| npm run prepare       | Configura os hooks do Husky                 |
 
 [Voltar ao topo 🔝](#top)
 
@@ -496,51 +519,51 @@ Local Storage.
 
 ```
 ├── .husky/
-├    └── pre-commit
+│    └── pre-commit
 ├── .vscode/
-├    ├── extensions.json
-├    └── settings.json
+│    ├── extensions.json
+│    └── settings.json
 ├── docs/
-├    └── images/
+│    └── images/
 ├── src/
-├    ├── config/
-├    ├    ├── cors.js
-├    ├    ├── database.js
-├    ├    ├── env.js
-├    ├    └── validateEnv.js
-├    ├── modules/
-├    ├    ├── auth/
-├    ├    ├── contact/
-├    ├    ├── menu/
-├    ├    ├── orders/
-├    ├    ├── partners/
-├    ├    ├── recipes/
-├    ├    ├    ├── recipes.controller.js
-├    ├    ├    ├── recipes.model.js
-├    ├    ├    ├── recipes.routes.js
-├    ├    ├    ├── recipes.service.js
-├    ├    ├    └── recipes.validation.js
-├    ├    ├── subscriptions/
-├    ├    └── users/
-├    ├── shared/
-├    ├    ├── errors/
-├    ├    ├    ├── ConfigError.js
-├    ├    ├    ├── ConflictError.js
-├    ├    ├    ├── ForbiddenError.js
-├    ├    ├    ├── NotFoundError.js
-├    ├    ├    ├── RateLimitError.js
-├    ├    ├    └── UnauthorizedError.js
-├    ├    ├── logger/
-├    ├    ├    └── logger.js
-├    ├    ├── middlewares/
-├    ├    ├    ├── errorHandler.js
-├    ├    ├    ├── errorLogger.js
-├    ├    ├    ├── limiter.js
-├    ├    ├    ├── notFoundPage.js
-├    ├    ├    └── requestLogger.js
-├    ├    └── utils/
-├    ├         └── errorsMessages.js
-├    └── app.js
+│    ├── config/
+│    │    ├── cors.js
+│    │    ├── database.js
+│    │    ├── env.js
+│    │    └── validateEnv.js
+│    ├── modules/
+│    │    ├── auth/
+│    │    ├── contact/
+│    │    ├── menu/
+│    │    ├── orders/
+│    │    ├── partners/
+│    │    ├── recipes/
+│    │    │    ├── recipes.controller.js
+│    │    │    ├── recipes.model.js
+│    │    │    ├── recipes.routes.js
+│    │    │    ├── recipes.service.js
+│    │    │    └── recipes.validation.js
+│    │    ├── subscriptions/
+│    │    └── users/
+│    ├── shared/
+│    │    ├── errors/
+│    │    │    ├── ConfigError.js
+│    │    │    ├── ConflictError.js
+│    │    │    ├── ForbiddenError.js
+│    │    │    ├── NotFoundError.js
+│    │    │    ├── RateLimitError.js
+│    │    │    └── UnauthorizedError.js
+│    │    ├── logger/
+│    │    │    └── logger.js
+│    │    ├── middlewares/
+│    │    │    ├── errorHandler.js
+│    │    │    ├── errorLogger.js
+│    │    │    ├── limiter.js
+│    │    │    ├── notFoundPage.js
+│    │    │    └── requestLogger.js
+│    │    └── utils/
+│    │         └── errorsMessages.js
+│    └── app.js
 ├── tests/
 ├── .editorconfig
 ├── .env.example
@@ -550,6 +573,7 @@ Local Storage.
 ├── .prettierignore
 ├── .prettierrc
 ├── eslint.config.js
+├── jest.config.js
 ├── package.json
 └── server.js
 ```
@@ -564,7 +588,7 @@ Local Storage.
   - `logger`: configuração centralizada de logs da aplicação
   - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
   - `utils`: funções utilitárias compartilhadas
-- `tests`: testes automatizados
+- `tests`: testes unitários e de integração da aplicação
 
 ### Estrutura dos módulos
 
@@ -585,7 +609,7 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 10. Roadmap
 
-Infraestrutura → Segurança → Observabilidade → Autenticação → Funcionalidades de negócio → Testes → Documentação → Deploy
+Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Autenticação → Funcionalidades Core → Qualidade → Documentação → Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
@@ -635,7 +659,18 @@ Infraestrutura → Segurança → Observabilidade → Autenticação → Funcion
 - [x] Logs de erros
 - [x] Logs de requisições HTTP
 
-### 🚧 Fase 4: Autenticação
+### 🚧 Fase 4: Qualidade Base
+
+- [x] Configuração do Jest
+- [x] Configuração do Supertest
+- [x] Configuração de cobertura de testes
+- [ ] Testes dos componentes de infraestrutura:
+  - [ ] `validateEnv`
+  - [ ] `errorHandler`
+  - [ ] `notFoundPage`
+  - [ ] `limiter`
+
+### 🚧 Fase 5: Autenticação
 
 #### Autenticação
 
@@ -654,7 +689,15 @@ Infraestrutura → Segurança → Observabilidade → Autenticação → Funcion
 
 - [ ] Controle de permissões (Roles)
 
-### 🚧 Fase 5: Funcionalidades Core
+#### Testes de Integração (Supertest)
+
+- [ ] Cadastro de usuário
+- [ ] Login
+- [ ] Logout
+- [ ] Middleware de autenticação
+- [ ] Refresh Token
+
+### 🚧 Fase 6: Funcionalidades Core
 
 #### Integrações
 
@@ -702,23 +745,42 @@ Infraestrutura → Segurança → Observabilidade → Autenticação → Funcion
 - [ ] Cadastro de mensagens
 - [ ] Histórico de mensagens
 
-### 🚧 Fase 6: Integrações Extras
+#### Testes de Integração (Supertest)
+
+- [ ] Perfil de usuário
+- [ ] Assinaturas
+- [ ] Pedidos
+- [ ] Cardápio
+- [ ] Mercados Parceiros
+- [ ] Receitas
+- [ ] Fale Conosco
+
+### 🚧 Fase 7: Integrações Extras
 
 - [ ] API de clima
 - [ ] API de mapa
 
-### 🚧 Fase 7: Qualidade
+#### Testes de Integração (Supertest)
 
-- [ ] Testes unitários (Jest)
-- [ ] Testes de integração (Supertest)
+- [ ] Integração API de clima
+- [ ] Integração API de mapa
 
-### 🚧 Fase 8: Documentação
+### 🚧 Fase 8: Qualidade
+
+#### Testes Unitários (Jest)
+
+- [ ] Models
+- [ ] Services
+- [ ] Validators
+- [ ] Utilitários
+
+### 🚧 Fase 9: Documentação
 
 - [ ] README final
 - [ ] README técnico
 - [ ] Coleção Postman
 
-### 🚀 Fase 9: Deploy
+### 🚀 Fase 10: Deploy
 
 #### Infraestrutura
 
