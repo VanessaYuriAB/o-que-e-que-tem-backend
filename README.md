@@ -275,15 +275,35 @@ O projeto utiliza:
 
 - Jest para testes unitários
 - Supertest para testes de integração de rotas HTTP
+- Mocks para validação isolada de middleware
 
 Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o arquivo `.env.test`
 (exceto `validateEnv` que utiliza objeto mockado).
+
+Atualmente a suíte contempla testes para componentes de infraestrutura da aplicação, incluindo:
+
+- validação de ambiente (`validateEnv`)
+- middleware de rota inexistente (`notFoundPage`)
+- middleware centralizado de tratamento de erros (`errorHandler`)
+
+O `errorHandler` possui:
+
+- testes unitários para validação dos códigos HTTP e mensagens retornadas
+- testes de integração para validação do fluxo completo entre Express, roteamento e middleware de
+  erro
 
 ### Estratégia
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e validações)
 - Testes de integração para fluxos HTTP completos utilizando Supertest
 - Configurações de infraestrutura com cobertura própria antes das funcionalidades de negócio
+
+Para cenários de integração específicos, a suíte utiliza uma aplicação Express isolada para testes
+(`tests/helpers/testApp.js`).
+
+Essa aplicação registra apenas as rotas e middlewares necessários para os cenários em validação,
+evitando dependência da configuração completa da aplicação e reduzindo o acoplamento entre os testes
+e o ambiente de execução.
 
 [Voltar ao topo 🔝](#top)
 
@@ -456,6 +476,10 @@ Além dos erros gerados pela aplicação e pelo Mongoose:
 - erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
   retornando respostas `400 Bad Request` adequadas.
 
+O comportamento do middleware centralizado de tratamento de erros é validado por testes unitários
+(Jest) e testes de integração (Supertest), garantindo a correta tradução dos erros internos da
+aplicação e do Mongoose para respostas HTTP padronizadas.
+
 ### ✔️ CORS
 
 A aplicação utiliza o middleware `cors` com lista de origens permitidas definida por variável de
@@ -598,10 +622,15 @@ Local Storage.
 │    │         └── errorsMessages.js
 │    └── app.js
 ├── tests/
-│    └── config/
-│         └── validateEnv.test.js
-│    └── middlewares/
-│         └── notFoundPage.test.js
+│    ├── config/
+│    │    └── validateEnv.test.js
+│    ├── helpers/
+│    │    └── testApp.js
+│    ├── middlewares/
+│    │    ├── errorHandler.test.js
+│    │    └── notFoundPage.test.js
+│    └── routes/
+│         └── testRoutes.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
@@ -625,7 +654,8 @@ Local Storage.
   - `logger`: configuração centralizada de logs da aplicação
   - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
   - `utils`: funções utilitárias compartilhadas
-- `tests`: testes unitários e de integração da aplicação
+- `tests`: testes unitários, testes de integração, aplicação auxiliar de teste (`testApp`) e
+  rotas específicas para cenários de validação
 
 ### Estrutura dos módulos
 
@@ -658,7 +688,7 @@ Core → Qualidade → Documentação → Deploy
 - [x] Configuração do `package.json`
 - [x] Configuração `.gitignore`
 - [x] Configuração `.editorconfig`
-- [x] Estrutura e arquitetura inicial do projeto (MVC)
+- [x] Estrutura e arquitetura inicial do projeto (orientada a features)
 - [x] README inicial
 
 #### Qualidade de Código
@@ -709,7 +739,7 @@ Core → Qualidade → Documentação → Deploy
 
 - [x] `validateEnv`
 - [x] `notFoundPage`
-- [ ] `errorHandler`
+- [x] `errorHandler` (unitários e integração)
 - [ ] `limiter`
 
 ### 🚧 Fase 5: Autenticação
