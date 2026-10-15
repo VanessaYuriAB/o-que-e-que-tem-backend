@@ -12,6 +12,7 @@ import helmet from 'helmet';
 import limiter from './shared/middlewares/limiter.js';
 import requestLogger from './shared/middlewares/requestLogger.js';
 import errorLogger from './shared/middlewares/errorLogger.js';
+import env from './config/env.js';
 
 // --------
 // Express
@@ -62,10 +63,12 @@ app.use(requestLogger);
 // Rotas
 // -------
 
-// Rota teste
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Rota teste para ambiente de desenvolvimento/teste
+if (env.NODE_ENV !== 'production') {
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+  });
+}
 
 // --------------------
 // Tratamento de erros
