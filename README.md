@@ -285,14 +285,39 @@ Atualmente a suíte contempla testes para componentes de infraestrutura da aplic
 - validação de ambiente (`validateEnv`)
 - middleware de rota inexistente (`notFoundPage`)
 - middleware centralizado de tratamento de erros (`errorHandler`)
+- middleware de rate limiting (`limiter`)
+
+### ✔️ Cobertura Atual
+
+O `validateEnv` é um teste unitário puro que valida:
+
+- presença das variáveis obrigatórias
+- valores permitidos para `NODE_ENV`
+- detecção de configurações inválidas
+- geração de mensagens de erro apropriadas
+
+O `notFoundPage` valida, com teste de integração:
+
+- interceptação de rotas inexistentes
+- retorno de `404 Not Found`
+- estrutura padronizada da resposta de erro
 
 O `errorHandler` possui:
 
-- testes unitários para validação dos códigos HTTP e mensagens retornadas
+- testes unitários para validação dos códigos HTTP e mensagens retornadas, incluindo erros
+  customizados da aplicação e erros de infraestrutura do Mongoose (`CastError` e `ValidationError`)
 - testes de integração para validação do fluxo completo entre Express, roteamento e middleware de
   erro
 
-### Estratégia
+O `limiter` possui teste de integração que valida:
+
+- registro do middleware na aplicação
+- bloqueio após o limite configurado de requisições
+- propagação do `RateLimitError`
+- integração com o middleware centralizado de tratamento de erros
+- retorno da resposta HTTP `429 Too Many Requests`
+
+### ✔️ Estratégia
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e validações)
 - Testes de integração para fluxos HTTP completos utilizando Supertest
@@ -628,6 +653,7 @@ Local Storage.
 │    │    └── testApp.js
 │    ├── middlewares/
 │    │    ├── errorHandler.test.js
+│    │    ├── limiter.test.js
 │    │    └── notFoundPage.test.js
 │    └── routes/
 │         └── testRoutes.js
@@ -727,7 +753,7 @@ Core → Qualidade → Documentação → Deploy
 - [x] Logs de erros
 - [x] Logs de requisições HTTP
 
-### 🚧 Fase 4: Qualidade Base
+### ✅ Fase 4: Qualidade Base
 
 #### Configuração
 
@@ -740,7 +766,7 @@ Core → Qualidade → Documentação → Deploy
 - [x] `validateEnv`
 - [x] `notFoundPage`
 - [x] `errorHandler` (unitários e integração)
-- [ ] `limiter`
+- [x] `limiter`
 
 ### 🚧 Fase 5: Autenticação
 
