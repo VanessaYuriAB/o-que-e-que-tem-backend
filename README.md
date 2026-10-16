@@ -599,6 +599,49 @@ Durante o desenvolvimento, os logs também são exibidos no terminal para facili
 Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto de
 `console.log`, `console.warn` e `console.error` no código de produção.
 
+### ✔️ Modelagem de dados
+
+O projeto adota uma abordagem model-first.
+
+As entidades principais do domínio são modeladas e validadas através do Mongoose antes da
+implementação dos controllers e rotas.
+
+Essa estratégia permite:
+
+- definir relacionamentos e regras de negócio antecipadamente;
+- validar restrições de persistência diretamente nos modelos;
+- criar testes unitários dos modelos antes da implementação das funcionalidades;
+- reduzir retrabalho durante o desenvolvimento das features.
+
+As validações de entrada HTTP não são implementadas nessa etapa. Elas são desenvolvidas junto de
+cada funcionalidade através do Celebrate/Joi, acompanhando a definição dos endpoints da API.
+
+### ✔️ Validação em camadas
+
+A aplicação utiliza duas camadas complementares de validação:
+
+1. Mongoose
+
+Responsável por validar regras de domínio e persistência:
+
+- tipos de dados;
+- campos obrigatórios;
+- enumerações;
+- validações customizadas;
+- consistência entre propriedades do documento.
+
+2. Celebrate/Joi
+
+Responsável por validar dados recebidos pelas rotas HTTP:
+
+- `req.body`;
+- `req.params`;
+- `req.query`;
+- `req.headers.`
+
+Essa abordagem evita validações manuais dentro dos controllers e garante que as requisições cheguem
+à lógica de negócio já validadas.
+
 ### 🚧 Autenticação
 
 A autenticação planejada para a aplicação utilizará JWT armazenado em cookies `httpOnly`.
@@ -727,8 +770,8 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 11. Roadmap
 
-Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Autenticação → Funcionalidades
-Core → Qualidade → Documentação → Deploy
+Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Modelagem de Dados →
+Autenticação → Funcionalidades Core → Qualidade → Documentação → Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
@@ -793,12 +836,38 @@ Core → Qualidade → Documentação → Deploy
 - [x] `errorHandler` (unitários e integração)
 - [x] `limiter`
 
-### 🚧 Fase 5: Autenticação
+### 🚧 Fase 5: Modelagem de Dados
+
+#### Schemas (Mongoose)
+
+- [x] Model/User
+- [x] Model/Subscription
+- [ ] Model/Product
+- [ ] Model/Order
+- [ ] Model/SubscriptionOrder
+- [ ] Model/Message
+- [ ] Model/Partner
+- [ ] Model/TodayRecipe
+
+#### Testes Unitários - Models (Jest)
+
+- [x] User Model
+- [x] Subscription Model
+- [ ] Product Model
+- [ ] Order Model
+- [ ] SubscriptionOrder Model
+- [ ] Message Model
+- [ ] Partner Model
+- [ ] TodayRecipe Model
+
+### 🚧 Fase 6: Autenticação
+
+#### Validação de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
+
+- [ ] `auth.validation.js`
 
 #### Autenticação
 
-- [ ] Model/User Schema
-- [ ] Celebrate/Joi: validação de dados
 - [ ] Cadastro de usuário
 - [ ] Hash de senha (bcrypt)
 - [ ] Configuração cookie-parser
@@ -816,17 +885,21 @@ Core → Qualidade → Documentação → Deploy
 
 - [ ] Cadastro de usuário
 - [ ] Login
-- [ ] Logout
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
+- [ ] Logout
 
-### 🚧 Fase 6: Funcionalidades Core
+### 🚧 Fase 7: Funcionalidades Core
 
-#### Integrações
+#### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
-- [ ] Integração com API de CEP
-- [ ] Integração com API de envio de e-mail/WhatsApp
-- [ ] Integração com API de receitas
+- [ ] `users.validation.js`
+- [ ] `subscriptions.validation.js`
+- [ ] `menu.validation.js`
+- [ ] `orders.validation.js`
+- [ ] `contact.validation.js`
+- [ ] `partners.validation.js`
+- [ ] `recipes.validation.js`
 
 #### Usuários
 
@@ -841,17 +914,22 @@ Core → Qualidade → Documentação → Deploy
 - [ ] Localizar pedido de assinatura
 - [ ] Histórico de pedidos de assinatura
 
+#### Cardápio
+
+- [ ] Gestão de itens do cardápio
+- [ ] Categorias
+- [ ] Controle de disponibilidade
+
 #### Pedidos
 
 - [ ] Criar pedido
 - [ ] Localizar pedido
 - [ ] Histórico de pedidos
 
-#### Cardápio
+#### Fale Conosco
 
-- [ ] Gestão de itens do cardápio
-- [ ] Categorias
-- [ ] Controle de disponibilidade
+- [ ] Cadastro de mensagens
+- [ ] Histórico de mensagens
 
 #### Mercados Parceiros
 
@@ -863,22 +941,23 @@ Core → Qualidade → Documentação → Deploy
 - [ ] Filtros de receitas
 - [ ] Persistência de receitas
 
-#### Fale Conosco
+#### Integrações Externas
 
-- [ ] Cadastro de mensagens
-- [ ] Histórico de mensagens
+- [ ] Integração com API de CEP
+- [ ] Integração com API de envio de e-mail/WhatsApp
+- [ ] Integração com API de receitas
 
 #### Testes de Integração (Supertest)
 
 - [ ] Perfil de usuário
 - [ ] Assinaturas
-- [ ] Pedidos
 - [ ] Cardápio
+- [ ] Pedidos
+- [ ] Fale Conosco
 - [ ] Mercados Parceiros
 - [ ] Receitas
-- [ ] Fale Conosco
 
-### 🚧 Fase 7: Integrações Extras
+### 🚧 Fase 8: Integrações Externas Extras
 
 - [ ] API de clima
 - [ ] API de mapa
@@ -888,22 +967,21 @@ Core → Qualidade → Documentação → Deploy
 - [ ] Integração API de clima
 - [ ] Integração API de mapa
 
-### 🚧 Fase 8: Qualidade
+### 🚧 Fase 9: Qualidade
 
 #### Testes Unitários (Jest)
 
-- [ ] Models
 - [ ] Services
 - [ ] Validators
 - [ ] Utilitários
 
-### 🚧 Fase 9: Documentação
+### 🚧 Fase 10: Documentação
 
 - [ ] README final
 - [ ] README técnico
 - [ ] Coleção Postman
 
-### 🚀 Fase 10: Deploy
+### 🚀 Fase 11: Deploy
 
 #### Infraestrutura
 
