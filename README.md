@@ -287,6 +287,11 @@ Atualmente a suíte contempla testes para componentes de infraestrutura da aplic
 - middleware centralizado de tratamento de erros (`errorHandler`)
 - middleware de rate limiting (`limiter`)
 
+Além da infraestrutura, a suíte já contempla testes unitários dos modelos de domínio:
+
+- User Model
+- Subscription Model
+
 ### ✔️ Cobertura Atual
 
 O `validateEnv` é um teste unitário puro que valida:
@@ -316,6 +321,22 @@ O `limiter` possui teste de integração que valida:
 - propagação do `RateLimitError`
 - integração com o middleware centralizado de tratamento de erros
 - retorno da resposta HTTP `429 Too Many Requests`
+
+O `User Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- expressões regulares (`match`)
+- validação customizada (`validator.isEmail()`)
+- valor padrão (`default`)
+- restrições de domínio definidas no schema (`minlength`, `maxlength`)
+
+O `Subscription Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores permitidos por `enum`
+- consistência entre dias selecionados (`daysOn`) e horários cadastrados (`schedules`)
+- regra de consistência do domínio implementada através do `middleware de documento` para validação
+  do Mongoose (`pre('validate')`)
 
 ### ✔️ Estratégia
 
@@ -655,6 +676,9 @@ Local Storage.
 │    │    ├── errorHandler.test.js
 │    │    ├── limiter.test.js
 │    │    └── notFoundPage.test.js
+│    ├── models/
+│    │    ├── subscription.model.test.js
+│    │    └── user.model.test.js
 │    └── routes/
 │         └── testRoutes.js
 ├── .editorconfig
@@ -689,6 +713,7 @@ Cada módulo concentra seus próprios arquivos:
 
 - `.controller.js`: controladores das rotas, recebe a requisição do frontend e, quando necessário,
   chama o service
+- `.middleware.js`: middlewares auxiliares
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.routes.js`: definição das rotas
 - `.service.js`: lógica de negócio e integrações externas quando necessário
