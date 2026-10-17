@@ -291,6 +291,8 @@ Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
 
 - User Model
 - Subscription Model
+- Product Model
+- Partner Model
 
 ### ✔️ Cobertura Atual
 
@@ -328,7 +330,9 @@ O `User Model` possui testes unitários para validação de:
 - expressões regulares (`match`)
 - validação customizada (`validator.isEmail()`)
 - valor padrão (`default`)
+- transformação automática de strings (`trim`)
 - restrições de domínio definidas no schema (`minlength`, `maxlength`)
+- validação de documento válido
 
 O `Subscription Model` possui testes unitários para validação de:
 
@@ -337,6 +341,25 @@ O `Subscription Model` possui testes unitários para validação de:
 - consistência entre dias selecionados (`daysOn`) e horários cadastrados (`schedules`)
 - regra de consistência do domínio implementada através do `middleware de documento` para validação
   do Mongoose (`pre('validate')`)
+- validação de documento válido
+
+O `Product Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores permitidos por `enum`
+- limite mínimo (`min`)
+- transformação automática de strings (`trim`)
+- validação de documento válido
+
+O `Partner Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- validação customizada (`validator.isEmail()`)
+- valores permitidos por `enum`
+- restrição de domínio definida no schema (`minlength`)
+- expressões regulares (`match`)
+- transformação automática de strings (`trim`)
+- validação de documento válido
 
 ### ✔️ Estratégia
 
@@ -720,6 +743,8 @@ Local Storage.
 │    │    ├── limiter.test.js
 │    │    └── notFoundPage.test.js
 │    ├── models/
+│    │    ├── partner.model.test.js
+│    │    ├── product.model.test.js
 │    │    ├── subscription.model.test.js
 │    │    └── user.model.test.js
 │    └── routes/
@@ -756,7 +781,7 @@ Cada módulo concentra seus próprios arquivos:
 
 - `.controller.js`: controladores das rotas, recebe a requisição do frontend e, quando necessário,
   chama o service
-- `.middleware.js`: middlewares auxiliares
+- `.middleware.js`: middlewares específicos do módulo, quando necessário
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.routes.js`: definição das rotas
 - `.service.js`: lógica de negócio e integrações externas quando necessário
@@ -842,22 +867,22 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 
 - [x] Model/User
 - [x] Model/Subscription
-- [ ] Model/Product
+- [x] Model/Product
 - [ ] Model/Order
 - [ ] Model/SubscriptionOrder
 - [ ] Model/Message
-- [ ] Model/Partner
+- [x] Model/Partner
 - [ ] Model/TodayRecipe
 
 #### Testes Unitários - Models (Jest)
 
 - [x] User Model
 - [x] Subscription Model
-- [ ] Product Model
+- [x] Product Model
 - [ ] Order Model
 - [ ] SubscriptionOrder Model
 - [ ] Message Model
-- [ ] Partner Model
+- [x] Partner Model
 - [ ] TodayRecipe Model
 
 ### 🚧 Fase 6: Autenticação
