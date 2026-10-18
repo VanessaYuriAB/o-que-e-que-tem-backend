@@ -293,6 +293,7 @@ Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
 - Subscription Model
 - Product Model
 - Partner Model
+- Order Model
 
 ### ✔️ Cobertura Atual
 
@@ -359,6 +360,17 @@ O `Partner Model` possui testes unitários para validação de:
 - restrição de domínio definida no schema (`minlength`)
 - expressões regulares (`match`)
 - transformação automática de strings (`trim`)
+- validação de documento válido
+
+O `Order Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores permitidos por `enum`
+- validação customizada (`validator.isEmail()`)
+- limite mínimo (`min`)
+- obrigatoriedade condicional dos dados de endereço conforme o método de entrega selecionado
+- validação da estrutura dos snapshots persistidos no pedido (`customerSnapshot`, `addressSnapshot` e `itemsSnapshot`)
+- validação de array não vazio para os itens do pedido
 - validação de documento válido
 
 ### ✔️ Estratégia
@@ -743,6 +755,7 @@ Local Storage.
 │    │    ├── limiter.test.js
 │    │    └── notFoundPage.test.js
 │    ├── models/
+│    │    ├── order.model.test.js
 │    │    ├── partner.model.test.js
 │    │    ├── product.model.test.js
 │    │    ├── subscription.model.test.js
@@ -868,7 +881,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Model/User
 - [x] Model/Subscription
 - [x] Model/Product
-- [ ] Model/Order
+- [x] Model/Order
 - [ ] Model/SubscriptionOrder
 - [ ] Model/Message
 - [x] Model/Partner
@@ -879,7 +892,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] User Model
 - [x] Subscription Model
 - [x] Product Model
-- [ ] Order Model
+- [x] Order Model
 - [ ] SubscriptionOrder Model
 - [ ] Message Model
 - [x] Partner Model
