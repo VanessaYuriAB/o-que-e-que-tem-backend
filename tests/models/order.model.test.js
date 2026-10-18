@@ -248,4 +248,16 @@ describe('Order Model', () => {
 
     await expect(order.validate()).rejects.toThrow();
   });
+
+  // ------
+  // Match
+  // ------
+  it('deve falhar com orderNumber inválido', async () => {
+    const order = new Order({
+      ...validOrder,
+      orderNumber: 'S202608052114',
+    });
+
+    await expect(order.validate()).rejects.toThrow();
+  });
 });

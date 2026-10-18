@@ -294,6 +294,7 @@ Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
 - Product Model
 - Partner Model
 - Order Model
+- SubscriptionOrder Model
 
 ### ✔️ Cobertura Atual
 
@@ -369,8 +370,25 @@ O `Order Model` possui testes unitários para validação de:
 - validação customizada (`validator.isEmail()`)
 - limite mínimo (`min`)
 - obrigatoriedade condicional dos dados de endereço conforme o método de entrega selecionado
-- validação da estrutura dos snapshots persistidos no pedido (`customerSnapshot`, `addressSnapshot` e `itemsSnapshot`)
+- validação da estrutura dos snapshots persistidos no pedido (`customerSnapshot`, `addressSnapshot`
+  e `itemsSnapshot`)
 - validação de array não vazio para os itens do pedido
+- validação do formato do número do pedido através de expressão regular (`match`)
+- validação de documento válido
+
+O `SubscriptionOrder Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores permitidos por `enum`
+- validação customizada (`validator.isEmail()`)
+- obrigatoriedade condicional dos dados de endereço conforme o método de entrega selecionado
+- validação da estrutura dos snapshots persistidos no pedido de assinatura (`customerSnapshot`,
+  `addressSnapshot` e `itemsSnapshot`)
+- validação de array não vazio para os itens do pedido
+- validação do formato do número do pedido de assinatura através de expressão regular (`match`)
+- validação do formato do horário de entrega através de expressão regular (`match`)
+- validação da janela permitida de entrega (`10:45` até `19:45`) através de regra customizada do
+  schema
 - validação de documento válido
 
 ### ✔️ Estratégia
@@ -758,6 +776,7 @@ Local Storage.
 │    │    ├── order.model.test.js
 │    │    ├── partner.model.test.js
 │    │    ├── product.model.test.js
+│    │    ├── subscription-order.model.test.js
 │    │    ├── subscription.model.test.js
 │    │    └── user.model.test.js
 │    └── routes/
@@ -882,7 +901,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Model/Subscription
 - [x] Model/Product
 - [x] Model/Order
-- [ ] Model/SubscriptionOrder
+- [x] Model/SubscriptionOrder
 - [ ] Model/Message
 - [x] Model/Partner
 - [ ] Model/TodayRecipe
@@ -893,7 +912,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Subscription Model
 - [x] Product Model
 - [x] Order Model
-- [ ] SubscriptionOrder Model
+- [x] SubscriptionOrder Model
 - [ ] Message Model
 - [x] Partner Model
 - [ ] TodayRecipe Model

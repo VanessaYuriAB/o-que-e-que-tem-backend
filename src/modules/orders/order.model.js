@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema(
     orderNumber: {
       type: String,
       required: true,
+      match: /^\d{12}$/,
       unique: true,
       index: true,
       trim: true,
