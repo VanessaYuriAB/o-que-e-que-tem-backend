@@ -295,6 +295,7 @@ Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
 - Partner Model
 - Order Model
 - SubscriptionOrder Model
+- Message Model
 
 ### ✔️ Cobertura Atual
 
@@ -389,6 +390,19 @@ O `SubscriptionOrder Model` possui testes unitários para validação de:
 - validação do formato do horário de entrega através de expressão regular (`match`)
 - validação da janela permitida de entrega (`10:45` até `19:45`) através de regra customizada do
   schema
+- validação de documento válido
+
+O `Message Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores padrão (`default`)
+- validação customizada de e-mail através de `validator.isEmail()`
+- validação de formato do WhatsApp através de expressão regular (`match`)
+- validação de conteúdo permitido para `userName` e `message` através de expressões regulares
+  (`match`)
+- valores permitidos pelo campo `method` através de enumeração (`enum`)
+- restrição de domínio definida no schema (`minlength`)
+- validação de documentos contendo datas válidas (`Date`)
 - validação de documento válido
 
 ### ✔️ Estratégia
@@ -718,69 +732,70 @@ Local Storage.
 
 ```
 ├── .husky/
-│    └── pre-commit
+│     └── pre-commit
 ├── .vscode/
-│    ├── extensions.json
-│    └── settings.json
+│     ├── extensions.json
+│     └── settings.json
 ├── docs/
-│    └── images/
+│     └── images/
 ├── src/
-│    ├── config/
-│    │    ├── cors.js
-│    │    ├── database.js
-│    │    ├── env.js
-│    │    └── validateEnv.js
-│    ├── modules/
-│    │    ├── auth/
-│    │    ├── contact/
-│    │    ├── menu/
-│    │    ├── orders/
-│    │    ├── partners/
-│    │    ├── recipes/
-│    │    │    ├── recipes.controller.js
-│    │    │    ├── recipes.model.js
-│    │    │    ├── recipes.routes.js
-│    │    │    ├── recipes.service.js
-│    │    │    └── recipes.validation.js
-│    │    ├── subscriptions/
-│    │    └── users/
-│    ├── shared/
-│    │    ├── errors/
-│    │    │    ├── ConfigError.js
-│    │    │    ├── ConflictError.js
-│    │    │    ├── ForbiddenError.js
-│    │    │    ├── NotFoundError.js
-│    │    │    ├── RateLimitError.js
-│    │    │    └── UnauthorizedError.js
-│    │    ├── logger/
-│    │    │    └── logger.js
-│    │    ├── middlewares/
-│    │    │    ├── errorHandler.js
-│    │    │    ├── errorLogger.js
-│    │    │    ├── limiter.js
-│    │    │    ├── notFoundPage.js
-│    │    │    └── requestLogger.js
-│    │    └── utils/
-│    │         └── errorsMessages.js
-│    └── app.js
+│     ├── config/
+│     │     ├── cors.js
+│     │     ├── database.js
+│     │     ├── env.js
+│     │     └── validateEnv.js
+│     ├── modules/
+│     │     ├── auth/
+│     │     ├── contact/
+│     │     ├── menu/
+│     │     ├── orders/
+│     │     ├── partners/
+│     │     ├── recipes/
+│     │     │     ├── recipes.controller.js
+│     │     │     ├── recipes.model.js
+│     │     │     ├── recipes.routes.js
+│     │     │     ├── recipes.service.js
+│     │     │     └── recipes.validation.js
+│     │     ├── subscriptions/
+│     │     └── users/
+│     ├── shared/
+│     │     ├── errors/
+│     │     │     ├── ConfigError.js
+│     │     │     ├── ConflictError.js
+│     │     │     ├── ForbiddenError.js
+│     │     │     ├── NotFoundError.js
+│     │     │     ├── RateLimitError.js
+│     │     │     └── UnauthorizedError.js
+│     │     ├── logger/
+│     │     │     └── logger.js
+│     │     ├── middlewares/
+│     │     │     ├── errorHandler.js
+│     │     │     ├── errorLogger.js
+│     │     │     ├── limiter.js
+│     │     │     ├── notFoundPage.js
+│     │     │     └── requestLogger.js
+│     │     └── utils/
+│     │           └── errorsMessages.js
+│     └── app.js
 ├── tests/
-│    ├── config/
-│    │    └── validateEnv.test.js
-│    ├── helpers/
-│    │    └── testApp.js
-│    ├── middlewares/
-│    │    ├── errorHandler.test.js
-│    │    ├── limiter.test.js
-│    │    └── notFoundPage.test.js
-│    ├── models/
-│    │    ├── order.model.test.js
-│    │    ├── partner.model.test.js
-│    │    ├── product.model.test.js
-│    │    ├── subscription-order.model.test.js
-│    │    ├── subscription.model.test.js
-│    │    └── user.model.test.js
-│    └── routes/
-│         └── testRoutes.js
+│     ├── config/
+│     │     └── validateEnv.test.js
+│     ├── helpers/
+│     │     └── testApp.js
+│     ├── middlewares/
+│     │     ├── errorHandler.test.js
+│     │     ├── limiter.test.js
+│     │     └── notFoundPage.test.js
+│     ├── models/
+│     │     ├── message.model.test.js
+│     │     ├── order.model.test.js
+│     │     ├── partner.model.test.js
+│     │     ├── product.model.test.js
+│     │     ├── subscription-order.model.test.js
+│     │     ├── subscription.model.test.js
+│     │     └── user.model.test.js
+│     └── routes/
+│           └── testRoutes.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
@@ -902,7 +917,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Model/Product
 - [x] Model/Order
 - [x] Model/SubscriptionOrder
-- [ ] Model/Message
+- [x] Model/Message
 - [x] Model/Partner
 - [ ] Model/TodayRecipe
 
@@ -913,7 +928,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Product Model
 - [x] Order Model
 - [x] SubscriptionOrder Model
-- [ ] Message Model
+- [x] Message Model
 - [x] Partner Model
 - [ ] TodayRecipe Model
 
