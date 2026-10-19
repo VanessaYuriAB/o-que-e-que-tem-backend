@@ -296,6 +296,7 @@ Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
 - Order Model
 - SubscriptionOrder Model
 - Message Model
+- TodayRecipe Model
 
 ### ✔️ Cobertura Atual
 
@@ -403,6 +404,17 @@ O `Message Model` possui testes unitários para validação de:
 - valores permitidos pelo campo `method` através de enumeração (`enum`)
 - restrição de domínio definida no schema (`minlength`)
 - validação de documentos contendo datas válidas (`Date`)
+- validação de documento válido
+
+O `TodayRecipe Model` possui testes unitários para validação de:
+
+- campos obrigatórios (`required`)
+- valores permitidos por `enum`
+- validação de array não vazio para ingredientes
+- validação de conteúdo permitido para ingredientes e modo de preparo através de expressões
+  regulares (`match`)
+- garantia da existência de exatamente três receitas por documento
+- validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e Patê)
 - validação de documento válido
 
 ### ✔️ Estratégia
@@ -811,6 +823,7 @@ Local Storage.
 │     │     ├── product.model.test.js
 │     │     ├── subscription-order.model.test.js
 │     │     ├── subscription.model.test.js
+│     │     ├── today-recipe.model.test.js
 │     │     └── user.model.test.js
 │     └── routes/
 │           └── testRoutes.js
@@ -926,7 +939,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] `errorHandler` (unitários e integração)
 - [x] `limiter`
 
-### 🚧 Fase 5: Modelagem de Dados
+### ✅ Fase 5: Modelagem de Dados
 
 #### Schemas (Mongoose)
 
@@ -937,7 +950,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] Model/SubscriptionOrder
 - [x] Model/Message
 - [x] Model/Partner
-- [ ] Model/TodayRecipe
+- [x] Model/TodayRecipe
 
 #### Testes Unitários - Models (Jest)
 
@@ -948,7 +961,7 @@ Autenticação → Funcionalidades Core → Qualidade → Documentação → Dep
 - [x] SubscriptionOrder Model
 - [x] Message Model
 - [x] Partner Model
-- [ ] TodayRecipe Model
+- [x] TodayRecipe Model
 
 ### 🚧 Fase 6: Autenticação
 
