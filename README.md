@@ -4,26 +4,26 @@
 
 ![Node.js](https://img.shields.io/badge/Node.js_22_LTS-007ACC)
 ![JavaScript](https://img.shields.io/badge/JavaScript-007ACC)
-![Express](https://img.shields.io/badge/Express-007ACC)
-. ![MongoDB](https://img.shields.io/badge/MongoDB-007ACC)
-![Mongoose](https://img.shields.io/badge/Mongoose-007ACC)
-. ![JWT](https://img.shields.io/badge/JWT-007ACC)
-![cookie-parser](https://img.shields.io/badge/cookie--parser-007ACC)
-. ![dotenv](https://img.shields.io/badge/dotenv-007ACC)
-![cross-env](https://img.shields.io/badge/cross--env-007ACC)
-. ![CORS](https://img.shields.io/badge/CORS-007ACC)
+![Express](https://img.shields.io/badge/Express-007ACC) .
+![MongoDB](https://img.shields.io/badge/MongoDB-007ACC)
+![Mongoose](https://img.shields.io/badge/Mongoose-007ACC) .
+![JWT](https://img.shields.io/badge/JWT-007ACC)
+![cookie-parser](https://img.shields.io/badge/cookie--parser-007ACC) .
+![dotenv](https://img.shields.io/badge/dotenv-007ACC)
+![cross-env](https://img.shields.io/badge/cross--env-007ACC) .
+![CORS](https://img.shields.io/badge/CORS-007ACC)
 ![Helmet](https://img.shields.io/badge/Helmet-007ACC)
 ![Express Rate Limit](https://img.shields.io/badge/Express--Rate--Limit-007ACC)
 . ![Winston](https://img.shields.io/badge/Winston-007ACC)
-![Express Winston](https://img.shields.io/badge/Express--Winston-007ACC)
-. ![Jest](https://img.shields.io/badge/Jest-007ACC)
-![Supertest](https://img.shields.io/badge/Supertest-007ACC)
-. ![EditorConfig](https://img.shields.io/badge/EditorConfig-007ACC)
+![Express Winston](https://img.shields.io/badge/Express--Winston-007ACC) .
+![Jest](https://img.shields.io/badge/Jest-007ACC)
+![Supertest](https://img.shields.io/badge/Supertest-007ACC) .
+![EditorConfig](https://img.shields.io/badge/EditorConfig-007ACC)
 ![ESLint](https://img.shields.io/badge/ESLint-007ACC)
 ![Prettier](https://img.shields.io/badge/Prettier-007ACC)
 ![Husky](https://img.shields.io/badge/Husky-007ACC)
-![lint-staged](https://img.shields.io/badge/lint--staged-007ACC)
-. ![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
+![lint-staged](https://img.shields.io/badge/lint--staged-007ACC) .
+![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
 
 ## Índice
 
@@ -43,8 +43,9 @@
 
 ## 📖 1. Descrição
 
-API REST para uma plataforma sustentável com assinatura flexível, gestão de pedidos e redução do
-desperdício de alimentos por meio do aproveitamento de produtos próximos ao vencimento.
+API REST para uma plataforma sustentável com assinatura flexível, gestão de
+pedidos e redução do desperdício de alimentos por meio do aproveitamento de
+produtos próximos ao vencimento.
 
 [Voltar ao topo 🔝](#top)
 
@@ -163,9 +164,9 @@ Exemplo:
 "start": "cross-env NODE_ENV=production node server.js"
 ```
 
-> O projeto utiliza ECMAScript Modules (ESM). Por isso, o Jest é executado através do Node com a
-> flag `--experimental-vm-modules`, permitindo compatibilidade com módulos ES durante a execução
-> dos testes.
+> O projeto utiliza ECMAScript Modules (ESM). Por isso, o Jest é executado
+> através do Node com a flag `--experimental-vm-modules`, permitindo
+> compatibilidade com módulos ES durante a execução dos testes.
 
 ### ✔️ Variáveis obrigatórias
 
@@ -190,17 +191,19 @@ Durante a inicialização da aplicação:
 - mensagens de erro específicas são geradas para configurações inválidas
 - a aplicação é impedida de inicializar quando existe alguma inconsistência
 
-Essa estratégia evita a execução da aplicação com configurações incompletas ou inválidas.
+Essa estratégia evita a execução da aplicação com configurações incompletas ou
+inválidas.
 
 ### ✔️ Centralização das configurações
 
-A aplicação acessa variáveis de ambiente exclusivamente através do módulo `config/env.js`.
+A aplicação acessa variáveis de ambiente exclusivamente através do módulo
+`config/env.js`.
 
-O uso direto de `process.env` é restrito à camada de configuração, reduzindo acoplamento e
-centralizando validações.
+O uso direto de `process.env` é restrito à camada de configuração, reduzindo
+acoplamento e centralizando validações.
 
-O módulo também converte valores para seus tipos apropriados, como números e arrays, antes de
-disponibilizá-los para a aplicação.
+O módulo também converte valores para seus tipos apropriados, como números e
+arrays, antes de disponibilizá-los para a aplicação.
 
 [Voltar ao topo 🔝](#top)
 
@@ -277,17 +280,19 @@ O projeto utiliza:
 - Supertest para testes de integração de rotas HTTP
 - Mocks para validação isolada de middleware
 
-Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o arquivo `.env.test`
-(exceto `validateEnv` que utiliza objeto mockado).
+Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o
+arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
 
-Atualmente a suíte contempla testes para componentes de infraestrutura da aplicação, incluindo:
+Atualmente a suíte contempla testes para componentes de infraestrutura da
+aplicação, incluindo:
 
 - validação de ambiente (`validateEnv`)
 - middleware de rota inexistente (`notFoundPage`)
 - middleware centralizado de tratamento de erros (`errorHandler`)
 - middleware de rate limiting (`limiter`)
 
-Além da infraestrutura, a suíte já contempla testes unitários dos modelos de domínio:
+Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
+domínio:
 
 - User Model
 - Subscription Model
@@ -315,10 +320,11 @@ O `notFoundPage` valida, com teste de integração:
 
 O `errorHandler` possui:
 
-- testes unitários para validação dos códigos HTTP e mensagens retornadas, incluindo erros
-  customizados da aplicação e erros de infraestrutura do Mongoose (`CastError` e `ValidationError`)
-- testes de integração para validação do fluxo completo entre Express, roteamento e middleware de
-  erro
+- testes unitários para validação dos códigos HTTP e mensagens retornadas,
+  incluindo erros customizados da aplicação e erros de infraestrutura do
+  Mongoose (`CastError` e `ValidationError`)
+- testes de integração para validação do fluxo completo entre Express,
+  roteamento e middleware de erro
 
 O `limiter` possui teste de integração que valida:
 
@@ -342,9 +348,10 @@ O `Subscription Model` possui testes unitários para validação de:
 
 - campos obrigatórios (`required`)
 - valores permitidos por `enum`
-- consistência entre dias selecionados (`daysOn`) e horários cadastrados (`schedules`)
-- regra de consistência do domínio implementada através do `middleware de documento` para validação
-  do Mongoose (`pre('validate')`)
+- consistência entre dias selecionados (`daysOn`) e horários cadastrados
+  (`schedules`)
+- regra de consistência do domínio implementada através do
+  `middleware de documento` para validação do Mongoose (`pre('validate')`)
 - validação de documento válido
 
 O `Product Model` possui testes unitários para validação de:
@@ -371,11 +378,13 @@ O `Order Model` possui testes unitários para validação de:
 - valores permitidos por `enum`
 - validação customizada (`validator.isEmail()`)
 - limite mínimo (`min`)
-- obrigatoriedade condicional dos dados de endereço conforme o método de entrega selecionado
-- validação da estrutura dos snapshots persistidos no pedido (`customerSnapshot`, `addressSnapshot`
-  e `itemsSnapshot`)
+- obrigatoriedade condicional dos dados de endereço conforme o método de entrega
+  selecionado
+- validação da estrutura dos snapshots persistidos no pedido
+  (`customerSnapshot`, `addressSnapshot` e `itemsSnapshot`)
 - validação de array não vazio para os itens do pedido
-- validação do formato do número do pedido através de expressão regular (`match`)
+- validação do formato do número do pedido através de expressão regular
+  (`match`)
 - validação de documento válido
 
 O `SubscriptionOrder Model` possui testes unitários para validação de:
@@ -383,14 +392,17 @@ O `SubscriptionOrder Model` possui testes unitários para validação de:
 - campos obrigatórios (`required`)
 - valores permitidos por `enum`
 - validação customizada (`validator.isEmail()`)
-- obrigatoriedade condicional dos dados de endereço conforme o método de entrega selecionado
-- validação da estrutura dos snapshots persistidos no pedido de assinatura (`customerSnapshot`,
-  `addressSnapshot` e `itemsSnapshot`)
+- obrigatoriedade condicional dos dados de endereço conforme o método de entrega
+  selecionado
+- validação da estrutura dos snapshots persistidos no pedido de assinatura
+  (`customerSnapshot`, `addressSnapshot` e `itemsSnapshot`)
 - validação de array não vazio para os itens do pedido
-- validação do formato do número do pedido de assinatura através de expressão regular (`match`)
-- validação do formato do horário de entrega através de expressão regular (`match`)
-- validação da janela permitida de entrega (`10:45` até `19:45`) através de regra customizada do
-  schema
+- validação do formato do número do pedido de assinatura através de expressão
+  regular (`match`)
+- validação do formato do horário de entrega através de expressão regular
+  (`match`)
+- validação da janela permitida de entrega (`10:45` até `19:45`) através de
+  regra customizada do schema
 - validação de documento válido
 
 O `Message Model` possui testes unitários para validação de:
@@ -399,8 +411,8 @@ O `Message Model` possui testes unitários para validação de:
 - valores padrão (`default`)
 - validação customizada de e-mail através de `validator.isEmail()`
 - validação de formato do WhatsApp através de expressão regular (`match`)
-- validação de conteúdo permitido para `userName` e `message` através de expressões regulares
-  (`match`)
+- validação de conteúdo permitido para `userName` e `message` através de
+  expressões regulares (`match`)
 - valores permitidos pelo campo `method` através de enumeração (`enum`)
 - restrição de domínio definida no schema (`minlength`)
 - validação de documentos contendo datas válidas (`Date`)
@@ -411,24 +423,27 @@ O `TodayRecipe Model` possui testes unitários para validação de:
 - campos obrigatórios (`required`)
 - valores permitidos por `enum`
 - validação de array não vazio para ingredientes
-- validação de conteúdo permitido para ingredientes e modo de preparo através de expressões
-  regulares (`match`)
+- validação de conteúdo permitido para ingredientes e modo de preparo através de
+  expressões regulares (`match`)
 - garantia da existência de exatamente três receitas por documento
-- validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e Patê)
+- validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e
+  Patê)
 - validação de documento válido
 
 ### ✔️ Estratégia
 
-- Testes unitários para funções isoladas (configurações, utilitários, serviços e validações)
+- Testes unitários para funções isoladas (configurações, utilitários, serviços e
+  validações)
 - Testes de integração para fluxos HTTP completos utilizando Supertest
-- Configurações de infraestrutura com cobertura própria antes das funcionalidades de negócio
+- Configurações de infraestrutura com cobertura própria antes das
+  funcionalidades de negócio
 
-Para cenários de integração específicos, a suíte utiliza uma aplicação Express isolada para testes
-(`tests/helpers/testApp.js`).
+Para cenários de integração específicos, a suíte utiliza uma aplicação Express
+isolada para testes (`tests/helpers/testApp.js`).
 
-Essa aplicação registra apenas as rotas e middlewares necessários para os cenários em validação,
-evitando dependência da configuração completa da aplicação e reduzindo o acoplamento entre os testes
-e o ambiente de execução.
+Essa aplicação registra apenas as rotas e middlewares necessários para os
+cenários em validação, evitando dependência da configuração completa da
+aplicação e reduzindo o acoplamento entre os testes e o ambiente de execução.
 
 [Voltar ao topo 🔝](#top)
 
@@ -442,8 +457,9 @@ e o ambiente de execução.
 
 O backend adota uma arquitetura orientada a features (domínios de negócio).
 
-Em vez de organizar arquivos por camadas técnicas globais (como controllers, models e routes), cada
-módulo concentra os artefatos relacionados à sua responsabilidade.
+Em vez de organizar arquivos por camadas técnicas globais (como controllers,
+models e routes), cada módulo concentra os artefatos relacionados à sua
+responsabilidade.
 
 Exemplo:
 
@@ -478,7 +494,8 @@ Benefícios:
 - Melhor integração com TypeScript, para possível evolução
 - Compatibilidade com ecossistemas frontend modernos (React)
 - Facilidade de compartilhamento de código entre aplicações (backend e frontend)
-- Compatibilidade com bibliotecas ESM-only (muitos pacotes novos já são ESM-first ou ESM-only)
+- Compatibilidade com bibliotecas ESM-only (muitos pacotes novos já são
+  ESM-first ou ESM-only)
 
 Convenções adotadas:
 
@@ -496,7 +513,8 @@ import connectDb from './config/database.js';
 
 O projeto utiliza ESLint 9 com Flat Config.
 
-Não foi adotado ESLint 10 devido à incompatibilidade atual do `eslint-plugin-import`.
+Não foi adotado ESLint 10 devido à incompatibilidade atual do
+`eslint-plugin-import`.
 
 Exemplo de regras adotadas, alinhadas à filosofia Airbnb:
 
@@ -515,8 +533,8 @@ Exemplo de regras adotadas, alinhadas à filosofia Airbnb:
 
 O projeto utiliza Express 5.
 
-Controllers assíncronos não utilizam wrappers como `asyncHandler` porque o Express 5 já captura
-automaticamente:
+Controllers assíncronos não utilizam wrappers como `asyncHandler` porque o
+Express 5 já captura automaticamente:
 
 - exceções lançadas em funções async
 - rejeições de Promises
@@ -525,10 +543,11 @@ e encaminha o erro para o middleware centralizado de tratamento de erros.
 
 ### ✔️ Configuração de ambiente
 
-O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é realizado dinamicamente
-com `dotenv`, utilizando o valor de `NODE_ENV`.
+O projeto utiliza arquivos `.env` separados por ambiente. O carregamento é
+realizado dinamicamente com `dotenv`, utilizando o valor de `NODE_ENV`.
 
-O valor de `NODE_ENV` é definido exclusivamente pelos scripts do projeto através do `cross-env`.
+O valor de `NODE_ENV` é definido exclusivamente pelos scripts do projeto através
+do `cross-env`.
 
 Exemplo:
 
@@ -543,8 +562,8 @@ Benefícios:
 - Padronização entre sistemas operacionais
 - Falha imediata em caso de configuração inválida
 
-Além do carregamento automático dos arquivos de ambiente, a aplicação centraliza todas as variáveis
-em um módulo de configuração (`config/env.js`).
+Além do carregamento automático dos arquivos de ambiente, a aplicação centraliza
+todas as variáveis em um módulo de configuração (`config/env.js`).
 
 Esse módulo é responsável por:
 
@@ -553,37 +572,39 @@ Esse módulo é responsável por:
 - converter valores para os tipos apropriados
 - exportar um objeto único de configuração para toda a aplicação
 
-Essa abordagem evita o uso direto de `process.env` espalhado pelo código, centralizando o acesso às
-configurações da aplicação.
+Essa abordagem evita o uso direto de `process.env` espalhado pelo código,
+centralizando o acesso às configurações da aplicação.
 
 ### ✔️ Banco de dados
 
 A aplicação estabelece a conexão com o MongoDB durante a inicialização.
 
-A camada de conexão possui responsabilidade exclusiva de estabelecer a conexão com o banco de dados.
+A camada de conexão possui responsabilidade exclusiva de estabelecer a conexão
+com o banco de dados.
 
-O tratamento de falhas de inicialização foi centralizado no ponto de entrada da aplicação
-(`server.js`), que é responsável por:
+O tratamento de falhas de inicialização foi centralizado no ponto de entrada da
+aplicação (`server.js`), que é responsável por:
 
 - inicializar a aplicação
 - registrar erros de startup
 - interromper a execução em caso de falha
 
-Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de dados e facilita a
-execução de testes.
+Essa abordagem reduz acoplamento, melhora a reutilização da camada de banco de
+dados e facilita a execução de testes.
 
 ### ✔️ Tratamento de erros
 
-A aplicação utiliza um middleware centralizado para tratamento de erros durante o ciclo de vida das
-requisições HTTP.
+A aplicação utiliza um middleware centralizado para tratamento de erros durante
+o ciclo de vida das requisições HTTP.
 
-Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP apropriadas:
+Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP
+apropriadas:
 
 - `CastError` → `400 Bad Request`
 - `ValidationError` → `400 Bad Request`
 
-A aplicação utiliza, também, classes de erro customizadas para representar regras de negócio e
-respostas HTTP específicas:
+A aplicação utiliza, também, classes de erro customizadas para representar
+regras de negócio e respostas HTTP específicas:
 
 - `ConflictError`
 - `ForbiddenError`
@@ -591,24 +612,25 @@ respostas HTTP específicas:
 - `RateLimitError`
 - `UnauthorizedError`
 
-Cada classe define seu próprio código de status HTTP, permitindo tratamento consistente e
-centralizado dos erros da aplicação.
+Cada classe define seu próprio código de status HTTP, permitindo tratamento
+consistente e centralizado dos erros da aplicação.
 
 Além dos erros gerados pela aplicação e pelo Mongoose:
 
-- requisições para rotas inexistentes são tratadas por um middleware dedicado, retornando
-  `404 Not Found`; e
-- erros de validação produzidos pelo Celebrate/Joi são interceptados pelo middleware `errors()`,
-  retornando respostas `400 Bad Request` adequadas.
+- requisições para rotas inexistentes são tratadas por um middleware dedicado,
+  retornando `404 Not Found`; e
+- erros de validação produzidos pelo Celebrate/Joi são interceptados pelo
+  middleware `errors()`, retornando respostas `400 Bad Request` adequadas.
 
-O comportamento do middleware centralizado de tratamento de erros é validado por testes unitários
-(Jest) e testes de integração (Supertest), garantindo a correta tradução dos erros internos da
-aplicação e do Mongoose para respostas HTTP padronizadas.
+O comportamento do middleware centralizado de tratamento de erros é validado por
+testes unitários (Jest) e testes de integração (Supertest), garantindo a correta
+tradução dos erros internos da aplicação e do Mongoose para respostas HTTP
+padronizadas.
 
 ### ✔️ CORS
 
-A aplicação utiliza o middleware `cors` com lista de origens permitidas definida por variável de
-ambiente.
+A aplicação utiliza o middleware `cors` com lista de origens permitidas definida
+por variável de ambiente.
 
 A configuração possui as seguintes características:
 
@@ -618,13 +640,13 @@ A configuração possui as seguintes características:
 - tratamento de requisições preflight (`OPTIONS`)
 - bloqueio explícito de origens não autorizadas com resposta apropriada
 
-Requisições sem cabeçalho `Origin` (como Curl, Postman e alguns testes automatizados)
-são permitidas.
+Requisições sem cabeçalho `Origin` (como Curl, Postman e alguns testes
+automatizados) são permitidas.
 
 ### ✔️ Helmet
 
-A API utiliza Helmet com a configuração padrão para adicionar cabeçalhos HTTP relacionados à
-segurança.
+A API utiliza Helmet com a configuração padrão para adicionar cabeçalhos HTTP
+relacionados à segurança.
 
 Entre os cabeçalhos adicionados estão:
 
@@ -634,13 +656,13 @@ Entre os cabeçalhos adicionados estão:
 - `Referrer-Policy`
 - `Strict-Transport-Security`
 
-Como a aplicação atua apenas como API REST e não entrega páginas HTML, a configuração padrão do
-Helmet é suficiente para o cenário atual.
+Como a aplicação atua apenas como API REST e não entrega páginas HTML, a
+configuração padrão do Helmet é suficiente para o cenário atual.
 
 ### ✔️ Rate Limiting
 
-A aplicação utiliza `express-rate-limit` para limitar o número de requisições por endereço IP em uma
-janela de tempo configurável.
+A aplicação utiliza `express-rate-limit` para limitar o número de requisições
+por endereço IP em uma janela de tempo configurável.
 
 Características:
 
@@ -654,8 +676,8 @@ A configuração atual utiliza uma janela de 15 minutos.
 
 ### ✔️ Observabilidade
 
-A aplicação utiliza Winston para centralização de logs e Express-Winston para registro automático de
-requisições HTTP.
+A aplicação utiliza Winston para centralização de logs e Express-Winston para
+registro automático de requisições HTTP.
 
 Características:
 
@@ -673,7 +695,8 @@ Arquivos gerados:
 
 O diretório `logs/` é criado localmente e não é versionado pelo Git.
 
-Durante o desenvolvimento, os logs também são exibidos no terminal para facilitar a depuração.
+Durante o desenvolvimento, os logs também são exibidos no terminal para
+facilitar a depuração.
 
 Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto de
 `console.log`, `console.warn` e `console.error` no código de produção.
@@ -682,8 +705,8 @@ Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto 
 
 O projeto adota uma abordagem model-first.
 
-As entidades principais do domínio são modeladas e validadas através do Mongoose antes da
-implementação dos controllers e rotas.
+As entidades principais do domínio são modeladas e validadas através do Mongoose
+antes da implementação dos controllers e rotas.
 
 Essa estratégia permite:
 
@@ -692,8 +715,9 @@ Essa estratégia permite:
 - criar testes unitários dos modelos antes da implementação das funcionalidades;
 - reduzir retrabalho durante o desenvolvimento das features.
 
-As validações de entrada HTTP não são implementadas nessa etapa. Elas são desenvolvidas junto de
-cada funcionalidade através do Celebrate/Joi, acompanhando a definição dos endpoints da API.
+As validações de entrada HTTP não são implementadas nessa etapa. Elas são
+desenvolvidas junto de cada funcionalidade através do Celebrate/Joi,
+acompanhando a definição dos endpoints da API.
 
 #### Auditoria básica com `timestamps`
 
@@ -710,8 +734,8 @@ O Mongoose passa a criar e atualizar automaticamente os campos:
 - `createdAt`
 - `updatedAt`
 
-Isso elimina a necessidade de controle manual dessas informações e fornece uma trilha básica de
-auditoria para os documentos persistidos.
+Isso elimina a necessidade de controle manual dessas informações e fornece uma
+trilha básica de auditoria para os documentos persistidos.
 
 ### ✔️ Validação em camadas
 
@@ -736,12 +760,13 @@ Responsável por validar dados recebidos pelas rotas HTTP:
 - `req.query`;
 - `req.headers.`
 
-Essa abordagem evita validações manuais dentro dos controllers e garante que as requisições cheguem
-à lógica de negócio já validadas.
+Essa abordagem evita validações manuais dentro dos controllers e garante que as
+requisições cheguem à lógica de negócio já validadas.
 
 ### 🚧 Autenticação
 
-A autenticação planejada para a aplicação utilizará JWT armazenado em cookies `httpOnly`.
+A autenticação planejada para a aplicação utilizará JWT armazenado em cookies
+`httpOnly`.
 
 Características:
 
@@ -749,8 +774,8 @@ Características:
 - `Secure`
 - `SameSite=Lax` ou `SameSite=Strict`
 
-Essa abordagem reduz a exposição do token a ataques de XSS quando comparada ao armazenamento em
-Local Storage.
+Essa abordagem reduz a exposição do token a ataques de XSS quando comparada ao
+armazenamento em Local Storage.
 
 [Voltar ao topo 🔝](#top)
 
@@ -842,23 +867,24 @@ Local Storage.
 
 ### Diretórios principais
 
-- `config`: carregamento de ambiente, validações de configuração, conexão com banco de dados e
-  configurações de infraestrutura
+- `config`: carregamento de ambiente, validações de configuração, conexão com
+  banco de dados e configurações de infraestrutura
 - `modules`: módulos organizados por domínio de negócio
 - `shared`: recursos compartilhados entre módulos
   - `errors`: classes de erros customizados da aplicação
   - `logger`: configuração centralizada de logs da aplicação
-  - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado de erros
+  - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado
+    de erros
   - `utils`: funções utilitárias compartilhadas
-- `tests`: testes unitários, testes de integração, aplicação auxiliar de teste (`testApp`) e
-  rotas específicas para cenários de validação
+- `tests`: testes unitários, testes de integração, aplicação auxiliar de teste
+  (`testApp`) e rotas específicas para cenários de validação
 
 ### Estrutura dos módulos
 
 Cada módulo concentra seus próprios arquivos:
 
-- `.controller.js`: controladores das rotas, recebe a requisição do frontend e, quando necessário,
-  chama o service
+- `.controller.js`: controladores das rotas, recebe a requisição do frontend e,
+  quando necessário, chama o service
 - `.middleware.js`: middlewares específicos do módulo, quando necessário
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.routes.js`: definição das rotas
@@ -873,8 +899,9 @@ Cada módulo concentra seus próprios arquivos:
 
 ## 🗺️ 11. Roadmap
 
-Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Modelagem de Dados →
-Autenticação → Funcionalidades Core → Qualidade → Documentação → Deploy
+Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Modelagem
+de Dados → Autenticação → Funcionalidades Core → Qualidade → Documentação →
+Deploy
 
 ### ✅ Fase 1: Infraestrutura Base
 
