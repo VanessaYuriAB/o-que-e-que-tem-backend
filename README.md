@@ -683,6 +683,24 @@ Essa estratégia permite:
 As validações de entrada HTTP não são implementadas nessa etapa. Elas são desenvolvidas junto de
 cada funcionalidade através do Celebrate/Joi, acompanhando a definição dos endpoints da API.
 
+#### Auditoria básica com `timestamps`
+
+Todos os schemas utilizam a opção:
+
+```js
+{
+  timestamps: true,
+}
+```
+
+O Mongoose passa a criar e atualizar automaticamente os campos:
+
+- `createdAt`
+- `updatedAt`
+
+Isso elimina a necessidade de controle manual dessas informações e fornece uma trilha básica de
+auditoria para os documentos persistidos.
+
 ### ✔️ Validação em camadas
 
 A aplicação utiliza duas camadas complementares de validação:
