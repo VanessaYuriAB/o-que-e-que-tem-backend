@@ -33,10 +33,8 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 8,
-      match: /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-      select: false, // não retorna hash de senha por padrão nas consultas (queries: find, findOne, findById) - mas métodos como create, save, new Model() não passam por projeção e o campo é retornado na requisição realizada
-      trim: true,
+      select: false, // não retorna hash de senha por padrão em consultas (queries: find, findOne, findById) - mas métodos como create, save, new Model() não passam por projeção e o campo é retornado em requisições realizadas
+      // O esquema armazena hashes bcrypt, não a senha original do usuário - a validação dos dados do frontend é realizada pelo Celebrate/Joi
     },
 
     cep: {
