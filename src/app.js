@@ -14,6 +14,7 @@ import requestLogger from './shared/middlewares/requestLogger.js';
 import errorLogger from './shared/middlewares/errorLogger.js';
 import env from './config/env.js';
 import cookieParser from 'cookie-parser';
+import modules from './routes/index.js';
 
 // --------
 // Express
@@ -76,6 +77,11 @@ if (env.NODE_ENV !== 'production') {
     res.json({ status: 'ok' });
   });
 }
+
+// Agregador de módulos: rotas da aplicação
+modules.forEach(({ path, router }) => {
+  app.use(path, router);
+});
 
 // --------------------
 // Tratamento de erros
