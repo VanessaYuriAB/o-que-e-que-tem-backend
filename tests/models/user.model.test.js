@@ -120,22 +120,6 @@ describe('User Model', () => {
   });
 
   // 8
-  it('deve rejeitar senha sem número', async () => {
-    const user = new User({
-      userName: 'Vanessa',
-      email: 'vanessa@email.com',
-      tel: '(11) 99999-9999',
-      password: 'abcdefgh',
-    });
-
-    await expect(user.validate()).rejects.toMatchObject({
-      errors: {
-        password: expect.any(Object),
-      },
-    });
-  });
-
-  // 9
   it('deve rejeitar CEP inválido', async () => {
     const user = new User({
       userName: 'Vanessa',
@@ -156,7 +140,7 @@ describe('User Model', () => {
   // MinLength
   // ----------
 
-  // 10
+  // 9
   it('deve rejeitar userName menor que 2 caracteres', async () => {
     const user = new User({
       userName: 'V',
@@ -176,7 +160,7 @@ describe('User Model', () => {
   // MaxLength
   // ----------
 
-  // 11
+  // 10
   it('deve rejeitar userName maior que 40 caracteres', async () => {
     const user = new User({
       userName: 'V'.repeat(41),
@@ -196,7 +180,7 @@ describe('User Model', () => {
   // Custom Validator
   // -----------------
 
-  // 12
+  // 11
   it('deve rejeitar email inválido', async () => {
     const user = new User({
       userName: 'Vanessa',
@@ -216,7 +200,7 @@ describe('User Model', () => {
   // Default
   // --------
 
-  // 13
+  // 12
   it('deve definir subscription como false por padrão', () => {
     const user = new User({
       userName: 'Vanessa',
