@@ -13,6 +13,7 @@ import limiter from './shared/middlewares/limiter.js';
 import requestLogger from './shared/middlewares/requestLogger.js';
 import errorLogger from './shared/middlewares/errorLogger.js';
 import env from './config/env.js';
+import cookieParser from 'cookie-parser';
 
 // --------
 // Express
@@ -52,6 +53,12 @@ app.use(limiter);
 // ------------
 
 app.use(express.json());
+
+// --------------
+// Cookie-parser
+// --------------
+
+app.use(cookieParser());
 
 // ----------------
 // Logs (requests)
