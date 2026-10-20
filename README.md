@@ -14,7 +14,9 @@
 ![CORS](https://img.shields.io/badge/CORS-007ACC)
 ![Helmet](https://img.shields.io/badge/Helmet-007ACC)
 ![Express Rate Limit](https://img.shields.io/badge/Express--Rate--Limit-007ACC)
-. ![Winston](https://img.shields.io/badge/Winston-007ACC)
+. ![Celebrate](https://img.shields.io/badge/Celebrate-007ACC)
+![Joi](https://img.shields.io/badge/Joi-007ACC) .
+![Winston](https://img.shields.io/badge/Winston-007ACC)
 ![Express Winston](https://img.shields.io/badge/Express--Winston-007ACC) .
 ![Jest](https://img.shields.io/badge/Jest-007ACC)
 ![Supertest](https://img.shields.io/badge/Supertest-007ACC) .
@@ -78,23 +80,30 @@ produtos próximos ao vencimento.
 - Jest
 - Supertest
 
+### Infraestrutura HTTP
+
+- cors
+- cookie-parser
+
 ### Segurança e Autenticação
 
 - helmet
 - express-rate-limit
 - bcryptjs
 - jsonwebtoken
-- cookie-parser
+
+### Validação
+
+- validator
+- celebrate
+- joi
 
 ### Utilidades
 
 - dotenv
 - cross-env
-- cors
 - winston
 - express-winston
-- celebrate
-- validator
 
 [Voltar ao topo 🔝](#top)
 
@@ -606,11 +615,13 @@ apropriadas:
 A aplicação utiliza, também, classes de erro customizadas para representar
 regras de negócio e respostas HTTP específicas:
 
+- `ConfigError`
 - `ConflictError`
 - `ForbiddenError`
 - `NotFoundError`
 - `RateLimitError`
 - `UnauthorizedError`
+- `UnsupportedMediaTypeError`
 
 Cada classe define seu próprio código de status HTTP, permitindo tratamento
 consistente e centralizado dos erros da aplicação.
@@ -755,27 +766,62 @@ Responsável por validar regras de domínio e persistência:
 
 Responsável por validar dados recebidos pelas rotas HTTP:
 
-- `req.body`;
-- `req.params`;
-- `req.query`;
-- `req.headers.`
+- `req.body`
+- `req.params`
+- `req.query`
+- `req.cookies`
+
+As validações de autenticação utilizam cookies `httpOnly`, permitindo verificar
+a presença dos tokens esperados antes que a requisição alcance a camada de
+negócio.
 
 Essa abordagem evita validações manuais dentro dos controllers e garante que as
 requisições cheguem à lógica de negócio já validadas.
 
+### ✔️ Validação de Content-Type
+
+Endpoints que recebem JSON utilizam um middleware específico responsável por
+validar o cabeçalho `Content-Type`.
+
+A validação é realizada através de `req.is('application/json')`, separando
+responsabilidades entre:
+
+- Celebrate/Joi para dados da requisição;
+- middleware HTTP para validações relacionadas ao protocolo.
+
+Requisições incompatíveis recebem resposta `415 Unsupported Media Type`.
+
 ### 🚧 Autenticação
 
-A autenticação planejada para a aplicação utilizará JWT armazenado em cookies
-`httpOnly`.
+A autenticação da aplicação está sendo implementada através de JWT armazenados
+em cookies `httpOnly`.
 
-Características:
+Estratégia adotada:
 
-- `httpOnly`
-- `Secure`
-- `SameSite=Lax` ou `SameSite=Strict`
+- `accessToken` para acesso às rotas protegidas
+- `refreshToken` para renovação da sessão
+- armazenamento em cookies `httpOnly`
+- suporte a `Secure`
+- suporte a `SameSite=Lax` ou `SameSite=Strict`
+- envio de credenciais entre frontend e backend através de CORS com
+  `credentials: true`
 
-Essa abordagem reduz a exposição do token a ataques de XSS quando comparada ao
-armazenamento em Local Storage.
+Essa abordagem reduz a exposição dos tokens a ataques de XSS quando comparada ao
+armazenamento em Local Storage, uma vez que cookies `httpOnly` não podem ser
+acessados via JavaScript no navegador.
+
+A validação das entradas relacionadas à autenticação é realizada através do
+Celebrate/Joi.
+
+Atualmente já existem validações para:
+
+- cadastro de usuário (`register`)
+- login
+- presença do cookie `refreshToken`
+- presença do cookie `accessToken`
+
+A validação criptográfica dos JWT e o fluxo completo de autenticação serão
+implementados nas próximas etapas do projeto.
 
 [Voltar ao topo 🔝](#top)
 
@@ -801,16 +847,16 @@ armazenamento em Local Storage.
 │     │     └── validateEnv.js
 │     ├── modules/
 │     │     ├── auth/
+│     │     │     ├── auth.controller.js
+│     │     │     ├── auth.middleware.js
+│     │     │     ├── auth.routes.js
+│     │     │     ├── auth.service.js
+│     │     │     └── auth.validation.js
 │     │     ├── contact/
 │     │     ├── menu/
 │     │     ├── orders/
 │     │     ├── partners/
 │     │     ├── recipes/
-│     │     │     ├── recipes.controller.js
-│     │     │     ├── recipes.model.js
-│     │     │     ├── recipes.routes.js
-│     │     │     ├── recipes.service.js
-│     │     │     └── recipes.validation.js
 │     │     ├── subscriptions/
 │     │     └── users/
 │     ├── shared/
@@ -820,7 +866,8 @@ armazenamento em Local Storage.
 │     │     │     ├── ForbiddenError.js
 │     │     │     ├── NotFoundError.js
 │     │     │     ├── RateLimitError.js
-│     │     │     └── UnauthorizedError.js
+│     │     │     ├── UnauthorizedError.js
+│     │     │     └── UnsupportedMediaTypeError.js
 │     │     ├── logger/
 │     │     │     └── logger.js
 │     │     ├── middlewares/
@@ -828,7 +875,8 @@ armazenamento em Local Storage.
 │     │     │     ├── errorLogger.js
 │     │     │     ├── limiter.js
 │     │     │     ├── notFoundPage.js
-│     │     │     └── requestLogger.js
+│     │     │     ├── requestLogger.js
+│     │     │     └── validateContentType.js
 │     │     └── utils/
 │     │           └── errorsMessages.js
 │     └── app.js
@@ -994,14 +1042,18 @@ Deploy
 
 #### Validação de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
-- [ ] `auth.validation.js`
+- [x] `auth.validation.js`
+
+#### Infraestrutura HTTP
+
+- [x] Configuração cookie-parser
+- [x] Validação Content-Type
 
 #### Autenticação
 
 - [ ] Cadastro de usuário
-- [ ] Hash de senha (bcrypt)
-- [ ] Configuração cookie-parser
 - [ ] Login
+- [ ] Hash de senha (bcrypt)
 - [ ] Geração de JWT
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
