@@ -5,6 +5,7 @@ const errorsMessages = {
   notFound: 'Não localizado.',
   rateLimit: 'Limite de solicitações atingido.',
   unauthorized: 'Não autorizado.',
+  unsupportedMediaType: 'Formato do payload não é um formato suportado.',
 };
 
 export default errorsMessages;
