@@ -492,6 +492,36 @@ Benefícios:
 - Menor acoplamento entre módulos
 - Consistência com a arquitetura do frontend
 
+### ✔️ Agregação Automática de Rotas
+
+Os módulos da aplicação expõem um objeto contendo o prefixo da rota e o
+respectivo roteador.
+
+Exemplo:
+
+```js
+export default {
+  path: '/auth',
+  router,
+};
+```
+
+Todos os módulos são registrados por um agregador central de rotas, que realiza
+a montagem automática na aplicação:
+
+```js
+modules.forEach(({ path, router }) => {
+  app.use(path, router);
+});
+```
+
+Benefícios:
+
+- desacoplamento entre módulos e aplicação principal;
+- registro centralizado de rotas;
+- escalabilidade para novas features;
+- menor necessidade de alterações em `app.js`.
+
 ### ✔️ ESM-first
 
 O projeto utiliza ECMAScript Modules (ESM) como padrão.
@@ -778,6 +808,10 @@ negócio.
 Essa abordagem evita validações manuais dentro dos controllers e garante que as
 requisições cheguem à lógica de negócio já validadas.
 
+Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
+autenticação, incluindo cadastro, login e validação de cookies relacionados à
+autenticação.
+
 ### ✔️ Validação de Content-Type
 
 Endpoints que recebem JSON utilizam um middleware específico responsável por
@@ -820,6 +854,13 @@ Atualmente já existem validações para:
 - presença do cookie `refreshToken`
 - presença do cookie `accessToken`
 
+Além das validações já implementadas, o fluxo de cadastro possui:
+
+- endpoint de registro (`POST /auth/register`)
+- verificação de e-mail duplicado
+- hash de senha utilizando `bcryptjs`
+- resposta sanitizada sem exposição do hash da senha
+
 A validação criptográfica dos JWT e o fluxo completo de autenticação serão
 implementados nas próximas etapas do projeto.
 
@@ -848,6 +889,7 @@ implementados nas próximas etapas do projeto.
 │     ├── modules/
 │     │     ├── auth/
 │     │     │     ├── auth.controller.js
+│     │     │     ├── auth.index.js
 │     │     │     ├── auth.middleware.js
 │     │     │     ├── auth.routes.js
 │     │     │     ├── auth.service.js
@@ -859,6 +901,8 @@ implementados nas próximas etapas do projeto.
 │     │     ├── recipes/
 │     │     ├── subscriptions/
 │     │     └── users/
+│     ├── routes/
+│     │     └── index.js
 │     ├── shared/
 │     │     ├── errors/
 │     │     │     ├── ConfigError.js
@@ -933,6 +977,8 @@ Cada módulo concentra seus próprios arquivos:
 
 - `.controller.js`: controladores das rotas, recebe a requisição do frontend e,
   quando necessário, chama o service
+- `.index.js`: ponto de entrada do módulo utilizado pelo agregador central de
+  rotas
 - `.middleware.js`: middlewares específicos do módulo, quando necessário
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.routes.js`: definição das rotas
@@ -1051,9 +1097,9 @@ Deploy
 
 #### Autenticação
 
-- [ ] Cadastro de usuário
+- [x] Cadastro de usuário
+- [x] Hash de senha (bcrypt)
 - [ ] Login
-- [ ] Hash de senha (bcrypt)
 - [ ] Geração de JWT
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
