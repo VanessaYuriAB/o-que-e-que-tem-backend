@@ -10,4 +10,7 @@ export default {
     '!src/**/requestLogger.js',
     '!src/**/errorLogger.js',
   ],
+
+  // Configuração para rodar testes com banco de dados
+  setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],
 };
