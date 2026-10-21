@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
+import UnauthorizedError from '../../shared/errors/UnauthorizedError.js';
+import errorsMessages from '../../shared/utils/errorsMessages.js';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   /* Campos */
@@ -84,5 +87,29 @@ const userSchema = new mongoose.Schema(
     // Cria 'createdAt' e 'updatedAt' automaticamente
   },
 );
+
+// Método estático do mongoose (model) > autenticação por credenciais, com msg de erro genérica, sem revelar sobre a existência do e-mail, para evitar enumeração de usuários > loginUser
+userSchema.statics.findUserByCredentials = async function findUserByCredentials(
+  email,
+  password,
+) {
+  const userInDb = await this.findOne({ email })
+    .select('+password')
+    .orFail(() => {
+      throw new UnauthorizedError(
+        `${errorsMessages.unauthorized} Login não autenticado.`,
+      );
+    });
+
+  const passwordMatch = await bcrypt.compare(password, userInDb.password);
+
+  if (!passwordMatch) {
+    throw new UnauthorizedError(
+      `${errorsMessages.unauthorized} Login não autenticado.`,
+    );
+  }
+
+  return userInDb;
+};
 
 export default mongoose.model('User', userSchema);
