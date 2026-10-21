@@ -71,8 +71,8 @@ app.use(requestLogger);
 // Rotas
 // -------
 
-// Rota teste para ambiente de desenvolvimento/teste
-if (env.NODE_ENV !== 'production') {
+// Rota teste para ambiente de desenvolvimento
+if (env.NODE_ENV === 'development') {
   app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
   });
