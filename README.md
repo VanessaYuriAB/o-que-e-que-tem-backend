@@ -293,11 +293,17 @@ Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o
 arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
 
 Além do `validateEnv`, os testes de integração dos middlewares `errorHandler` e
-`limiter` utilizam uma aplicação Express isolada (`tests/helpers/testApp.js`),
-onde o rate limiting possui configuração própria de limite de requisições.
+`limiter` utilizam uma aplicação Express isolada (`tests/helpers/testApp.js`).
 
-Essa abordagem evita dependência da configuração global do ambiente de testes
-(`.env.test`) e garante cenários determinísticos para validação dos middlewares.
+Essa aplicação registra apenas as rotas e middlewares necessários para os
+cenários em validação, evitando dependência da configuração completa da
+aplicação, reduzindo o acoplamento entre os testes e garantindo cenários
+determinísticos para validação da infraestrutura HTTP.
+
+Para cenários que dependem de persistência, a suíte utiliza uma configuração
+global do Jest (`tests/setup/jest.setup.js`) responsável por preparar o ambiente
+de banco de dados antes da execução dos testes e realizar a limpeza dos recursos
+ao final da execução.
 
 Atualmente a suíte contempla testes para componentes de infraestrutura da
 aplicação, incluindo:
@@ -307,7 +313,7 @@ aplicação, incluindo:
 - middleware centralizado de tratamento de erros (`errorHandler`)
 - middleware de rate limiting (`limiter`)
 
-Além da infraestrutura, a suíte já contempla testes unitários dos modelos de
+Além da infraestrutura, a suíte contempla testes unitários dos modelos de
 domínio:
 
 - User Model
@@ -318,6 +324,11 @@ domínio:
 - SubscriptionOrder Model
 - Message Model
 - TodayRecipe Model
+
+Além da infraestrutura e dos modelos, a suíte já contempla testes de integração
+do fluxo de autenticação:
+
+- cadastro de usuário (`POST /auth/register`)
 
 ### ✔️ Cobertura Atual
 
@@ -445,20 +456,28 @@ O `TodayRecipe Model` possui testes unitários para validação de:
   Patê)
 - validação de documento válido
 
+O fluxo de cadastro de usuário (`POST /auth/register`) possui testes de
+integração que validam:
+
+- cadastro realizado com sucesso
+- persistência dos dados no MongoDB
+- verificação de e-mail duplicado
+- hash da senha utilizando `bcryptjs`
+- validação de e-mail inválido
+- validação de senha inválida
+- validação de divergência entre `password` e `confirmPassword`
+- validação de corpo da requisição ausente
+- validação do cabeçalho `Content-Type`
+
 ### ✔️ Estratégia
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e
   validações)
 - Testes de integração para fluxos HTTP completos utilizando Supertest
+- Integração entre Express, middlewares, validações e banco de dados quando
+  aplicável
 - Configurações de infraestrutura com cobertura própria antes das
   funcionalidades de negócio
-
-Para cenários de integração específicos, a suíte utiliza uma aplicação Express
-isolada para testes (`tests/helpers/testApp.js`).
-
-Essa aplicação registra apenas as rotas e middlewares necessários para os
-cenários em validação, evitando dependência da configuração completa da
-aplicação e reduzindo o acoplamento entre os testes e o ambiente de execução.
 
 [Voltar ao topo 🔝](#top)
 
@@ -948,8 +967,13 @@ implementados nas próximas etapas do projeto.
 │     │     ├── subscription.model.test.js
 │     │     ├── today-recipe.model.test.js
 │     │     └── user.model.test.js
-│     └── routes/
-│           └── testRoutes.js
+│     ├── modules/
+│     │     └── auth/
+│     │           └── register.test.js
+│     ├── routes/
+│     │     └── testRoutes.js
+│     └── setup/
+│           └── jest.setup.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
@@ -1117,7 +1141,7 @@ Deploy
 
 #### Testes de Integração (Supertest)
 
-- [ ] Cadastro de usuário
+- [x] Cadastro de usuário
 - [ ] Login
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
