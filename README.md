@@ -292,6 +292,13 @@ O projeto utiliza:
 Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o
 arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
 
+Além do `validateEnv`, os testes de integração dos middlewares `errorHandler` e
+`limiter` utilizam uma aplicação Express isolada (`tests/helpers/testApp.js`),
+onde o rate limiting possui configuração própria de limite de requisições.
+
+Essa abordagem evita dependência da configuração global do ambiente de testes
+(`.env.test`) e garante cenários determinísticos para validação dos middlewares.
+
 Atualmente a suíte contempla testes para componentes de infraestrutura da
 aplicação, incluindo:
 
@@ -349,7 +356,6 @@ O `User Model` possui testes unitários para validação de:
 - expressões regulares (`match`)
 - validação customizada (`validator.isEmail()`)
 - valor padrão (`default`)
-- transformação automática de strings (`trim`)
 - restrições de domínio definidas no schema (`minlength`, `maxlength`)
 - validação de documento válido
 
