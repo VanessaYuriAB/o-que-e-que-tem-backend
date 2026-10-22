@@ -331,6 +331,7 @@ do fluxo de autenticação:
 
 - cadastro de usuário (`POST /auth/register`)
 - login (`POST /auth/login`)
+- middleware de autenticação (`GET /auth/health`)
 
 ### ✔️ Cobertura Atual
 
@@ -482,6 +483,16 @@ O fluxo de login (`POST /auth/login`) possui testes de integração que validam:
 - validação de senha incorreta
 - validação de ausência dos campos obrigatórios (`required()`)
 - validação do cabeçalho `Content-Type`
+
+O middleware de autenticação (`authMiddleware`) possui testes de integração que
+validam:
+
+- autenticação realizada com sucesso
+- validação do payload autenticado disponibilizado em `req.user`
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- validação de ausência do cookie `accessToken`
+- validação de formato inválido do JWT
 
 ### ✔️ Estratégia
 
@@ -1243,6 +1254,7 @@ As próximas etapas contemplam:
 │     │     └── user.model.test.js
 │     ├── modules/
 │     │     └── auth/
+│     │           ├── auth.middleware.test.js
 │     │           ├── login.test.js
 │     │           └── register.test.js
 │     ├── routes/
@@ -1418,7 +1430,7 @@ Deploy
 
 - [x] Cadastro de usuário
 - [x] Login
-- [ ] Middleware de autenticação
+- [x] Middleware de autenticação
 - [ ] Refresh Token
 - [ ] Logout
 

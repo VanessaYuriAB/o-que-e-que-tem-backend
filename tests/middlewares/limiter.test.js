@@ -19,7 +19,7 @@ describe('Rate Limit', () => {
     const requests = [];
 
     for (let i = 0; i < TEST_LIMIT + 2; i++) {
-      requests.push(request.get('/health'));
+      requests.push(request.get('/test-health')); // rota para testes definida em tests/helpers/testApp.js
     }
 
     const responses = await Promise.all(requests);
