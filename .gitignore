@@ -29,3 +29,6 @@ Thumbs.db
 
 # IDES
 .idea/
+
+# AUTH TEST FILES
+cookies.txt
