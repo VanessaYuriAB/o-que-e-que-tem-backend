@@ -181,7 +181,7 @@ Exemplo:
 
 Todos os ambientes devem possuir as variáveis:
 
-```
+```text
 PORT=3001
 MONGODB_URI=mongodb://localhost:27017
 DB_NAME=oqueequetemdb
@@ -497,8 +497,7 @@ responsabilidade.
 
 Exemplo:
 
-```
-
+```text
 modules/
 └── recipes/
 ├── recipes.controller.js
@@ -506,7 +505,6 @@ modules/
 ├── recipes.routes.js
 ├── recipes.service.js
 └── recipes.validation.js
-
 ```
 
 Benefícios:
@@ -850,44 +848,273 @@ responsabilidades entre:
 
 Requisições incompatíveis recebem resposta `415 Unsupported Media Type`.
 
-### 🚧 Autenticação
+### ✔️ Autenticação
 
-A autenticação da aplicação está sendo implementada através de JWT armazenados
-em cookies `httpOnly`.
+#### Fluxo de autenticação
 
-Estratégia adotada:
+A autenticação é baseada em JWT armazenados em cookies `httpOnly`.
 
-- `accessToken` para acesso às rotas protegidas
-- `refreshToken` para renovação da sessão
-- armazenamento em cookies `httpOnly`
-- suporte a `Secure`
-- suporte a `SameSite=Lax` ou `SameSite=Strict`
-- envio de credenciais entre frontend e backend através de CORS com
-  `credentials: true`
+Após a validação das credenciais, a API gera dois tokens:
+
+- `accessToken`: utilizado para acesso às rotas protegidas
+- `refreshToken`: utilizado para renovação da sessão sem necessidade de novo
+  login
+
+Ambos os tokens são enviados ao navegador através dos cookies `httpOnly`.
 
 Essa abordagem reduz a exposição dos tokens a ataques de XSS quando comparada ao
 armazenamento em Local Storage, uma vez que cookies `httpOnly` não podem ser
 acessados via JavaScript no navegador.
 
+#### Configuração dos cookies
+
+Exemplo simplificado:
+
+```js
+res.cookie('accessToken', accessToken, {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+  path: '/',
+  maxAge: 15 * 60 * 1000,
+});
+```
+
+- ##### httpOnly
+
+Impede que o cookie seja acessado através de JavaScript.
+
+Exemplo bloqueado:
+
+```js
+document.cookie;
+```
+
+Essa configuração reduz a exposição dos tokens em caso de vulnerabilidades XSS.
+
+- ##### secure
+
+Determina que o cookie só pode ser enviado através de conexões HTTPS.
+
+Em produção:
+
+```js
+secure: true;
+```
+
+Em desenvolvimento:
+
+```js
+secure: false;
+```
+
+Isso permite testes locais utilizando `http://localhost:3000` sem necessidade de
+HTTPS.
+
+- ##### sameSite
+
+Controla quando o navegador pode enviar cookies entre diferentes origens.
+
+Desenvolvimento:
+
+```js
+sameSite: 'lax';
+```
+
+Produção:
+
+```js
+sameSite: 'none';
+```
+
+Como o frontend e o backend serão hospedados em domínios diferentes:
+
+```text
+Frontend:
+https://<frontend>.vercel.app  
+
+Backend:
+https://<backend>.onrender.com
+```
+
+é necessário utilizar:
+
+```js
+sameSite: 'none';
+```
+
+juntamente com:
+
+```js
+secure: true;
+```
+
+para permitir o envio dos cookies nas requisições autenticadas.
+
+- ##### path
+
+Define para quais rotas o navegador deve enviar os cookies.
+
+```js
+path: '/';
+```
+
+permite que o navegador envie o cookie para todas as rotas da API.
+
+Exemplos:
+
+```text
+/auth/login
+/auth/refresh
+/users/me
+/orders
+/subscriptions
+```
+
+Como a autenticação é utilizada em múltiplos endpoints, a aplicação utiliza `/`.
+
+- ##### maxAge
+
+Define o tempo de vida do cookie.
+
+Exemplos:
+
+```js
+15 * 60 * 1000;
+```
+
+→ 15 minutos
+
+```js
+7 * 24 * 60 * 60 * 1000;
+```
+
+→ 7 dias
+
+A aplicação utiliza:
+
+```text
+accessToken → 15 minutos
+refreshToken → 7 dias
+```
+
+#### Integração com CORS
+
+Como a autenticação utiliza cookies, tanto frontend quanto backend precisam
+permitir o envio de credenciais.
+
+Exemplo simplificado:
+
+```js
+app.use(cors(corsOptions));
+```
+
+A configuração permite o envio de credenciais e valida dinamicamente as origens
+autorizadas definidas pela variável `CORS_ORIGIN`.
+
+Frontend:
+
+```js
+fetch(url, {
+  credentials: 'include',
+});
+```
+
+Sem essa configuração o navegador não enviará nem armazenará os cookies de
+autenticação.
+
+#### Validação de entradas
+
 A validação das entradas relacionadas à autenticação é realizada através do
 Celebrate/Joi.
 
-Atualmente já existem validações para:
+Existem validações para:
 
 - cadastro de usuário (`register`)
 - login
 - presença do cookie `refreshToken`
 - presença do cookie `accessToken`
 
-Além das validações já implementadas, o fluxo de cadastro possui:
+#### Fluxos
+
+- ##### Cadastro de usuário
+
+O fluxo de cadastro possui:
 
 - endpoint de registro (`POST /auth/register`)
 - verificação de e-mail duplicado
 - hash de senha utilizando `bcryptjs`
 - resposta sanitizada sem exposição do hash da senha
 
-A validação criptográfica dos JWT e o fluxo completo de autenticação serão
-implementados nas próximas etapas do projeto.
+Fluxo simplificado:
+
+```text
+1. Usuário envia nome, e-mail, telefone e senha
+
+2. Backend valida os dados da requisição
+
+3. Backend verifica se o e-mail já está cadastrado
+
+4. Senha é convertida para hash utilizando bcryptjs
+
+5. Usuário é persistido no MongoDB
+
+6. Backend retorna os dados do usuário sem expor a senha
+```
+
+- ##### Login
+
+O login é responsável por autenticar o usuário e iniciar a sessão.
+
+Fluxo simplificado:
+
+```text
+1. Usuário envia e-mail, telefone e senha  
+
+2. Backend valida os dados da requisição  
+
+3. Backend localiza o usuário no banco de dados
+
+4. As credenciais são validadas através do método findUserByCredentials() 
+
+5. Backend gera:
+  - accessToken (15 minutos)
+  - refreshToken (7 dias)  
+
+6. Tokens são enviados em cookies httpOnly  
+
+7. Navegador armazena os cookies
+
+8. Frontend passa a realizar requisições com: credentials: 'include'
+
+9. Navegador envia os cookies automaticamente para a API
+
+10. Rotas protegidas validam o accessToken
+
+11. Quando o accessToken expira:
+  - o fluxo de renovação da sessão será realizado através do refreshToken
+```
+
+Implementação atual:
+
+```js
+const accessToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
+  expiresIn: '15m',
+});
+const refreshToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
+  expiresIn: '7d',
+});
+```
+
+#### Próximas etapas
+
+As próximas etapas contemplam:
+
+- middleware de autenticação;
+- renovação automática da sessão através do `refreshToken`;
+- logout;
+- testes de integração do fluxo completo de autenticação;
+- controle de permissões (roles).
 
 [Voltar ao topo 🔝](#top)
 
@@ -897,7 +1124,7 @@ implementados nas próximas etapas do projeto.
 
 ## 🗃️ 10. Estrutura do projeto
 
-```
+```text
 ├── .husky/
 │     └── pre-commit
 ├── .vscode/
@@ -1129,8 +1356,8 @@ Deploy
 
 - [x] Cadastro de usuário
 - [x] Hash de senha (bcrypt)
-- [ ] Login
-- [ ] Geração de JWT
+- [x] Login
+- [x] Geração de JWT
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
 - [ ] Logout
@@ -1253,6 +1480,9 @@ Deploy
 
 ### 📚 Melhorias Futuras
 
+- [ ] Utilização de chaves distintas para `accessToken` e `refreshToken`:
+  - `JWT_ACCESS_SECRET`
+  - `JWT_REFRESH_SECRET`
 - [ ] Documentação com Swagger/OpenAPI
 
 ---
