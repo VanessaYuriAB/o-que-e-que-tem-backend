@@ -301,9 +301,10 @@ aplicação, reduzindo o acoplamento entre os testes e garantindo cenários
 determinísticos para validação da infraestrutura HTTP.
 
 Para cenários que dependem de persistência, a suíte utiliza uma configuração
-global do Jest (`tests/setup/jest.setup.js`) responsável por preparar o ambiente
-de banco de dados antes da execução dos testes e realizar a limpeza dos recursos
-ao final da execução.
+global do Jest (`tests/setup/jest.setup.js`) responsável pela preparação do
+ambiente de banco de dados; incluindo conexão, limpeza das coleções para
+garantia de isolamento entre os testes e encerramento da conexão ao final da
+execução da suíte.
 
 Atualmente a suíte contempla testes para componentes de infraestrutura da
 aplicação, incluindo:
