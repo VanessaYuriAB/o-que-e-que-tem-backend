@@ -329,6 +329,7 @@ Além da infraestrutura e dos modelos, a suíte já contempla testes de integra�
 do fluxo de autenticação:
 
 - cadastro de usuário (`POST /auth/register`)
+- login (`POST /auth/login`)
 
 ### ✔️ Cobertura Atual
 
@@ -467,6 +468,18 @@ integração que validam:
 - validação de senha inválida
 - validação de divergência entre `password` e `confirmPassword`
 - validação de corpo da requisição ausente
+- validação do cabeçalho `Content-Type`
+
+O fluxo de login (`POST /auth/login`) possui testes de integração que validam:
+
+- autenticação realizada com sucesso
+- geração de `accessToken`
+- geração de `refreshToken`
+- envio dos tokens em cookies `httpOnly`
+- validação de credenciais através do método `findUserByCredentials`
+- validação de e-mail inexistente
+- validação de senha incorreta
+- validação de ausência dos campos obrigatórios (`required()`)
 - validação do cabeçalho `Content-Type`
 
 ### ✔️ Estratégia
@@ -1196,6 +1209,7 @@ As próximas etapas contemplam:
 │     │     └── user.model.test.js
 │     ├── modules/
 │     │     └── auth/
+│     │           ├── login.test.js
 │     │           └── register.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
@@ -1369,7 +1383,7 @@ Deploy
 #### Testes de Integração (Supertest)
 
 - [x] Cadastro de usuário
-- [ ] Login
+- [x] Login
 - [ ] Middleware de autenticação
 - [ ] Refresh Token
 - [ ] Logout
