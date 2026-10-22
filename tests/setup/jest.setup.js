@@ -9,6 +9,15 @@ beforeAll(async () => {
   await connectDb();
 });
 
+// Cleanup: todos os testes começam isolados
+beforeEach(async () => {
+  const collections = mongoose.connection.collections;
+
+  await Promise.all(
+    Object.values(collections).map((collection) => collection.deleteMany({})),
+  );
+});
+
 // Desconecta do banco de dados após rodar todos os testes
 afterAll(async () => {
   await mongoose.disconnect();

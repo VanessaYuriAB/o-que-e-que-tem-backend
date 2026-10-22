@@ -13,10 +13,6 @@ const request = supertest(app);
 // requisição HTTP > validateContentType > celebrateForRegister > registerUser > DB
 
 describe('Register Flow > POST "/auth/register"', () => {
-  beforeEach(async () => {
-    await UserModel.deleteMany({});
-  }); // limpa a collection antes de cada teste para garantir isolamento
-
   // --------
   // Payload
   // --------
