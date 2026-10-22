@@ -864,8 +864,6 @@ Requisições incompatíveis recebem resposta `415 Unsupported Media Type`.
 
 ### ✔️ Autenticação
 
-#### Fluxo de autenticação
-
 A autenticação é baseada em JWT armazenados em cookies `httpOnly`.
 
 Após a validação das credenciais, a API gera dois tokens:
@@ -1120,11 +1118,46 @@ const refreshToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
 });
 ```
 
+- ##### Rotas privadas (Auth Middleware)
+
+A autenticação das rotas privadas é realizada por um middleware dedicado,
+responsável por:
+
+- verificar a presença do cookie `accessToken`;
+- validar a assinatura e expiração do JWT;
+- disponibilizar o payload autenticado através de `req.user`;
+- impedir o acesso a recursos protegidos quando o token é ausente ou inválido.
+
+As rotas protegidas utilizam uma validação prévia através do Celebrate/Joi para
+verificar a presença e o formato do token antes da validação criptográfica
+realizada pelo middleware.
+
+Fluxo simplificado:
+
+```text
+Login
+↓
+JWT gerado
+↓
+Cookie armazenado
+↓
+Cookie enviado para a rota protegida
+↓
+Celebrate valida presença e formato do JWT
+↓
+authMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload
+↓
+Controller recebe o usuário autenticado
+```
+
 #### Próximas etapas
 
 As próximas etapas contemplam:
 
-- middleware de autenticação;
 - renovação automática da sessão através do `refreshToken`;
 - logout;
 - testes de integração do fluxo completo de autenticação;
@@ -1373,7 +1406,7 @@ Deploy
 - [x] Hash de senha (bcrypt)
 - [x] Login
 - [x] Geração de JWT
-- [ ] Middleware de autenticação
+- [x] Middleware de autenticação
 - [ ] Refresh Token
 - [ ] Logout
 

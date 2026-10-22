@@ -30,7 +30,7 @@ testApp.use(
   }),
 );
 
-testApp.get('/health', (req, res) => {
+testApp.get('/test-health', (req, res) => {
   res.status(200).send({ status: 'ok' });
 });
 

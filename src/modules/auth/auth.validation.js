@@ -70,7 +70,9 @@ const celebrateForRefreshToken = celebrate({
 // Exigem autenticação com accessToken (crachá) - cookie httpOnly
 const celebrateForAccessToken = celebrate({
   cookies: Joi.object({
-    accessToken: Joi.string().required(),
+    accessToken: Joi.string()
+      .required()
+      .pattern(/^[\w-]+\.[\w-]+\.[\w-]+$/), // valida formato padrão do JWT
   }).unknown(true),
 });
 
