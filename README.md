@@ -326,14 +326,15 @@ domínio:
 - Message Model
 - TodayRecipe Model
 
-Além da infraestrutura e dos modelos, a suíte já contempla testes de integração
-do fluxo de autenticação:
+Além da infraestrutura e dos modelos, a suíte contempla testes de integração do
+fluxo de autenticação:
 
 - cadastro de usuário (`POST /auth/register`)
 - login (`POST /auth/login`)
 - middleware de autenticação (`GET /auth/health`)
 - recuperação de sessão (`GET /auth/me`)
 - renovação de sessão (`POST /auth/access`)
+- logout (`POST /auth/logout`)
 
 ### ✔️ Cobertura Atual
 
@@ -519,6 +520,14 @@ que validam:
 - validação de ausência do cookie `refreshToken`
 - validação de formato inválido do JWT
 - integração entre Celebrate/Joi, `refreshMiddleware` e controller
+
+O fluxo de logout (`POST /auth/logout`) possui testes de integração que validam:
+
+- remoção dos cookies `accessToken` e `refreshToken`
+- invalidação dos cookies através de `clearCookie`
+- resposta HTTP de sucesso
+- validação de ausência do cookie `refreshToken`
+- validação de formato inválido do JWT
 
 ### ✔️ Estratégia
 
@@ -1241,12 +1250,49 @@ Novo accessToken é gerado
 Novo cookie accessToken é enviado
 ```
 
-#### Próximas etapas
+- ##### Logout
 
-As próximas etapas contemplam:
+A aplicação disponibiliza um endpoint específico para encerramento da sessão:
 
-- logout;
-- testes de integração do fluxo de logout;
+```text
+POST /auth/logout
+```
+
+O endpoint é responsável por remover os cookies utilizados pela autenticação:
+
+- `accessToken`
+- `refreshToken`
+
+A invalidação ocorre através do método `clearCookie`, utilizando a mesma
+configuração definida na criação dos cookies.
+
+Fluxo simplificado:
+
+```text
+POST /auth/logout
+↓
+Celebrate valida presença e formato do refreshToken
+↓
+logoutUser executa
+↓
+accessToken removido
+↓
+refreshToken removido
+↓
+Sessão encerrada
+```
+
+Como o objetivo da rota é apenas remover os cookies armazenados no navegador,
+não existe necessidade de validação criptográfica através do
+`refreshMiddleware`.
+
+Essa abordagem permite que a sessão seja encerrada mesmo quando os tokens já
+estão expirados.
+
+#### Próxima etapa
+
+A próxima etapa contempla:
+
 - controle de permissões (roles).
 
 [Voltar ao topo 🔝](#top)
@@ -1331,6 +1377,7 @@ As próximas etapas contemplam:
 │     │     └── auth/
 │     │           ├── access.middleware.test.js
 │     │           ├── login.test.js
+│     │           ├── logout.test.js
 │     │           ├── refreshAccess.test.js
 │     │           ├── refreshUser.test.js
 │     │           └── register.test.js
@@ -1499,7 +1546,7 @@ Deploy
 - [x] Middleware de recuperação/renovação de sessão (`refreshMiddleware`)
 - [x] Recuperação de sessão (`refreshUser`)
 - [x] Renovação de sessão (`refreshAccess`)
-- [ ] Logout
+- [x] Logout
 
 #### Autorização
 
@@ -1512,7 +1559,7 @@ Deploy
 - [x] Middleware de autenticação
 - [x] Recuperação de sessão (`refreshUser`)
 - [x] Renovação de sessão (`refreshAccess`)
-- [ ] Logout
+- [x] Logout
 
 ### 🚧 Fase 7: Funcionalidades Core
 
