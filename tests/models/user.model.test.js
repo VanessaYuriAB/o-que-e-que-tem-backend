@@ -14,6 +14,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).resolves.toBeUndefined();
@@ -29,6 +30,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -44,6 +46,7 @@ describe('User Model', () => {
       userName: 'Vanessa',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -59,6 +62,7 @@ describe('User Model', () => {
       userName: 'Vanessa',
       email: 'vanessa@email.com',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -74,6 +78,7 @@ describe('User Model', () => {
       userName: 'Vanessa',
       tel: '(11) 99999-9999',
       email: 'vanessa@email.com',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -94,6 +99,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -110,6 +116,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '11999999999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -126,6 +133,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
       cep: '12345678',
     });
 
@@ -147,6 +155,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -167,6 +176,7 @@ describe('User Model', () => {
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -187,6 +197,7 @@ describe('User Model', () => {
       email: 'vanessa@email',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     await expect(user.validate()).rejects.toMatchObject({
@@ -196,17 +207,64 @@ describe('User Model', () => {
     });
   });
 
+  // -----
+  // Enum
+  // -----
+
+  // 12
+  it('deve falhar com role inválido', async () => {
+    const user = new User({
+      userName: 'Vanessa Yuri A. Brito',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'manager',
+    });
+
+    await expect(user.validate()).rejects.toMatchObject({
+      errors: {
+        role: expect.any(Object),
+      },
+    });
+  });
+
+  // 13
+  it('deve aceitar role admin', async () => {
+    const user = new User({
+      userName: 'Admin',
+      email: 'admin@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'admin',
+    });
+
+    await expect(user.validate()).resolves.toBeUndefined();
+  });
+
   // --------
   // Default
   // --------
 
-  // 12
+  // 14
+  it('deve definir role como user por padrão', () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+    });
+
+    expect(user.role).toBe('user');
+  });
+
+  // 15
   it('deve definir subscription como false por padrão', () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
       tel: '(11) 99999-9999',
       password: 'abc12345',
+      role: 'user',
     });
 
     expect(user.subscription).toBe(false);

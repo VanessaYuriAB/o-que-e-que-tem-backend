@@ -374,6 +374,7 @@ O `User Model` possui testes unitários para validação de:
 - validação customizada (`validator.isEmail()`)
 - valor padrão (`default`)
 - restrições de domínio definidas no schema (`minlength`, `maxlength`)
+- valores permitidos por `enum`
 - validação de documento válido
 
 O `Subscription Model` possui testes unitários para validação de:
@@ -1548,10 +1549,6 @@ Deploy
 - [x] Renovação de sessão (`refreshAccess`)
 - [x] Logout
 
-#### Autorização
-
-- [ ] Controle de permissões (Roles)
-
 #### Testes de Integração (Supertest)
 
 - [x] Cadastro de usuário
@@ -1560,6 +1557,14 @@ Deploy
 - [x] Recuperação de sessão (`refreshUser`)
 - [x] Renovação de sessão (`refreshAccess`)
 - [x] Logout
+
+#### Autorização
+
+- [x] Campo `role` no User Model
+- [ ] Middleware de autorização (`roleMiddleware`)
+- [ ] Integração entre JWT e roles
+- [ ] Rotas exclusivas de `admin`
+- [ ] Testes de integração
 
 ### 🚧 Fase 7: Funcionalidades Core
 

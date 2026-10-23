@@ -40,6 +40,13 @@ const userSchema = new mongoose.Schema(
       // O esquema armazena hashes bcrypt, não a senha original do usuário - a validação dos dados do frontend é realizada pelo Celebrate/Joi
     },
 
+    role: {
+      type: String,
+      required: true,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+
     cep: {
       type: String,
       minlength: 9,
