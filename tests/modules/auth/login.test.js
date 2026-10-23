@@ -48,21 +48,23 @@ describe('Login Flow > POST "/auth/login"', () => {
     expect(res.type).toMatch(/json/);
     expect(res.statusCode).toBe(200);
 
-    expect(res.body).toMatchObject(expect.objectContaining({ success: true }));
+    expect(res.body).toMatchObject({
+      success: true,
+    });
 
-    const cookies = res.headers['set-cookie'];
+    const cookiesFromResponse = res.headers['set-cookie'];
 
-    expect(Array.isArray(cookies)).toBe(true);
-    expect(cookies).toHaveLength(2);
+    expect(Array.isArray(cookiesFromResponse)).toBe(true);
+    expect(cookiesFromResponse).toHaveLength(2);
 
-    expect(cookies).toEqual(
+    expect(cookiesFromResponse).toEqual(
       expect.arrayContaining([
         expect.stringMatching(/^accessToken=/),
         expect.stringMatching(/^refreshToken=/),
       ]),
     );
 
-    cookies.forEach((cookie) => {
+    cookiesFromResponse.forEach((cookie) => {
       expect(cookie).toContain('HttpOnly');
     });
   });
