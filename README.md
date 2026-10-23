@@ -332,6 +332,8 @@ do fluxo de autenticação:
 - cadastro de usuário (`POST /auth/register`)
 - login (`POST /auth/login`)
 - middleware de autenticação (`GET /auth/health`)
+- recuperação de sessão (`GET /auth/me`)
+- renovação de sessão (`POST /auth/access`)
 
 ### ✔️ Cobertura Atual
 
@@ -484,8 +486,8 @@ O fluxo de login (`POST /auth/login`) possui testes de integração que validam:
 - validação de ausência dos campos obrigatórios (`required()`)
 - validação do cabeçalho `Content-Type`
 
-O middleware de autenticação (`authMiddleware`) possui testes de integração que
-validam:
+O middleware de autenticação (`accessMiddleware`) possui testes de integração
+que validam:
 
 - autenticação realizada com sucesso
 - validação do payload autenticado disponibilizado em `req.user`
@@ -493,6 +495,30 @@ validam:
 - validação de `accessToken` assinado com chave inválida
 - validação de ausência do cookie `accessToken`
 - validação de formato inválido do JWT
+
+O fluxo de recuperação de sessão (`GET /auth/me`) possui testes de integração
+que validam:
+
+- recuperação da sessão existente através de `refreshToken`
+- localização do usuário autenticado no MongoDB
+- autenticação realizada com sucesso
+- validação de `refreshToken` expirado
+- validação de `refreshToken` assinado com chave inválida
+- validação de ausência do cookie `refreshToken`
+- validação de formato inválido do JWT
+- integração entre Celebrate/Joi, `refreshMiddleware` e controller
+
+O fluxo de renovação de sessão (`POST /auth/access`) possui testes de integração
+que validam:
+
+- renovação do `accessToken`
+- envio de novo cookie `accessToken`
+- configuração do cookie como `httpOnly`
+- validação de `refreshToken` expirado
+- validação de `refreshToken` assinado com chave inválida
+- validação de ausência do cookie `refreshToken`
+- validação de formato inválido do JWT
+- integração entre Celebrate/Joi, `refreshMiddleware` e controller
 
 ### ✔️ Estratégia
 
@@ -1129,10 +1155,10 @@ const refreshToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
 });
 ```
 
-- ##### Rotas privadas (Auth Middleware)
+- ##### Rotas privadas (Access Middleware)
 
-A autenticação das rotas privadas é realizada por um middleware dedicado,
-responsável por:
+A autenticação das rotas privadas é realizada por um middleware dedicado
+(`accessMiddleware`), responsável por:
 
 - verificar a presença do cookie `accessToken`;
 - validar a assinatura e expiração do JWT;
@@ -1156,7 +1182,7 @@ Cookie enviado para a rota protegida
 ↓
 Celebrate valida presença e formato do JWT
 ↓
-authMiddleware executa
+accessMiddleware executa
 ↓
 jwt.verify() executa
 ↓
@@ -1165,13 +1191,62 @@ req.user recebe o payload
 Controller recebe o usuário autenticado
 ```
 
+- ##### Recuperação e renovação de sessão (Refresh Middleware)
+
+Além do middleware responsável pelas rotas protegidas (`accessMiddleware`), a
+aplicação utiliza um middleware específico para fluxos baseados em
+`refreshToken` (`refreshMiddleware`).
+
+Esse middleware é responsável por:
+
+- verificar a presença do cookie `refreshToken`;
+- validar a assinatura e expiração do JWT;
+- disponibilizar o payload autenticado através de `req.user`;
+- impedir a recuperação ou renovação da sessão quando o token é ausente ou
+  inválido.
+
+Fluxo de recuperação da sessão:
+
+```text
+GET /auth/me
+↓
+Celebrate valida presença e formato do refreshToken
+↓
+refreshMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload
+↓
+Usuário é localizado no MongoDB
+↓
+Dados do usuário autenticado são retornados
+```
+
+Fluxo de renovação da sessão:
+
+```text
+POST /auth/access
+↓
+Celebrate valida presença e formato do refreshToken
+↓
+refreshMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload
+↓
+Novo accessToken é gerado
+↓
+Novo cookie accessToken é enviado
+```
+
 #### Próximas etapas
 
 As próximas etapas contemplam:
 
-- renovação automática da sessão através do `refreshToken`;
 - logout;
-- testes de integração do fluxo completo de autenticação;
+- testes de integração do fluxo de logout;
 - controle de permissões (roles).
 
 [Voltar ao topo 🔝](#top)
@@ -1254,8 +1329,10 @@ As próximas etapas contemplam:
 │     │     └── user.model.test.js
 │     ├── modules/
 │     │     └── auth/
-│     │           ├── auth.middleware.test.js
+│     │           ├── access.middleware.test.js
 │     │           ├── login.test.js
+│     │           ├── refreshAccess.test.js
+│     │           ├── refreshUser.test.js
 │     │           └── register.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
@@ -1418,8 +1495,10 @@ Deploy
 - [x] Hash de senha (bcrypt)
 - [x] Login
 - [x] Geração de JWT
-- [x] Middleware de autenticação
-- [ ] Refresh Token
+- [x] Middleware de autenticação (`accessMiddleware`)
+- [x] Middleware de recuperação/renovação de sessão (`refreshMiddleware`)
+- [x] Recuperação de sessão (`refreshUser`)
+- [x] Renovação de sessão (`refreshAccess`)
 - [ ] Logout
 
 #### Autorização
@@ -1431,7 +1510,8 @@ Deploy
 - [x] Cadastro de usuário
 - [x] Login
 - [x] Middleware de autenticação
-- [ ] Refresh Token
+- [x] Recuperação de sessão (`refreshUser`)
+- [x] Renovação de sessão (`refreshAccess`)
 - [ ] Logout
 
 ### 🚧 Fase 7: Funcionalidades Core
@@ -1540,6 +1620,7 @@ Deploy
 
 ### 📚 Melhorias Futuras
 
+- [ ] Revogação de sessão baseada em `refreshToken`
 - [ ] Utilização de chaves distintas para `accessToken` e `refreshToken`:
   - `JWT_ACCESS_SECRET`
   - `JWT_REFRESH_SECRET`
