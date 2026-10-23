@@ -4,6 +4,7 @@ import errorsMessages from '../../shared/utils/errorsMessages.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import env from '../../config/env.js';
+import NotFoundError from '../../shared/errors/NotFoundError.js';
 
 // register > '/auth/register'
 // Cria usuário (com verificação de e-mail duplicado e senha em hash)
@@ -67,8 +68,36 @@ const loginUser = async (req, res) => {
   res.send({ success: true });
 };
 
+// refresh (user) > '/auth/me'
+// Recupera sessão existente e retorna usuário logado
+const refreshUser = async (req, res) => {
+  const loggedUser = await User.findById(req.user._id).orFail(() => {
+    throw new NotFoundError(
+      `${errorsMessages.notFound} Cadastro de usuário inexistente.`,
+    );
+  });
+
+  res.send({ loggedUser });
+};
+
+// refresh (token) > '/auth/access'
+// Renova sessão existente: gera e envia novo cookie accessToken
+const refreshAccess = (req, res) => {
+  const accessToken = jwt.sign({ _id: req.user._id }, env.JWT_SECRET, {
+    expiresIn: '15m',
+  });
+
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+    maxAge: 15 * 60 * 1000, // 15 min
+  });
+
+  res.send({ success: true });
+};
+
 // logout > '/auth/logout'
 
-// refresh > '/auth/me'
-
-export { registerUser, loginUser };
+export { registerUser, loginUser, refreshUser, refreshAccess };
