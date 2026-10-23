@@ -11,6 +11,7 @@ import {
   loginUser,
   refreshUser,
   refreshAccess,
+  logoutUser,
 } from './auth.controller.js';
 import env from '../../config/env.js';
 import { accessMiddleware, refreshMiddleware } from './auth.middleware.js';
@@ -65,5 +66,6 @@ router.post(
 );
 
 // logout > '/auth/logout'
+router.post('/logout', celebrateForRefreshToken, logoutUser);
 
 export default router;

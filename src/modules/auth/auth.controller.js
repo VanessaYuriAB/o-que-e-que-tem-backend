@@ -99,5 +99,22 @@ const refreshAccess = (req, res) => {
 };
 
 // logout > '/auth/logout'
+const logoutUser = (req, res) => {
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+  });
 
-export { registerUser, loginUser, refreshUser, refreshAccess };
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+  });
+
+  res.send({ message: 'Logout realizado' });
+};
+
+export { registerUser, loginUser, refreshUser, refreshAccess, logoutUser };
