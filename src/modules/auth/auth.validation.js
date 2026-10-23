@@ -58,11 +58,13 @@ const celebrateForLogin = celebrate({
   }),
 });
 
-// logout ('/auth/logout') e refresh ('/auth/me')
+// refresh - user ('/auth/me'), refresh - token ('/auth/access') e logout ('/auth/logout')
 // Exigem autenticação com refreshToken (identidade) - cookie httpOnly
 const celebrateForRefreshToken = celebrate({
   cookies: Joi.object({
-    refreshToken: Joi.string().required(),
+    refreshToken: Joi.string()
+      .required()
+      .pattern(/^[\w-]+\.[\w-]+\.[\w-]+$/), // valida formato padrão do JWT,
   }).unknown(true),
 });
 

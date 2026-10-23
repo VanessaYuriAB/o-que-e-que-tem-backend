@@ -4,10 +4,16 @@ import {
   celebrateForRegister,
   celebrateForLogin,
   celebrateForAccessToken,
+  celebrateForRefreshToken,
 } from './auth.validation.js';
-import { registerUser, loginUser } from './auth.controller.js';
+import {
+  registerUser,
+  loginUser,
+  refreshUser,
+  refreshAccess,
+} from './auth.controller.js';
 import env from '../../config/env.js';
-import authMiddleware from './auth.middleware.js';
+import { accessMiddleware, refreshMiddleware } from './auth.middleware.js';
 
 // Cria um roteador para a rota principal de auth
 const router = Router();
@@ -34,13 +40,30 @@ router.post('/login', validateContentType, celebrateForLogin, loginUser);
 
 // Rota teste para ambiente de desenvolvimento/teste > '/auth/health'
 if (env.NODE_ENV !== 'production') {
-  router.get('/health', celebrateForAccessToken, authMiddleware, (req, res) => {
-    res.json({ status: 'auth ok', reqUserPayload: req.user });
-  });
+  router.get(
+    '/health',
+    celebrateForAccessToken,
+    accessMiddleware,
+    (req, res) => {
+      res.json({
+        status: 'auth ok',
+        reqUserPayload: req.user,
+      });
+    },
+  );
 }
 
-// logout > '/auth/logout'
+// refresh (user) > '/auth/me'
+router.get('/me', celebrateForRefreshToken, refreshMiddleware, refreshUser);
 
-// refresh > '/auth/me'
+// refresh (token) > '/auth/access'
+router.post(
+  '/access',
+  celebrateForRefreshToken,
+  refreshMiddleware,
+  refreshAccess,
+);
+
+// logout > '/auth/logout'
 
 export default router;

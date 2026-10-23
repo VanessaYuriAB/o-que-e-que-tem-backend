@@ -3,7 +3,10 @@ import UnauthorizedError from '../../shared/errors/UnauthorizedError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
 import env from '../../config/env.js';
 
-const authMiddleware = (req, res, next) => {
+// Validações criptográficas dos cookies de autenticação JWT (accessToken + refreshToken)
+// Validam assinatura e expiração
+
+const accessMiddleware = (req, res, next) => {
   const { accessToken } = req.cookies;
 
   if (!accessToken) {
@@ -25,4 +28,24 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+const refreshMiddleware = (req, res, next) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    throw new UnauthorizedError(
+      `${errorsMessages.unauthorized} Erro na recuperação da sessão do usuário: refreshToken não fornecido.`,
+    );
+  }
+
+  try {
+    req.user = jwt.verify(refreshToken, env.JWT_SECRET);
+
+    next();
+  } catch {
+    throw new UnauthorizedError(
+      `${errorsMessages.unauthorized} Erro na recuperação da sessão do usuário: refreshToken inválido.`,
+    );
+  }
+};
+
+export { accessMiddleware, refreshMiddleware };

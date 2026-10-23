@@ -11,9 +11,9 @@ import errorsMessages from '../../../src/shared/utils/errorsMessages.js';
 const request = supertest(app);
 
 // Testes de integração (HTTP) > fluxo de autenticação (auth middleware)
-// requisição HTTP > celebrateForAccessToken > authMiddleware > controller
+// requisição HTTP > celebrateForAccessToken > accessMiddleware > controller
 
-describe('Auth Middleware Flow > GET "/auth/health" > Rota dev/test', () => {
+describe('Access Middleware Flow > GET "/auth/health" > Rota dev/test', () => {
   // ------------------------------------------
   // Seed
   // Cadastro do usuário + login + accessToken
