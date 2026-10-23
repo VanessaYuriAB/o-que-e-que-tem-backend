@@ -17,6 +17,8 @@ const registerUser = async (req, res) => {
 
   const hash = await bcrypt.hash(req.body.password, 10);
 
+  // Princípio de defesa em profundidade, controller ignora qualquer 'role' recebido
+  // Mesmo que o Joi tenha 'role' permitido, por acidente, o controller continua seguro
   const user = await User.create({
     userName: req.body.userName,
     email: req.body.email,

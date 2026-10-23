@@ -162,11 +162,31 @@ describe('Register Flow > POST "/auth/register"', () => {
     });
   });
 
+  // 8
+  it('deve impedir cadastro com elevação de privilégio', async () => {
+    const error = await request.post('/auth/register').send({
+      userName: 'Hacker',
+      email: 'hacker@email.com',
+      confirmEmail: 'hacker@email.com',
+      tel: '(11) 92345-6789',
+      password: '321senha',
+      confirmPassword: '321senha',
+      role: 'admin', // role não é permitido pelo '.validation.js'
+    });
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body).toMatchObject({
+      message: expect.stringMatching('Validation failed'),
+    });
+  });
+
   // --------------------
   // validateContentType
   // --------------------
 
-  // 8
+  // 9
   it('Content-Type inválido', async () => {
     const error = await request
       .post('/auth/register')

@@ -474,6 +474,7 @@ integração que validam:
 - validação de senha inválida
 - validação de divergência entre `password` e `confirmPassword`
 - validação de corpo da requisição ausente
+- rejeição de campos não permitidos na requisição (`role`)
 - validação do cabeçalho `Content-Type`
 
 O fluxo de login (`POST /auth/login`) possui testes de integração que validam:
