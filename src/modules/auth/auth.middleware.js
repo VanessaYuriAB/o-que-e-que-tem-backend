@@ -2,9 +2,13 @@ import jwt from 'jsonwebtoken';
 import UnauthorizedError from '../../shared/errors/UnauthorizedError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
 import env from '../../config/env.js';
+import ForbiddenError from '../../shared/errors/ForbiddenError.js';
 
+// ---------------------------------------------------------------------------------------
+// Middlewares de autenticação
 // Validações criptográficas dos cookies de autenticação JWT (accessToken + refreshToken)
-// Validam assinatura e expiração
+// Validam assinatura/expiração dos tokens + propagação do payload em req.user
+// ---------------------------------------------------------------------------------------
 
 const accessMiddleware = (req, res, next) => {
   const { accessToken } = req.cookies;
@@ -48,4 +52,20 @@ const refreshMiddleware = (req, res, next) => {
   }
 };
 
-export { accessMiddleware, refreshMiddleware };
+// --------------------------------------------------------
+// Middlware de autorização
+// RBAC: Controle de acesso baseado em papéis (roles)
+// Valida autorização de acesso, baseado em usuário/admin
+// --------------------------------------------------------
+
+const roleMiddleware = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      throw new ForbiddenError(`${errorsMessages.forbidden} Acesso negado.`);
+    }
+
+    next();
+  };
+};
+
+export { accessMiddleware, refreshMiddleware, roleMiddleware };
