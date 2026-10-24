@@ -55,10 +55,13 @@ describe('Access Middleware Flow > GET "/auth/health" > Rota dev/test', () => {
       status: 'auth ok',
       reqUserPayload: expect.objectContaining({
         _id: expect.any(String),
+        role: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       }),
     });
+
+    expect(res.body.reqUserPayload.role).toBe('user'); // pq o seed vem de cadatro pelas rotas do frontend, que são exclusivas para usuários, não permitindo 'admin'
   });
 
   // -------------------
@@ -68,7 +71,7 @@ describe('Access Middleware Flow > GET "/auth/health" > Rota dev/test', () => {
   // 2
   it('accessToken expirado', async () => {
     const expiredToken = jwt.sign(
-      { _id: '123' },
+      { _id: '123', role: 'user' },
       env.JWT_SECRET,
       { expiresIn: '-1s' }, // token é gerado já expirado
     );
@@ -87,9 +90,13 @@ describe('Access Middleware Flow > GET "/auth/health" > Rota dev/test', () => {
 
   // 3
   it('accessToken assinado com chave inválida', async () => {
-    const invalidToken = jwt.sign({ _id: '123' }, 'chave-errada', {
-      expiresIn: '15m',
-    });
+    const invalidToken = jwt.sign(
+      { _id: '123', role: 'user' },
+      'chave-errada',
+      {
+        expiresIn: '15m',
+      },
+    );
 
     const error = await request
       .get('/auth/health')

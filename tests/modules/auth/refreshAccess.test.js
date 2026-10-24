@@ -75,7 +75,7 @@ describe('Refresh Access Flow > POST "/auth/access"', () => {
   // 2
   it('refreshToken expirado', async () => {
     const expiredToken = jwt.sign(
-      { _id: '123' },
+      { _id: '123', role: 'user' },
       env.JWT_SECRET,
       { expiresIn: '-1s' }, // token é gerado já expirado
     );
@@ -94,9 +94,13 @@ describe('Refresh Access Flow > POST "/auth/access"', () => {
 
   // 3
   it('refreshToken assinado com chave inválida', async () => {
-    const invalidToken = jwt.sign({ _id: '123' }, 'chave-errada', {
-      expiresIn: '7d',
-    });
+    const invalidToken = jwt.sign(
+      { _id: '123', role: 'user' },
+      'chave-errada',
+      {
+        expiresIn: '7d',
+      },
+    );
 
     const error = await request
       .post('/auth/access')

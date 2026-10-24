@@ -493,7 +493,8 @@ O middleware de autenticação (`accessMiddleware`) possui testes de integraçã
 que validam:
 
 - autenticação realizada com sucesso
-- validação do payload autenticado disponibilizado em `req.user`
+- validação do payload autenticado disponibilizado em `req.user`, incluindo
+  identificador do usuário (_id) e papel de acesso (role)
 - validação de `accessToken` expirado
 - validação de `accessToken` assinado com chave inválida
 - validação de ausência do cookie `accessToken`
@@ -1158,13 +1159,27 @@ Fluxo simplificado:
 Implementação atual:
 
 ```js
-const accessToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
-  expiresIn: '15m',
-});
-const refreshToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
-  expiresIn: '7d',
-});
+const accessToken = jwt.sign(
+  { _id: userInDb._id, role: userInDb.role },
+  env.JWT_SECRET,
+  {
+    expiresIn: '15m',
+  },
+);
+const refreshToken = jwt.sign(
+  { _id: userInDb._id, role: userInDb.role },
+  env.JWT_SECRET,
+  {
+    expiresIn: '7d',
+  },
+);
 ```
+
+Os tokens disponibilizados incluem o identificador do usuário (`_id`) e seu
+papel de acesso (`role`), permitindo que middlewares de autorização realizem
+verificações de permissões diretamente a partir do payload autenticado,
+eliminando a necessidade de consultar o banco de dados para identificar o perfil
+de acesso do usuário em cada requisição.
 
 - ##### Rotas privadas (Access Middleware)
 
@@ -1562,8 +1577,8 @@ Deploy
 #### Autorização
 
 - [x] Campo `role` no User Model
+- [x] Integração entre JWT e roles
 - [ ] Middleware de autorização (`roleMiddleware`)
-- [ ] Integração entre JWT e roles
 - [ ] Rotas exclusivas de `admin`
 - [ ] Testes de integração
 

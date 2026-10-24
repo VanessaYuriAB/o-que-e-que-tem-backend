@@ -34,7 +34,7 @@ const registerUser = async (req, res) => {
 };
 
 // login > '/auth/login'
-// Gera JWT e autentica usuário
+// Gera JWTs, incluindo 'role', e autentica usuário
 const loginUser = async (req, res) => {
   const userInDb = await User.findUserByCredentials(
     req.body.email,
@@ -42,14 +42,22 @@ const loginUser = async (req, res) => {
   ); // validação de credenciais via método estático do mongoose definido em User Schema/Model
 
   // Acesso às rotas protegidas
-  const accessToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
-    expiresIn: '15m',
-  });
+  const accessToken = jwt.sign(
+    { _id: userInDb._id, role: userInDb.role },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m',
+    },
+  );
 
   // Renovação da sessão
-  const refreshToken = jwt.sign({ _id: userInDb._id }, env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
+  const refreshToken = jwt.sign(
+    { _id: userInDb._id, role: userInDb.role },
+    env.JWT_SECRET,
+    {
+      expiresIn: '7d',
+    },
+  );
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
@@ -71,7 +79,7 @@ const loginUser = async (req, res) => {
 };
 
 // refresh (user) > '/auth/me'
-// Recupera sessão existente e retorna usuário logado
+// Recupera sessão existente e retorna usuário logado, sem 'password' que é bloqueado pelo schema
 const refreshUser = async (req, res) => {
   const loggedUser = await User.findById(req.user._id).orFail(() => {
     throw new NotFoundError(
@@ -85,9 +93,13 @@ const refreshUser = async (req, res) => {
 // refresh (token) > '/auth/access'
 // Renova sessão existente: gera e envia novo cookie accessToken
 const refreshAccess = (req, res) => {
-  const accessToken = jwt.sign({ _id: req.user._id }, env.JWT_SECRET, {
-    expiresIn: '15m',
-  });
+  const accessToken = jwt.sign(
+    { _id: req.user._id, role: req.user.role },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m',
+    },
+  );
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
