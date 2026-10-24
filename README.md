@@ -335,6 +335,7 @@ fluxo de autenticação:
 - recuperação de sessão (`GET /auth/me`)
 - renovação de sessão (`POST /auth/access`)
 - logout (`POST /auth/logout`)
+- middleware de autorização (`GET /auth/admin-health`)
 
 ### ✔️ Cobertura Atual
 
@@ -531,6 +532,14 @@ O fluxo de logout (`POST /auth/logout`) possui testes de integração que valida
 - resposta HTTP de sucesso
 - validação de ausência do cookie `refreshToken`
 - validação de formato inválido do JWT
+
+O middleware de autorização (`roleMiddleware`) possui testes de integração que
+validam:
+
+- acesso permitido para administradores
+- bloqueio de acesso para usuários
+- bloqueio de acesso para `role` ausente
+- bloqueio de acesso para `role` não permitida
 
 ### ✔️ Estratégia
 
@@ -1306,11 +1315,23 @@ não existe necessidade de validação criptográfica através do
 Essa abordagem permite que a sessão seja encerrada mesmo quando os tokens já
 estão expirados.
 
-#### Próxima etapa
+- ##### Autorização (Role Middleware)
 
-A próxima etapa contempla:
+A aplicação utiliza controle de permissões baseado em papéis (`RBAC`).
 
-- controle de permissões (roles).
+Papéis atualmente suportados:
+
+- `user`
+- `admin`
+
+O papel do usuário (`role`) é incluído no payload do JWT durante a autenticação
+e disponibilizado através de `req.user`.
+
+Rotas administrativas possuem um middleware específico de autorização
+(`roleMiddleware`) responsável por validar se o usuário autenticado possui os
+privilégios necessários para executar a operação solicitada.
+
+Usuários sem permissão recebem resposta `403 Forbidden`.
 
 [Voltar ao topo 🔝](#top)
 
@@ -1397,6 +1418,7 @@ A próxima etapa contempla:
 │     │           ├── logout.test.js
 │     │           ├── refreshAccess.test.js
 │     │           ├── refreshUser.test.js
+│     │           ├── roleMiddleware.test.js
 │     │           └── register.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
@@ -1542,7 +1564,7 @@ Deploy
 - [x] Partner Model
 - [x] TodayRecipe Model
 
-### 🚧 Fase 6: Autenticação
+### ✅ Fase 6: Autenticação
 
 #### Validação de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
@@ -1578,9 +1600,9 @@ Deploy
 
 - [x] Campo `role` no User Model
 - [x] Integração entre JWT e roles
-- [ ] Middleware de autorização (`roleMiddleware`)
-- [ ] Rotas exclusivas de `admin`
-- [ ] Testes de integração
+- [x] Middleware de autorização (`roleMiddleware`)
+- [x] Rota dev/test de `admin`
+- [x] Testes de integração
 
 ### 🚧 Fase 7: Funcionalidades Core
 
