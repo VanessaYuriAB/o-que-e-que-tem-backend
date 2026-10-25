@@ -1315,7 +1315,9 @@ não existe necessidade de validação criptográfica através do
 Essa abordagem permite que a sessão seja encerrada mesmo quando os tokens já
 estão expirados.
 
-### ✔️ Autorização (Role Middleware)
+### ✔️ Autorização
+
+#### Controle de acesso baseado em papéis (`roles`)
 
 A aplicação utiliza controle de permissões baseado em papéis (`RBAC`).
 
@@ -1332,6 +1334,46 @@ Rotas administrativas possuem um middleware específico de autorização
 privilégios necessários para executar a operação solicitada.
 
 Usuários sem permissão recebem resposta `403 Forbidden`.
+
+#### Autorização por proprietário (Owner Access)
+
+Além do controle baseado em papéis (`RBAC`), a aplicação disponibiliza um
+middleware de autorização por proprietário (`isOwnerOrAdminMiddleware`).
+
+Esse middleware permite que:
+
+- administradores (`admin`) acessem qualquer recurso;
+- usuários comuns (`user`) acessem apenas recursos associados ao próprio
+  identificador.
+
+A validação é realizada comparando o identificador do usuário autenticado
+(`req.user._id`) com o parâmetro da rota (`req.params`).
+
+Exemplo simplificado:
+
+```js
+GET /users/:id
+```
+
+Cenários:
+
+```text
+req.user._id === req.params.id
+↓
+Acesso permitido
+
+req.user.role === 'admin'
+↓
+Acesso permitido
+
+Demais casos
+↓
+403 Forbidden
+```
+
+Essa abordagem permite proteger recursos pertencentes ao próprio usuário, como
+perfil, histórico de pedidos e assinaturas, sem necessidade de criar regras
+específicas em cada controller.
 
 [Voltar ao topo 🔝](#top)
 
@@ -1386,6 +1428,7 @@ Usuários sem permissão recebem resposta `403 Forbidden`.
 │     │     ├── middlewares/
 │     │     │     ├── errorHandler.js
 │     │     │     ├── errorLogger.js
+│     │     │     ├── isOwnerOrAdminMiddleware.js
 │     │     │     ├── limiter.js
 │     │     │     ├── notFoundPage.js
 │     │     │     ├── requestLogger.js
@@ -1603,12 +1646,12 @@ Deploy
 - [x] Integração entre JWT e roles
 - [x] Middleware de autorização (`roleMiddleware`)
 - [x] Rota dev/test de `admin`
-- [ ] Middleware de proprietário (`ownerOrAdminMiddleware`)
+- [x] Middleware de proprietário (`isOwnerOrAdminMiddleware`)
 
 #### Testes de Integração (Supertest)
 
 - [x] Middleware de autorização (`roleMiddleware`)
-- [ ] Middleware de proprietário (`ownerOrAdminMiddleware`)
+- [ ] Middleware de proprietário (`isOwnerOrAdminMiddleware`)
 
 ### 🚧 Fase 8: Funcionalidades Core
 
