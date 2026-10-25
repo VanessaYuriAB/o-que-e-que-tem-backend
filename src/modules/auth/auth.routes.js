@@ -14,11 +14,7 @@ import {
   logoutUser,
 } from './auth.controller.js';
 import env from '../../config/env.js';
-import {
-  accessMiddleware,
-  refreshMiddleware,
-  roleMiddleware,
-} from './auth.middleware.js';
+import { accessMiddleware, refreshMiddleware } from './auth.middleware.js';
 
 // Cria um roteador para a rota principal de auth
 const router = Router();
@@ -71,26 +67,5 @@ router.post(
 
 // logout > '/auth/logout'
 router.post('/logout', celebrateForRefreshToken, logoutUser);
-
-// ------------------------------
-// Rotas privadas
-// (exigem autorização via role)
-// ------------------------------
-
-// Rota teste para ambiente de desenvolvimento/teste > '/auth/admin-health'
-if (env.NODE_ENV !== 'production') {
-  router.get(
-    '/admin-health',
-    celebrateForAccessToken,
-    accessMiddleware,
-    roleMiddleware('admin'), // rota utilizada para testes do roleMiddleware
-    (req, res) => {
-      res.json({
-        status: 'auth admin ok',
-        role: req.user.role,
-      });
-    },
-  );
-}
 
 export default router;

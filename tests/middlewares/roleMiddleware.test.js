@@ -1,11 +1,11 @@
 // Supertest
 import supertest from 'supertest';
 // Express test service
-import app from '../../../src/app.js';
+import app from '../../src/app.js';
 // Utils
-import errorsMessages from '../../../src/shared/utils/errorsMessages.js';
+import errorsMessages from '../../src/shared/utils/errorsMessages.js';
 import jwt from 'jsonwebtoken';
-import env from '../../../src/config/env.js';
+import env from '../../src/config/env.js';
 
 // Request to test
 const request = supertest(app);
@@ -13,7 +13,7 @@ const request = supertest(app);
 // Testes de integração (HTTP) > fluxo de autorização (role middleware)
 // requisição HTTP > celebrateForAccessToken (JWT) > accessMiddleware > roleMiddleware('admin') > controller
 
-describe('Role Middleware Flow > GET "/auth/admin-health" > Rota dev/test', () => {
+describe('Role Middleware Flow > GET "/admin/health" > Rota dev/test', () => {
   // -------
   // Válido
   // -------
@@ -27,14 +27,14 @@ describe('Role Middleware Flow > GET "/auth/admin-health" > Rota dev/test', () =
     );
 
     const res = await request
-      .get('/auth/admin-health')
+      .get('/admin/health')
       .set('Cookie', `accessToken=${adminPayload}`);
 
     expect(res.type).toMatch(/json/);
     expect(res.statusCode).toBe(200);
 
     expect(res.body).toMatchObject({
-      status: 'auth admin ok',
+      status: 'admin ok',
       role: 'admin',
     });
   });
@@ -66,9 +66,7 @@ describe('Role Middleware Flow > GET "/auth/admin-health" > Rota dev/test', () =
     const cookies = login.headers['set-cookie'];
 
     // Teste
-    const error = await request
-      .get('/auth/admin-health')
-      .set('Cookie', cookies);
+    const error = await request.get('/admin/health').set('Cookie', cookies);
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(403);
@@ -87,7 +85,7 @@ describe('Role Middleware Flow > GET "/auth/admin-health" > Rota dev/test', () =
     );
 
     const error = await request
-      .get('/auth/admin-health')
+      .get('/admin/health')
       .set('Cookie', `accessToken=${invalidPayload}`);
 
     expect(error.type).toMatch(/json/);
@@ -107,7 +105,7 @@ describe('Role Middleware Flow > GET "/auth/admin-health" > Rota dev/test', () =
     );
 
     const error = await request
-      .get('/auth/admin-health')
+      .get('/admin/health')
       .set('Cookie', `accessToken=${invalidPayload}`);
 
     expect(error.type).toMatch(/json/);

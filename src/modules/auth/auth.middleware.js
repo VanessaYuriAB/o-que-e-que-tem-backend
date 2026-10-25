@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import UnauthorizedError from '../../shared/errors/UnauthorizedError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
 import env from '../../config/env.js';
-import ForbiddenError from '../../shared/errors/ForbiddenError.js';
 
 // ---------------------------------------------------------------------------------------
 // Middlewares de autenticação
@@ -52,20 +51,4 @@ const refreshMiddleware = (req, res, next) => {
   }
 };
 
-// --------------------------------------------------------
-// Middlware de autorização
-// RBAC: Controle de acesso baseado em papéis (roles)
-// Valida autorização de acesso, baseado em usuário/admin
-// --------------------------------------------------------
-
-const roleMiddleware = (...allowedRoles) => {
-  return (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
-      throw new ForbiddenError(`${errorsMessages.forbidden} Acesso negado.`);
-    }
-
-    next();
-  };
-};
-
-export { accessMiddleware, refreshMiddleware, roleMiddleware };
+export { accessMiddleware, refreshMiddleware };

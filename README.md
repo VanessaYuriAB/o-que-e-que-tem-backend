@@ -327,7 +327,7 @@ domínio:
 - TodayRecipe Model
 
 Além da infraestrutura e dos modelos, a suíte contempla testes de integração do
-fluxo de autenticação:
+fluxo de autenticação e autorização:
 
 - cadastro de usuário (`POST /auth/register`)
 - login (`POST /auth/login`)
@@ -335,7 +335,7 @@ fluxo de autenticação:
 - recuperação de sessão (`GET /auth/me`)
 - renovação de sessão (`POST /auth/access`)
 - logout (`POST /auth/logout`)
-- middleware de autorização (`GET /auth/admin-health`)
+- middleware de autorização (`GET /admin/health`)
 
 ### ✔️ Cobertura Atual
 
@@ -905,7 +905,7 @@ requisições cheguem à lógica de negócio já validadas.
 
 Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
 autenticação, incluindo cadastro, login e validação de cookies relacionados à
-autenticação.
+autenticação e autorização.
 
 ### ✔️ Validação de Content-Type
 
@@ -1315,7 +1315,7 @@ não existe necessidade de validação criptográfica através do
 Essa abordagem permite que a sessão seja encerrada mesmo quando os tokens já
 estão expirados.
 
-- ##### Autorização (Role Middleware)
+### ✔️ Autorização (Role Middleware)
 
 A aplicação utiliza controle de permissões baseado em papéis (`RBAC`).
 
@@ -1356,12 +1356,12 @@ Usuários sem permissão recebem resposta `403 Forbidden`.
 │     │     ├── env.js
 │     │     └── validateEnv.js
 │     ├── modules/
+│     │     ├── admin/
 │     │     ├── auth/
 │     │     │     ├── auth.controller.js
 │     │     │     ├── auth.index.js
 │     │     │     ├── auth.middleware.js
 │     │     │     ├── auth.routes.js
-│     │     │     ├── auth.service.js
 │     │     │     └── auth.validation.js
 │     │     ├── contact/
 │     │     ├── menu/
@@ -1389,6 +1389,7 @@ Usuários sem permissão recebem resposta `403 Forbidden`.
 │     │     │     ├── limiter.js
 │     │     │     ├── notFoundPage.js
 │     │     │     ├── requestLogger.js
+│     │     │     ├── roleMiddleware.js
 │     │     │     └── validateContentType.js
 │     │     └── utils/
 │     │           └── errorsMessages.js
@@ -1401,7 +1402,8 @@ Usuários sem permissão recebem resposta `403 Forbidden`.
 │     ├── middlewares/
 │     │     ├── errorHandler.test.js
 │     │     ├── limiter.test.js
-│     │     └── notFoundPage.test.js
+│     │     ├── notFoundPage.test.js
+│     │     └── roleMiddleware.test.js
 │     ├── models/
 │     │     ├── message.model.test.js
 │     │     ├── order.model.test.js
@@ -1418,7 +1420,6 @@ Usuários sem permissão recebem resposta `403 Forbidden`.
 │     │           ├── logout.test.js
 │     │           ├── refreshAccess.test.js
 │     │           ├── refreshUser.test.js
-│     │           ├── roleMiddleware.test.js
 │     │           └── register.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
@@ -1596,15 +1597,20 @@ Deploy
 - [x] Renovação de sessão (`refreshAccess`)
 - [x] Logout
 
-#### Autorização
+### 🚧 Fase 7: Autorização
 
-- [x] Campo `role` no User Model
+- [x] Campo `role` em User Model
 - [x] Integração entre JWT e roles
 - [x] Middleware de autorização (`roleMiddleware`)
 - [x] Rota dev/test de `admin`
-- [x] Testes de integração
+- [ ] Middleware de proprietário (`ownerOrAdminMiddleware`)
 
-### 🚧 Fase 7: Funcionalidades Core
+#### Testes de Integração (Supertest)
+
+- [x] Middleware de autorização (`roleMiddleware`)
+- [ ] Middleware de proprietário (`ownerOrAdminMiddleware`)
+
+### 🚧 Fase 8: Funcionalidades Core
 
 #### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
@@ -1672,7 +1678,7 @@ Deploy
 - [ ] Mercados Parceiros
 - [ ] Receitas
 
-### 🚧 Fase 8: Integrações Externas Extras
+### 🚧 Fase 9: Integrações Externas Extras
 
 - [ ] API de clima
 - [ ] API de mapa
@@ -1682,7 +1688,7 @@ Deploy
 - [ ] Integração API de clima
 - [ ] Integração API de mapa
 
-### 🚧 Fase 9: Qualidade
+### 🚧 Fase 10: Qualidade
 
 #### Testes Unitários (Jest)
 
@@ -1690,13 +1696,13 @@ Deploy
 - [ ] Validators
 - [ ] Utilitários
 
-### 🚧 Fase 10: Documentação
+### 🚧 Fase 11: Documentação
 
 - [ ] README final
 - [ ] README técnico
 - [ ] Coleção Postman
 
-### 🚀 Fase 11: Deploy
+### 🚀 Fase 12: Deploy
 
 #### Infraestrutura
 
