@@ -1399,6 +1399,8 @@ específicas em cada controller.
 │     │     └── validateEnv.js
 │     ├── modules/
 │     │     ├── admin/
+│     │     │     ├── admin.index.js
+│     │     │     └── admin.routes.js
 │     │     ├── auth/
 │     │     │     ├── auth.controller.js
 │     │     │     ├── auth.index.js
@@ -1406,12 +1408,20 @@ específicas em cada controller.
 │     │     │     ├── auth.routes.js
 │     │     │     └── auth.validation.js
 │     │     ├── contact/
+│     │     │     └── message.model.js
 │     │     ├── menu/
+│     │     │     └── product.model.js
 │     │     ├── orders/
+│     │     │     └── order.model.js
 │     │     ├── partners/
+│     │     │     └── partner.model.js
 │     │     ├── recipes/
+│     │     │     └── today-recipe.model.js
 │     │     ├── subscriptions/
+│     │     │     ├── subscription-order.model.js
+│     │     │     └── subscription.model.js
 │     │     └── users/
+│     │     │     └── user.model.js
 │     ├── routes/
 │     │     └── index.js
 │     ├── shared/
