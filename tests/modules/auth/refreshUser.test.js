@@ -52,11 +52,9 @@ describe('Refresh User Flow > GET "/auth/me"', () => {
     expect(res.statusCode).toBe(200);
 
     expect(res.body).toMatchObject({
-      loggedUser: expect.objectContaining({
-        userName: 'Vanessa Yuri A. Brito',
-        email: 'emaildavanessayuri@gmail.com',
-        tel: '(11) 98950-2164',
-      }),
+      userName: 'Vanessa Yuri A. Brito',
+      email: 'emaildavanessayuri@gmail.com',
+      tel: '(11) 98950-2164',
     });
   });
 

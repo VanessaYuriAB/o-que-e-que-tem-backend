@@ -87,7 +87,7 @@ const refreshUser = async (req, res) => {
     );
   });
 
-  res.send({ loggedUser });
+  res.send(loggedUser);
 };
 
 // refresh (token) > '/auth/access'
