@@ -337,6 +337,11 @@ fluxo de autenticação e autorização:
 - logout (`POST /auth/logout`)
 - middleware de autorização (`GET /admin/health`)
 
+Além dos fluxos de autenticação e autorização, a suíte contempla testes de
+integração da funcionalidade de gerenciamento de perfil do usuário:
+
+- atualização de perfil cadastral (`PATCH /users/me`)
+
 ### ✔️ Cobertura Atual
 
 O `validateEnv` é um teste unitário puro que valida:
@@ -540,6 +545,22 @@ validam:
 - bloqueio de acesso para usuários
 - bloqueio de acesso para `role` ausente
 - bloqueio de acesso para `role` não permitida
+
+O fluxo de atualização de perfil cadastral (`PATCH /users/me`) possui testes de
+integração que validam:
+
+- atualização realizada com sucesso
+- persistência dos dados atualizados no MongoDB
+- retorno do documento atualizado
+- ausência de exposição de campos sensíveis (`password`)
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- validação do cabeçalho `Content-Type`
+- validação dos campos recebidos através do Celebrate/Joi
+- localização do usuário autenticado através do identificador presente no JWT
+- retorno de `404 Not Found` para usuário inexistente
 
 ### ✔️ Estratégia
 
@@ -1375,6 +1396,46 @@ Essa abordagem permite proteger recursos pertencentes ao próprio usuário, como
 perfil, histórico de pedidos e assinaturas, sem necessidade de criar regras
 específicas em cada controller.
 
+### ✔️ Usuários
+
+#### Atualização de Perfil Cadastral
+
+Usuários autenticados podem atualizar seus dados cadastrais através do endpoint:
+
+```text
+PATCH /users/me
+```
+
+A rota utiliza autenticação baseada em accessToken e validação de entrada
+através do Celebrate/Joi.
+
+Fluxo simplificado:
+
+```text
+PATCH /users/me
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados enviados
+↓
+Usuário é localizado através de req.user._id
+↓
+MongoDB atualiza o documento
+↓
+Documento atualizado é retornado
+```
+
+A atualização utiliza uma `whitelist` explícita para evitar alterações de campos
+sensíveis não previstos pela aplicação.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -1421,7 +1482,11 @@ específicas em cada controller.
 │     │     │     ├── subscription-order.model.js
 │     │     │     └── subscription.model.js
 │     │     └── users/
-│     │     │     └── user.model.js
+│     │     │     ├── user.model.js
+│     │     │     ├── users.controller.js
+│     │     │     ├── users.index.js
+│     │     │     ├── users.routes.js
+│     │     │     └── users.validation.js
 │     ├── routes/
 │     │     └── index.js
 │     ├── shared/
@@ -1467,13 +1532,15 @@ específicas em cada controller.
 │     │     ├── today-recipe.model.test.js
 │     │     └── user.model.test.js
 │     ├── modules/
-│     │     └── auth/
-│     │           ├── access.middleware.test.js
-│     │           ├── login.test.js
-│     │           ├── logout.test.js
-│     │           ├── refreshAccess.test.js
-│     │           ├── refreshUser.test.js
-│     │           └── register.test.js
+│     │     ├── auth/
+│     │     │     ├── access.middleware.test.js
+│     │     │     ├── login.test.js
+│     │     │     ├── logout.test.js
+│     │     │     ├── refreshAccess.test.js
+│     │     │     ├── refreshUser.test.js
+│     │     │     └── register.test.js
+│     │     └── users/
+│     │           └── updateUserProfile.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
 │     └── setup/
@@ -1677,69 +1744,78 @@ Deploy
 
 #### Usuários
 
-- [ ] Visualizar perfil
-- [ ] Atualizar perfil
+- [x] Atualizar perfil cadastral
+- [ ] Atualizar perfil de assinatura
+  - [ ] Ativar assinatura
+  - [ ] Pausar assinatura
+- [ ] Histórico de pedidos
+- [ ] Histórico de pedidos de assinatura
+- [ ] Histórico de mensagens
 
 #### Assinaturas
 
-- [ ] Ativar assinatura
-- [ ] Pausar assinatura
+- [ ] Criar assinatura
 - [ ] Criar pedido de assinatura
 - [ ] Localizar pedido de assinatura
-- [ ] Histórico de pedidos de assinatura
 
 #### Cardápio
 
-- [ ] Gestão de itens do cardápio
-- [ ] Categorias
+- [ ] Busca de menu
 - [ ] Controle de disponibilidade
 
 #### Pedidos
 
 - [ ] Criar pedido
 - [ ] Localizar pedido
-- [ ] Histórico de pedidos
 
 #### Fale Conosco
 
 - [ ] Cadastro de mensagens
-- [ ] Histórico de mensagens
+- [ ] API Externa para envio de e-mail/WhatsApp
 
 #### Mercados Parceiros
 
 - [ ] Inscrição de parceria
+- [ ] API Externa para envio de e-mail/WhatsApp
 
 #### Receitas
 
-- [ ] Busca de receitas
-- [ ] Filtros de receitas
-- [ ] Persistência de receitas
+- [ ] API Externa de receitas
+- [ ] Busca de receitas de hoje
+  - [ ] Persistência das receitas
+- [ ] Pesquisa de receitas
 
-#### Integrações Externas
+#### Admin
 
-- [ ] Integração com API de CEP
-- [ ] Integração com API de envio de e-mail/WhatsApp
-- [ ] Integração com API de receitas
+- [ ] Cadastro de admin
+- [ ] Adicionar produto no cardápio
+- [ ] Remover produto do cardápio
 
 #### Testes de Integração (Supertest)
 
-- [ ] Perfil de usuário
+- [ ] Usuários
 - [ ] Assinaturas
 - [ ] Cardápio
 - [ ] Pedidos
 - [ ] Fale Conosco
 - [ ] Mercados Parceiros
 - [ ] Receitas
+- [ ] Admin
 
-### 🚧 Fase 9: Integrações Externas Extras
+### 🚧 Fase 9: Integrações Externas
 
 - [ ] API de clima
+
+#### Integrações Externas Extras
+
+- [ ] API de CEP
 - [ ] API de mapa
 
 #### Testes de Integração (Supertest)
 
-- [ ] Integração API de clima
-- [ ] Integração API de mapa
+- [ ] API de clima
+- [ ] API de CEP
+- [ ] API de mapa
 
 ### 🚧 Fase 10: Qualidade
 
@@ -1773,6 +1849,11 @@ Deploy
 - [ ] Utilização de chaves distintas para `accessToken` e `refreshToken`:
   - `JWT_ACCESS_SECRET`
   - `JWT_REFRESH_SECRET`
+- [ ] Implementar API Externa para envio de e-mail/WhatsApp em:
+  - Cadastro de usuário
+  - Cadastro de assinatura
+  - Criar pedido de assinatura
+  - Criar pedido avulso
 - [ ] Documentação com Swagger/OpenAPI
 
 ---
