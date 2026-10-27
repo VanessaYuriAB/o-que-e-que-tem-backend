@@ -357,11 +357,26 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
     });
   });
 
+  // 16
+  it('Body ausente', async () => {
+    const error = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({});
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body).toMatchObject({
+      message: expect.stringMatching('Validation failed'),
+    });
+  });
+
   // --------------------
   // NotFoundError (404)
   // --------------------
 
-  // 16
+  // 17
   it('Atualização de perfil de usuário mal sucedida', async () => {
     // Gera token válido com _id inexistente
     const fakeToken = jwt.sign(
