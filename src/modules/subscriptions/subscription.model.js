@@ -1,4 +1,10 @@
 import mongoose from 'mongoose';
+import {
+  SUBSCRIPTION_DAYS,
+  DELIVERY_METHODS,
+  SUBSCRIPTION_DURATIONS,
+  PAYMENT_METHODS,
+} from '../../shared/utils/constants.js';
 
 const subscriptionSchema = new mongoose.Schema(
   /* Campos */
@@ -23,7 +29,7 @@ const subscriptionSchema = new mongoose.Schema(
 
     howLong: {
       type: String,
-      enum: ['two', 'four', 'six', 'twelve'],
+      enum: SUBSCRIPTION_DURATIONS,
       required: true,
     },
 
@@ -31,7 +37,7 @@ const subscriptionSchema = new mongoose.Schema(
       type: [
         {
           type: String,
-          enum: ['seg', 'ter', 'qua', 'qui', 'sex'],
+          enum: SUBSCRIPTION_DAYS,
         },
       ],
       required: true,
@@ -46,13 +52,13 @@ const subscriptionSchema = new mongoose.Schema(
 
     method: {
       type: String,
-      enum: ['delivery', 'drive-thru'],
+      enum: DELIVERY_METHODS,
       required: true,
     },
 
     pay: {
       type: String,
-      enum: ['pix', 'debito', 'credito'],
+      enum: PAYMENT_METHODS,
       required: true,
     },
   },

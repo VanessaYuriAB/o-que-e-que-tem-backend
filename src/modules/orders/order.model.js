@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
+import {
+  MEAL_TYPES,
+  DELIVERY_METHODS,
+  PAYMENT_METHODS,
+  PRODUCTS_CATEGORIES,
+} from '../../shared/utils/constants.js';
 
 const orderSchema = new mongoose.Schema(
   /* Campos */
@@ -22,17 +28,17 @@ const orderSchema = new mongoose.Schema(
     meal: {
       type: String,
       required: true,
-      enum: ['sopa', 'creme', 'pate'],
+      enum: MEAL_TYPES,
     },
     method: {
       type: String,
       required: true,
-      enum: ['delivery', 'drive-thru'],
+      enum: DELIVERY_METHODS,
     },
     payment: {
       type: String,
       required: true,
-      enum: ['pix', 'debito', 'credito'],
+      enum: PAYMENT_METHODS,
     },
     amount: {
       type: Number,
@@ -130,15 +136,7 @@ const orderSchema = new mongoose.Schema(
           category: {
             type: String,
             required: true,
-            enum: [
-              'carboidratos',
-              'verduras-legumes',
-              'leites-derivados',
-              'carnes-ovos-peixes',
-              'leguminosas-oleaginosas',
-              'oleos-gorduras',
-              'acucares-doces',
-            ],
+            enum: PRODUCTS_CATEGORIES,
           },
 
           partnerName: {
