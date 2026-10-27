@@ -36,10 +36,11 @@
 5. [Variáveis de ambiente 🔐](#-5-variáveis-de-ambiente)
 6. [Como executar ▶️](#-6-como-executar)
 7. [Scripts 📜](#-7-scripts)
-8. [Testes 🧪](#-8-testes)
-9. [Decisões técnicas 🧠](#-9-decisões-técnicas)
-10. [Estrutura do projeto 🗃️](#-10-estrutura-do-projeto)
-11. [Roadmap 🗺️](#-11-roadmap)
+8. [Endpoints disponíveis 🌐](#-8-endpoints-disponíveis)
+9. [Testes 🧪](#-9-testes)
+10. [Decisões técnicas 🧠](#-10-decisões-técnicas)
+11. [Estrutura do projeto 🗃️](#-11-estrutura-do-projeto)
+12. [Roadmap 🗺️](#-12-roadmap)
 
 <a id="-1-descrição"></a>
 
@@ -279,9 +280,42 @@ npm run start
 
 ---
 
-<a id="-8-testes"></a>
+<a id="-8-endpoints-disponíveis"></a>
 
-## 🧪 8. Testes
+## 🌐 8. Endpoints disponíveis
+
+- ### Auth
+
+| Método | Rota           | Descrição                         |
+| ------ | -------------- | --------------------------------- |
+| POST   | /auth/register | Cadastro de usuário               |
+| POST   | /auth/login    | Autenticação do usuário           |
+| GET    | /auth/me       | Recuperação da sessão autenticada |
+| POST   | /auth/access   | Renovação do accessToken          |
+| POST   | /auth/logout   | Encerramento da sessão            |
+
+- ### Users
+
+| Método | Rota      | Descrição                       |
+| ------ | --------- | ------------------------------- |
+| PATCH  | /users/me | Atualização de perfil cadastral |
+
+- ### Admin
+
+| Método | Rota          | Descrição                               |
+| ------ | ------------- | --------------------------------------- |
+| GET    | /admin/health | Validação de autorização administrativa |
+
+> A documentação detalhada dos contratos HTTP será disponibilizada através da
+> coleção Postman prevista no roadmap do projeto.
+
+[Voltar ao topo 🔝](#top)
+
+---
+
+<a id="-9-testes"></a>
+
+## 🧪 9. Testes
 
 O projeto utiliza:
 
@@ -576,9 +610,9 @@ integração que validam:
 
 ---
 
-<a id="-9-decisões-técnicas"></a>
+<a id="-10-decisões-técnicas"></a>
 
-## 🧠 9. Decisões técnicas
+## 🧠 10. Decisões técnicas
 
 ### ✔️ Arquitetura Feature-Based
 
@@ -1056,7 +1090,8 @@ Exemplos:
 
 ```text
 /auth/login
-/auth/refresh
+/auth/me
+/auth/access
 /users/me
 /orders
 /subscriptions
@@ -1440,9 +1475,9 @@ sensíveis não previstos pela aplicação.
 
 ---
 
-<a id="-10-estrutura-do-projeto"></a>
+<a id="-11-estrutura-do-projeto"></a>
 
-## 🗃️ 10. Estrutura do projeto
+## 🗃️ 11. Estrutura do projeto
 
 ```text
 ├── .husky/
@@ -1590,9 +1625,9 @@ Cada módulo concentra seus próprios arquivos:
 
 ---
 
-<a id="-11-roadmap"></a>
+<a id="-12-roadmap"></a>
 
-## 🗺️ 11. Roadmap
+## 🗺️ 12. Roadmap
 
 Infraestrutura Base → Segurança → Observabilidade → Qualidade Base → Modelagem
 de Dados → Autenticação → Funcionalidades Core → Qualidade → Documentação →
