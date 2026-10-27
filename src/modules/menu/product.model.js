@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { PRODUCTS_CATEGORIES } from '../../shared/utils/constants.js';
 
 const productSchema = new mongoose.Schema(
   /* Campos */
@@ -12,15 +13,7 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: [
-        'carboidratos',
-        'verduras-legumes',
-        'leites-derivados',
-        'carnes-ovos-peixes',
-        'leguminosas-oleaginosas',
-        'oleos-gorduras',
-        'acucares-doces',
-      ],
+      enum: PRODUCTS_CATEGORIES,
     },
 
     qtyAvailable: {
