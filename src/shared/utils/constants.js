@@ -18,6 +18,8 @@ const SUBSCRIPTION_DURATIONS = ['two', 'four', 'six', 'twelve'];
 
 const SUBSCRIPTION_DAYS = ['seg', 'ter', 'qua', 'qui', 'sex'];
 
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/; // garante HH:mm válido
+
 export {
   PRODUCTS_CATEGORIES,
   MEAL_TYPES,
@@ -25,4 +27,5 @@ export {
   PAYMENT_METHODS,
   SUBSCRIPTION_DURATIONS,
   SUBSCRIPTION_DAYS,
+  TIME_REGEX,
 };
