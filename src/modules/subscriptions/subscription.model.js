@@ -20,13 +20,6 @@ const subscriptionSchema = new mongoose.Schema(
       default: true,
     },
 
-    begin: {
-      type: Date, // formato no frontend '2026-07-21'
-    },
-    end: {
-      type: Date, // formato no frontend '2027-07-21'
-    },
-
     howLong: {
       type: String,
       enum: SUBSCRIPTION_DURATIONS,
@@ -70,7 +63,7 @@ const subscriptionSchema = new mongoose.Schema(
 );
 
 // Validação de consistência entre propriedades do documento inteiro (daysOn e schedules)
-// Middlware de documento do Mongoose para pré-validação
+// Middleware de documento do Mongoose para pré-validação
 subscriptionSchema.pre('validate', function () {
   const allSchedulesFilled = this.daysOn.every((day) =>
     this.schedules?.get(day),
