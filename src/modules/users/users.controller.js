@@ -8,17 +8,23 @@ const updateUserProfile = async (req, res) => {
   const userId = req.user._id;
 
   // Whilelist : defesa em profundidade
-  const updateData = {
-    userName: req.body.userName,
-    email: req.body.email,
-    tel: req.body.tel,
-    address: req.body.address,
-    number: req.body.number,
-    complement: req.body.complement,
-    district: req.body.district,
-    cep: req.body.cep,
-    infoText: req.body.infoText,
-  };
+  const updateData = {};
+
+  [
+    'userName',
+    'email',
+    'tel',
+    'address',
+    'number',
+    'complement',
+    'district',
+    'cep',
+    'infoText',
+  ].forEach((field) => {
+    if (req.body[field] !== undefined) {
+      updateData[field] = req.body[field];
+    }
+  });
 
   const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
     returnDocument: 'after', // substitui o 'new: true,' atualmente
