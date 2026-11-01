@@ -14,9 +14,20 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (err instanceof mongoose.Error.ValidationError) {
-    return res
-      .status(400)
-      .send({ message: 'Dado(s) inválido(s) ou inexistente(s)' });
+    const schedulesError = err.errors?.schedules;
+
+    if (
+      schedulesError?.message ===
+      'Todos os dias selecionados precisam possuir horário.'
+    ) {
+      return res.status(400).send({
+        message: schedulesError.message,
+      });
+    }
+
+    return res.status(400).send({
+      message: 'Dado(s) inválido(s) ou inexistente(s)',
+    });
   }
 
   // --------------------------------------------------
