@@ -306,6 +306,12 @@ npm run start
 | ------ | ------------- | --------------------------------------- |
 | GET    | /admin/health | Validação de autorização administrativa |
 
+- ### Subscriptions
+
+| Método | Rota           | Descrição              |
+| ------ | -------------- | ---------------------- |
+| POST   | /subscriptions | Cadastro de assinatura |
+
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
 
@@ -375,6 +381,11 @@ Além dos fluxos de autenticação e autorização, a suíte contempla testes de
 integração da funcionalidade de gerenciamento de perfil do usuário:
 
 - atualização de perfil cadastral (`PATCH /users/me`)
+
+Além do gerenciamento de perfil, a suíte contempla testes de integração da
+funcionalidade de assinaturas:
+
+- criação de assinatura (`POST /subscriptions`)
 
 ### ✔️ Cobertura Atual
 
@@ -596,6 +607,32 @@ integração que validam:
 - localização do usuário autenticado através do identificador presente no JWT
 - retorno de `404 Not Found` para usuário inexistente
 
+O fluxo de criação de assinatura (`POST /subscriptions`) possui testes de
+integração que validam:
+
+- criação da assinatura com sucesso
+- persistência dos dados da assinatura no MongoDB
+- atualização do usuário com os vínculos de assinatura (`subscription` e
+  `subscriptionDetails`)
+- retorno do documento atualizado com `populate('subscriptionDetails')`
+- ausência de exposição de campos sensíveis (`password`)
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- validação do cabeçalho `Content-Type`
+- validação dos campos recebidos através do Celebrate/Joi
+- validação dos campos obrigatórios (`required`)
+- validação dos valores permitidos por enum (`enum`)
+- validação de itens permitidos em `daysOn`
+- validação de unicidade dos itens em `daysOn`
+- validação da estrutura de `schedules`
+- bloqueio de propriedades desconhecidas em `schedules`
+- validação do formato dos horários através de expressão regular (`TIME_REGEX`)
+- regra de consistência entre `daysOn` e `schedules` implementada através de
+  middleware de documento do Mongoose (`pre('validate')`)
+- prevenção de assinaturas duplicadas por proprietário (`409 Conflict`)
+
 ### ✔️ Estratégia
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e
@@ -792,6 +829,17 @@ apropriadas:
 - `CastError` → `400 Bad Request`
 - `ValidationError` → `400 Bad Request`
 
+Determinadas regras de domínio implementadas através de `ValidationError` do
+Mongoose possuem mensagens específicas preservadas pela aplicação.
+
+Exemplo:
+
+- Todos os dias selecionados precisam possuir horário.
+
+Essa estratégia permite que erros de consistência do domínio sejam apresentados
+ao consumidor da API de forma mais clara do que as mensagens genéricas
+utilizadas para falhas de validação comuns.
+
 A aplicação utiliza, também, classes de erro customizadas para representar
 regras de negócio e respostas HTTP específicas:
 
@@ -955,12 +1003,45 @@ As validações de autenticação utilizam cookies `httpOnly`, permitindo verifi
 a presença dos tokens esperados antes que a requisição alcance a camada de
 negócio.
 
+Além das validações de entrada realizadas pelo Celebrate/Joi, determinadas
+regras de consistência do domínio são implementadas diretamente nos modelos do
+Mongoose.
+
+Exemplo: o modelo de assinatura exige que todos os dias selecionados em `daysOn`
+possuam um horário correspondente no campo `schedules`.
+
+Essa validação é executada através de um middleware de documento:
+
+```js
+schema.pre('validate');
+```
+
+permitindo validar a consistência entre propriedades do documento completo antes
+da persistência no banco de dados.
+
+Fluxo simplificado:
+
+```text
+Requisição HTTP
+↓
+Celebrate/Joi
+↓
+Controller
+↓
+Document Validation (Mongoose)
+↓
+pre('validate')
+↓
+Persistência
+```
+
 Essa abordagem evita validações manuais dentro dos controllers e garante que as
 requisições cheguem à lógica de negócio já validadas.
 
 Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
 autenticação, incluindo cadastro, login e validação de cookies relacionados à
-autenticação e autorização.
+autenticação e autorização. Como também, para validação das rotas de atualização
+de perfil cadastral e cadastro de assinatura.
 
 ### ✔️ Validação de Content-Type
 
@@ -1471,6 +1552,78 @@ Documento atualizado é retornado
 A atualização utiliza uma `whitelist` explícita para evitar alterações de campos
 sensíveis não previstos pela aplicação.
 
+### ✔️ Assinaturas
+
+#### Cadastro de Assinatura
+
+Usuários autenticados podem cadastrar uma assinatura através do endpoint:
+
+```text
+POST /subscriptions
+```
+
+A rota utiliza autenticação baseada em accessToken, validação de entrada através
+do Celebrate/Joi e validações de domínio implementadas no Mongoose.
+
+Fluxo simplificado:
+
+```text
+POST /subscriptions
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados enviados
+↓
+Controller verifica se o usuário já possui assinatura
+↓
+MongoDB cria a assinatura
+↓
+Documento do usuário é atualizado com:
+  - subscription: true
+  - subscriptionDetails
+↓
+populate('subscriptionDetails')
+↓
+Documento atualizado é retornado
+```
+
+A funcionalidade utiliza uma whitelist explícita para evitar a persistência de
+campos não previstos pela aplicação.
+
+Além das validações de entrada realizadas pelo Celebrate/Joi, a entidade
+Subscription implementa regras de consistência de domínio através do Mongoose.
+
+Exemplo:
+
+```text
+Todos os dias selecionados em daysOn devem possuir um horário correspondente em schedules.
+```
+
+Essa validação é executada através de:
+
+```js
+schema.pre('validate');
+```
+
+garantindo a consistência dos dados antes da persistência no banco de dados.
+
+A criação de assinatura também impede que um mesmo usuário possua múltiplas
+assinaturas, retornando:
+
+```text
+409 Conflict
+```
+
+quando uma assinatura já existe para o proprietário autenticado.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -1515,7 +1668,11 @@ sensíveis não previstos pela aplicação.
 │     │     │     └── today-recipe.model.js
 │     │     ├── subscriptions/
 │     │     │     ├── subscription-order.model.js
-│     │     │     └── subscription.model.js
+│     │     │     ├── subscription.model.js
+│     │     │     ├── subscriptions.controller.js
+│     │     │     ├── subscriptions.index.js
+│     │     │     ├── subscriptions.routes.js
+│     │     │     └── subscriptions.validation.js
 │     │     └── users/
 │     │     │     ├── user.model.js
 │     │     │     ├── users.controller.js
@@ -1545,6 +1702,7 @@ sensíveis não previstos pela aplicação.
 │     │     │     ├── roleMiddleware.js
 │     │     │     └── validateContentType.js
 │     │     └── utils/
+│     │           ├── constants.js
 │     │           └── errorsMessages.js
 │     └── app.js
 ├── tests/
@@ -1574,6 +1732,8 @@ sensíveis não previstos pela aplicação.
 │     │     │     ├── refreshAccess.test.js
 │     │     │     ├── refreshUser.test.js
 │     │     │     └── register.test.js
+│     │     ├── subscriptions/
+│     │     │     └── createSubscription.test.js
 │     │     └── users/
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
@@ -1789,7 +1949,7 @@ Deploy
 
 #### Assinaturas
 
-- [ ] Criar assinatura
+- [x] Criar assinatura
 - [ ] Criar pedido de assinatura
 - [ ] Localizar pedido de assinatura
 
