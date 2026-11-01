@@ -14,7 +14,7 @@ const celebrateForCreateSubscription = celebrate({
       .pattern(/^[^<>]+$/)
       .trim(),
     email: Joi.string().email().trim(),
-    confirmEmail: Joi.string().valid(Joi.ref('email')).required().messages({
+    confirmEmail: Joi.string().valid(Joi.ref('email')).messages({
       'any.only': 'Os e-mails devem ser iguais',
     }),
     tel: Joi.string()
