@@ -1,4 +1,9 @@
 import { celebrate, Joi } from 'celebrate';
+import {
+  SUBSCRIPTION_DAYS,
+  DELIVERY_METHODS,
+  TIME_REGEX,
+} from '../../shared/utils/constants.js';
 
 // updateUserProfile > '/users/me'
 const celebrateForUpdateUser = celebrate({
@@ -36,6 +41,27 @@ const celebrateForUpdateUser = celebrate({
 });
 
 // updateSubscriptionProfile > '/users/subscriptions/me'
+const celebrateForUpdateSubscription = celebrate({
+  body: Joi.object()
+    .keys({
+      daysOn: Joi.array()
+        .items(Joi.string().valid(...SUBSCRIPTION_DAYS))
+        .unique(),
+
+      schedules: Joi.object({
+        seg: Joi.string().pattern(TIME_REGEX),
+        ter: Joi.string().pattern(TIME_REGEX),
+        qua: Joi.string().pattern(TIME_REGEX),
+        qui: Joi.string().pattern(TIME_REGEX),
+        sex: Joi.string().pattern(TIME_REGEX),
+      }).unknown(false),
+
+      method: Joi.string().valid(...DELIVERY_METHODS),
+
+      status: Joi.boolean(),
+    })
+    .min(1), // impede chamadas vazias: {} (endpoint de atualização parcial)
+});
 
 // getOrdersByUserId > '/users/:userId/orders'
 
@@ -43,4 +69,4 @@ const celebrateForUpdateUser = celebrate({
 
 // getMessagesByUserId > '/users/:userId/messages'
 
-export { celebrateForUpdateUser };
+export { celebrateForUpdateUser, celebrateForUpdateSubscription };

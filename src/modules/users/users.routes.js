@@ -2,16 +2,22 @@ import { Router } from 'express';
 import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import validateContentType from '../../shared/middlewares/validateContentType.js';
-import { celebrateForUpdateUser } from './users.validation.js';
-import { updateUserProfile } from './users.controller.js';
+import {
+  celebrateForUpdateSubscription,
+  celebrateForUpdateUser,
+} from './users.validation.js';
+import {
+  updateUserProfile,
+  updateSubscriptionProfile,
+} from './users.controller.js';
 
 // Cria um roteador para a rota principal de users
 const router = Router();
 
-// -------------------------------------------------------------
+// ------------------------------
 // Rotas privadas
-// (exigem autenticação via JWT + autorização por proprietário)
-// -------------------------------------------------------------
+// (exigem autenticação via JWT)
+// ------------------------------
 
 // updateUserProfile > '/users/me'
 router.patch(
@@ -24,6 +30,19 @@ router.patch(
 );
 
 // updateSubscriptionProfile > '/users/subscriptions/me'
+router.patch(
+  '/subscriptions/me',
+  celebrateForAccessToken,
+  accessMiddleware,
+  validateContentType,
+  celebrateForUpdateSubscription,
+  updateSubscriptionProfile,
+);
+
+// -------------------------------------------------------------
+// Rotas privadas
+// (exigem autenticação via JWT + autorização por proprietário)
+// -------------------------------------------------------------
 
 // getOrdersByUserId > '/users/:userId/orders'
 
