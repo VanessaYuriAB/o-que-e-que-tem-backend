@@ -296,9 +296,10 @@ npm run start
 
 - ### Users
 
-| Método | Rota      | Descrição                       |
-| ------ | --------- | ------------------------------- |
-| PATCH  | /users/me | Atualização de perfil cadastral |
+| Método | Rota                    | Descrição                           |
+| ------ | ----------------------- | ----------------------------------- |
+| PATCH  | /users/me               | Atualização de perfil cadastral     |
+| PATCH  | /users/subscriptions/me | Atualização do perfil de assinatura |
 
 - ### Admin
 
@@ -381,6 +382,7 @@ Além dos fluxos de autenticação e autorização, a suíte contempla testes de
 integração da funcionalidade de gerenciamento de perfil do usuário:
 
 - atualização de perfil cadastral (`PATCH /users/me`)
+- atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
 
 Além do gerenciamento de perfil, a suíte contempla testes de integração da
 funcionalidade de assinaturas:
@@ -406,7 +408,7 @@ O `errorHandler` possui:
 
 - testes unitários para validação dos códigos HTTP e mensagens retornadas,
   incluindo erros customizados da aplicação e erros de infraestrutura do
-  Mongoose (`CastError` e `ValidationError`)
+  `Mongoose` (`CastError` e `ValidationError`)
 - testes de integração para validação do fluxo completo entre Express,
   roteamento e middleware de erro
 
@@ -435,7 +437,7 @@ O `Subscription Model` possui testes unitários para validação de:
 - consistência entre dias selecionados (`daysOn`) e horários cadastrados
   (`schedules`)
 - regra de consistência do domínio implementada através do
-  `middleware de documento` para validação do Mongoose (`pre('validate')`)
+  `middleware de documento` para validação do `Mongoose` (`pre('validate')`)
 - validação de documento válido
 
 O `Product Model` possui testes unitários para validação de:
@@ -630,8 +632,34 @@ integração que validam:
 - bloqueio de propriedades desconhecidas em `schedules`
 - validação do formato dos horários através de expressão regular (`TIME_REGEX`)
 - regra de consistência entre `daysOn` e `schedules` implementada através de
-  middleware de documento do Mongoose (`pre('validate')`)
+  middleware de documento do `Mongoose` (`pre('validate')`)
 - prevenção de assinaturas duplicadas por proprietário (`409 Conflict`)
+
+O fluxo de atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
+possui testes de integração que validam:
+
+- atualização da configuração da assinatura
+- persistência dos dados atualizados no MongoDB
+- retorno do documento atualizado com `populate('subscriptionDetails')`
+- pausa de assinatura através do campo `status`
+- persistência da alteração de status no MongoDB
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- validação do cabeçalho `Content-Type`
+- validação dos campos recebidos através do Celebrate/Joi
+- validação dos valores permitidos por enum (`enum`)
+- validação de itens permitidos em `daysOn`
+- validação de unicidade dos itens em `daysOn`
+- validação da estrutura de `schedules`
+- bloqueio de propriedades desconhecidas em `schedules`
+- validação do formato dos horários através de expressão regular (`TIME_REGEX`)
+- regra de consistência entre `daysOn` e `schedules` implementada através de
+  middleware de documento do `Mongoose` (`pre('validate')`)
+- validação de corpo de requisição vazio para atualização parcial
+- localização da assinatura através do proprietário autenticado
+- retorno de `404 Not Found` para assinatura inexistente
 
 ### ✔️ Estratégia
 
@@ -823,14 +851,14 @@ dados e facilita a execução de testes.
 A aplicação utiliza um middleware centralizado para tratamento de erros durante
 o ciclo de vida das requisições HTTP.
 
-Erros de infraestrutura gerados pelo Mongoose são traduzidos para respostas HTTP
-apropriadas:
+Erros de infraestrutura gerados pelo `Mongoose` são traduzidos para respostas
+HTTP apropriadas:
 
 - `CastError` → `400 Bad Request`
 - `ValidationError` → `400 Bad Request`
 
 Determinadas regras de domínio implementadas através de `ValidationError` do
-Mongoose possuem mensagens específicas preservadas pela aplicação.
+`Mongoose` possuem mensagens específicas preservadas pela aplicação.
 
 Exemplo:
 
@@ -854,7 +882,7 @@ regras de negócio e respostas HTTP específicas:
 Cada classe define seu próprio código de status HTTP, permitindo tratamento
 consistente e centralizado dos erros da aplicação.
 
-Além dos erros gerados pela aplicação e pelo Mongoose:
+Além dos erros gerados pela aplicação e pelo `Mongoose`:
 
 - requisições para rotas inexistentes são tratadas por um middleware dedicado,
   retornando `404 Not Found`; e
@@ -863,7 +891,7 @@ Além dos erros gerados pela aplicação e pelo Mongoose:
 
 O comportamento do middleware centralizado de tratamento de erros é validado por
 testes unitários (Jest) e testes de integração (Supertest), garantindo a correta
-tradução dos erros internos da aplicação e do Mongoose para respostas HTTP
+tradução dos erros internos da aplicação e do `Mongoose` para respostas HTTP
 padronizadas.
 
 ### ✔️ CORS
@@ -944,8 +972,8 @@ Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto 
 
 O projeto adota uma abordagem model-first.
 
-As entidades principais do domínio são modeladas e validadas através do Mongoose
-antes da implementação dos controllers e rotas.
+As entidades principais do domínio são modeladas e validadas através do
+`Mongoose` antes da implementação dos controllers e rotas.
 
 Essa estratégia permite:
 
@@ -968,7 +996,7 @@ Todos os schemas utilizam a opção:
 }
 ```
 
-O Mongoose passa a criar e atualizar automaticamente os campos:
+O `Mongoose` passa a criar e atualizar automaticamente os campos:
 
 - `createdAt`
 - `updatedAt`
@@ -980,7 +1008,7 @@ trilha básica de auditoria para os documentos persistidos.
 
 A aplicação utiliza duas camadas complementares de validação:
 
-1. Mongoose
+1. `Mongoose`
 
 Responsável por validar regras de domínio e persistência:
 
@@ -1005,7 +1033,7 @@ negócio.
 
 Além das validações de entrada realizadas pelo Celebrate/Joi, determinadas
 regras de consistência do domínio são implementadas diretamente nos modelos do
-Mongoose.
+`Mongoose`.
 
 Exemplo: o modelo de assinatura exige que todos os dias selecionados em `daysOn`
 e todos os horários preenchidos em `schedules` representem exatamente os mesmos
@@ -1041,8 +1069,9 @@ requisições cheguem à lógica de negócio já validadas.
 
 Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
 autenticação, incluindo cadastro, login e validação de cookies relacionados à
-autenticação e autorização. Como também, para validação das rotas de atualização
-de perfil cadastral e cadastro de assinatura.
+autenticação e autorização. Também é utilizado para validação das rotas de
+atualização de perfil cadastral, atualização de perfil de assinatura e cadastro
+de assinatura.
 
 ### ✔️ Validação de Content-Type
 
@@ -1553,6 +1582,73 @@ Documento atualizado é retornado
 A atualização utiliza uma `whitelist` explícita para evitar alterações de campos
 sensíveis não previstos pela aplicação.
 
+#### Atualização de Perfil de Assinatura
+
+Usuários autenticados podem atualizar a configuração da assinatura ou alterar
+seu status através do endpoint:
+
+```text
+PATCH /users/subscriptions/me
+```
+
+A rota utiliza autenticação baseada em `accessToken`, validação de entrada
+através do Celebrate/Joi e validações de domínio implementadas no `Mongoose`.
+
+Fluxo simplificado:
+
+```text
+PATCH /users/subscriptions/me
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados enviados
+↓
+Controller localiza a assinatura do usuário autenticado
+↓
+Assinatura é atualizada
+↓
+Validação de documento do Mongoose executa
+↓
+Documento atualizado é persistido
+↓
+Usuário é recuperado com:
+  populate('subscriptionDetails')
+↓
+Documento atualizado é retornado
+```
+
+A funcionalidade suporta dois cenários:
+
+- atualização de configuração da assinatura:
+
+  - `daysOn`
+  - `schedules`
+  - `method`
+
+- alteração de status da assinatura:
+
+  - ativação (`status: true`)
+  - pausa (`status: false`)
+
+Assim como na criação da assinatura, regras de consistência entre os dias
+selecionados em `daysOn` e os horários informados em `schedules` são validadas
+através de middleware de documento do Mongoose:
+
+```js
+schema.pre('validate');
+```
+
+garantindo que ambos representem exatamente os mesmos dias antes da persistência
+no banco de dados.
+
 ### ✔️ Assinaturas
 
 #### Cadastro de Assinatura
@@ -1564,7 +1660,7 @@ POST /subscriptions
 ```
 
 A rota utiliza autenticação baseada em `accessToken`, validação de entrada
-através do Celebrate/Joi e validações de domínio implementadas no Mongoose.
+através do Celebrate/Joi e validações de domínio implementadas no `Mongoose`.
 
 Fluxo simplificado:
 
@@ -1600,7 +1696,7 @@ A funcionalidade utiliza uma whitelist explícita para evitar a persistência de
 campos não previstos pela aplicação.
 
 Além das validações de entrada realizadas pelo Celebrate/Joi, a entidade
-Subscription implementa regras de consistência de domínio através do Mongoose.
+Subscription implementa regras de consistência de domínio através do `Mongoose`.
 
 Exemplo:
 
@@ -1736,6 +1832,7 @@ quando uma assinatura já existe para o proprietário autenticado.
 │     │     ├── subscriptions/
 │     │     │     └── createSubscription.test.js
 │     │     └── users/
+│     │           ├── updateSubscriptionProfile.test.js
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
@@ -1859,7 +1956,7 @@ Deploy
 
 ### ✅ Fase 5: Modelagem de Dados
 
-#### Schemas (Mongoose)
+#### Schemas (`Mongoose`)
 
 - [x] Model/User
 - [x] Model/Subscription
@@ -1941,9 +2038,9 @@ Deploy
 #### Usuários
 
 - [x] Atualizar perfil cadastral
-- [ ] Atualizar perfil de assinatura
-  - [ ] Ativar assinatura
-  - [ ] Pausar assinatura
+- [x] Atualizar perfil de assinatura
+  - [x] Ativar assinatura
+  - [x] Pausar assinatura
 - [ ] Histórico de pedidos
 - [ ] Histórico de pedidos de assinatura
 - [ ] Histórico de mensagens
@@ -2042,14 +2139,35 @@ Deploy
 ### 📚 Melhorias Futuras
 
 - [ ] Revogação de sessão baseada em `refreshToken`
+
 - [ ] Utilização de chaves distintas para `accessToken` e `refreshToken`:
   - `JWT_ACCESS_SECRET`
   - `JWT_REFRESH_SECRET`
+
+- [ ] Organização de endpoints por domínio:
+
+  Atualmente alguns recursos relacionados ao perfil do usuário são expostos
+  através de rotas agrupadas em `/users/*`, acompanhando a organização da
+  feature `Profile` no frontend.
+
+  Avaliar futura refatoração para uma arquitetura orientada ao domínio:
+
+  - `PATCH /users/subscriptions/me` → `PATCH /subscriptions/me`
+  - `GET /users/:userId/orders` → `GET /orders/me`
+  - `GET /users/:userId/subscriptions/orders` → `GET /subscriptions/orders/me`
+  - `GET /users/:userId/messages` → `GET /messages/me`
+
+  A alteração exigirá refatoração coordenada entre frontend e backend, com
+  migração dos services para suas respectivas features (`Subscriptions`,
+  `Orders` e `Contact`), aumentando a coesão e facilitando a manutenção da API
+  em cenários de crescimento do projeto.
+
 - [ ] Implementar API Externa para envio de e-mail/WhatsApp em:
   - Cadastro de usuário
   - Cadastro de assinatura
   - Criar pedido de assinatura
   - Criar pedido avulso
+
 - [ ] Documentação com Swagger/OpenAPI
 
 ---
