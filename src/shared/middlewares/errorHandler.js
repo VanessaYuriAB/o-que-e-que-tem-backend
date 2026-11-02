@@ -18,7 +18,7 @@ const errorHandler = (err, req, res, next) => {
 
     if (
       schedulesError?.message ===
-      'Todos os dias selecionados precisam possuir horário.'
+      'Os dias selecionados e os horários informados devem corresponder exatamente.'
     ) {
       return res.status(400).send({
         message: schedulesError.message,

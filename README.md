@@ -834,7 +834,7 @@ Mongoose possuem mensagens específicas preservadas pela aplicação.
 
 Exemplo:
 
-- Todos os dias selecionados precisam possuir horário.
+- Os dias selecionados e os horários informados devem corresponder exatamente.
 
 Essa estratégia permite que erros de consistência do domínio sejam apresentados
 ao consumidor da API de forma mais clara do que as mensagens genéricas
@@ -1008,7 +1008,8 @@ regras de consistência do domínio são implementadas diretamente nos modelos d
 Mongoose.
 
 Exemplo: o modelo de assinatura exige que todos os dias selecionados em `daysOn`
-possuam um horário correspondente no campo `schedules`.
+e todos os horários preenchidos em `schedules` representem exatamente os mesmos
+dias.
 
 Essa validação é executada através de um middleware de documento:
 
@@ -1562,8 +1563,8 @@ Usuários autenticados podem cadastrar uma assinatura através do endpoint:
 POST /subscriptions
 ```
 
-A rota utiliza autenticação baseada em accessToken, validação de entrada através
-do Celebrate/Joi e validações de domínio implementadas no Mongoose.
+A rota utiliza autenticação baseada em `accessToken`, validação de entrada
+através do Celebrate/Joi e validações de domínio implementadas no Mongoose.
 
 Fluxo simplificado:
 
@@ -1604,7 +1605,7 @@ Subscription implementa regras de consistência de domínio através do Mongoose
 Exemplo:
 
 ```text
-Todos os dias selecionados em daysOn devem possuir um horário correspondente em schedules.
+Os dias selecionados e os horários informados devem corresponder exatamente.
 ```
 
 Essa validação é executada através de:

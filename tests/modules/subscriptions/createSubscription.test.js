@@ -530,15 +530,41 @@ describe('Create Subscription Flow > POST "/subscriptions"', () => {
     expect(error.statusCode).toBe(400);
 
     expect(error.body).toMatchObject({
-      message: 'Todos os dias selecionados precisam possuir horário.',
+      message:
+        'Os dias selecionados e os horários informados devem corresponder exatamente.',
     });
+  });
+
+  // 21
+  it('Todos os horários precisam constar em dias', async () => {
+    const payload = {
+      ...subscriptionPayload,
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '12:45',
+        qua: '12:45',
+        sex: '18:20',
+      },
+    };
+
+    const error = await request
+      .post('/subscriptions')
+      .set('Cookie', cookies)
+      .send(payload);
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body.message).toBe(
+      'Os dias selecionados e os horários informados devem corresponder exatamente.',
+    );
   });
 
   // ---------------
   // Conflict (409)
   // ---------------
 
-  // 21
+  // 22
   it('Criação de assinatura mal sucedida (409)', async () => {
     // Seed de assinatura
     const a = await request

@@ -65,14 +65,16 @@ const subscriptionSchema = new mongoose.Schema(
 // Validação de consistência entre propriedades do documento inteiro (daysOn e schedules)
 // Middleware de documento do Mongoose para pré-validação
 subscriptionSchema.pre('validate', function () {
-  const allSchedulesFilled = this.daysOn.every((day) =>
-    this.schedules?.get(day),
-  );
+  const daysOn = [...this.daysOn].sort();
 
-  if (!allSchedulesFilled) {
+  const schedulesDays = [...this.schedules.keys()].sort();
+
+  const sameDays = JSON.stringify(daysOn) === JSON.stringify(schedulesDays);
+
+  if (!sameDays) {
     this.invalidate(
       'schedules',
-      'Todos os dias selecionados precisam possuir horário.',
+      'Os dias selecionados e os horários informados devem corresponder exatamente.',
     );
   }
 });
