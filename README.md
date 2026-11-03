@@ -340,6 +340,12 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | -------------- | ---------------------- |
 | POST   | /subscriptions | Cadastro de assinatura |
 
+- ### Menu
+
+| Método | Rota  | Descrição                                        |
+| ------ | ----- | ------------------------------------------------ |
+| GET    | /menu | Recuperação dos produtos disponíveis do cardápio |
+
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
 
@@ -415,6 +421,11 @@ Além do gerenciamento de perfil, a suíte contempla testes de integração da
 funcionalidade de assinaturas:
 
 - criação de assinatura (`POST /subscriptions`)
+
+Além das funcionalidades de assinatura, a suíte contempla testes de integração
+da funcionalidade de cardápio:
+
+- busca de produtos do cardápio (`GET /menu`)
 
 ### ✔️ Cobertura Atual
 
@@ -687,6 +698,17 @@ possui testes de integração que validam:
 - validação de corpo de requisição vazio para atualização parcial
 - localização da assinatura através do proprietário autenticado
 - retorno de `404 Not Found` para assinatura inexistente
+
+O fluxo de busca de menu (`GET /menu`) possui testes de integração que validam:
+
+- recuperação apenas dos produtos disponíveis cadastrados
+- ocultação automática dos produtos indisponíveis (`qtyAvailable <= 0`)
+- ocultação automática de produtos com prazo de validade expirado
+  (`availableUntil < data atual`)
+- retorno da estrutura esperada da resposta HTTP
+- retorno dos campos principais dos produtos
+- retorno de lista vazia quando não existem produtos cadastrados
+- integração entre Express, controller, rota e MongoDB
 
 ### ✔️ Estratégia
 
@@ -1764,6 +1786,50 @@ assinaturas, retornando:
 
 quando uma assinatura já existe para o proprietário autenticado.
 
+### ✔️ Cardápio
+
+#### Consulta de produtos
+
+A aplicação disponibiliza um endpoint público responsável por recuperar os
+produtos disponíveis no cardápio:
+
+```text
+GET /menu
+```
+
+A implementação atual realiza a consulta diretamente na coleção de produtos
+utilizando o Mongoose, retornando os documentos persistidos no MongoDB para
+consumo do frontend.
+
+Fluxo simplificado:
+
+```text
+GET /menu
+↓
+Controller recebe requisição
+↓
+MongoDB localiza apenas produtos:
+- com estoque disponível
+- dentro do prazo de validade
+↓
+Documentos são convertidos com lean()
+↓
+Resposta HTTP 200
+↓
+Frontend atualiza o cardápio
+```
+
+A regra de disponibilidade é aplicada no backend através da consulta ao banco de
+dados, evitando que produtos indisponíveis ou vencidos sejam enviados ao
+frontend.
+
+Por se tratar de uma rota exclusivamente de leitura, não existem validações de
+Content-Type ou Celebrate/Joi na implementação atual.
+
+A funcionalidade é utilizada em conjunto com o mecanismo de atualização
+periódica (polling) implementado no frontend para manter o cardápio sincronizado
+com o estado atual do banco de dados.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -1799,6 +1865,9 @@ quando uma assinatura já existe para o proprietário autenticado.
 │     │     ├── contact/
 │     │     │     └── message.model.js
 │     │     ├── menu/
+│     │     │     ├── menu.controller.js
+│     │     │     ├── menu.index.js
+│     │     │     ├── menu.routes.js
 │     │     │     └── product.model.js
 │     │     ├── orders/
 │     │     │     └── order.model.js
@@ -1874,6 +1943,8 @@ quando uma assinatura já existe para o proprietário autenticado.
 │     │     │     ├── refreshAccess.test.js
 │     │     │     ├── refreshUser.test.js
 │     │     │     └── register.test.js
+│     │     ├── menu/
+│     │     │     └── getMenu.test.js
 │     │     ├── subscriptions/
 │     │     │     └── createSubscription.test.js
 │     │     └── users/
@@ -2076,7 +2147,6 @@ Deploy
 
 - [ ] `users.validation.js`
 - [ ] `subscriptions.validation.js`
-- [ ] `menu.validation.js`
 - [ ] `orders.validation.js`
 - [ ] `contact.validation.js`
 - [ ] `partners.validation.js`
@@ -2101,8 +2171,8 @@ Deploy
 #### Cardápio
 
 - [x] Seed de produtos
-- [ ] Busca de menu
-- [ ] Controle de disponibilidade
+- [x] Busca de menu
+- [x] Controle de disponibilidade
 
 #### Pedidos
 
@@ -2136,7 +2206,7 @@ Deploy
 
 - [ ] Usuários
 - [ ] Assinaturas
-- [ ] Cardápio
+- [x] Cardápio
 - [ ] Pedidos
 - [ ] Fale Conosco
 - [ ] Mercados Parceiros
@@ -2209,6 +2279,8 @@ Deploy
   migração dos services para suas respectivas features (`Subscriptions`,
   `Orders` e `Contact`), aumentando a coesão e facilitando a manutenção da API
   em cenários de crescimento do projeto.
+
+- [ ] Notificação automática para produtos próximos ao vencimento
 
 - [ ] Implementar API Externa para envio de e-mail/WhatsApp em:
   - Cadastro de usuário
