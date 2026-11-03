@@ -255,6 +255,31 @@ npm run test:coverage
 npm run start
 ```
 
+### Seed de produtos
+
+O projeto disponibiliza scripts para popular a coleção de produtos com os dados
+iniciais do cardápio.
+
+Desenvolvimento:
+
+```bash
+npm run seed:products:dev
+```
+
+Produção:
+
+```bash
+npm run seed:products:prod
+```
+
+Os scripts utilizam a mesma estratégia de configuração de ambiente adotada pelo
+restante da aplicação, definindo o `NODE_ENV` através do `cross-env` e
+carregando automaticamente o arquivo `.env` correspondente.
+
+> O seed foi criado para facilitar o desenvolvimento das funcionalidades do
+> cardápio enquanto não existe uma interface administrativa para cadastro de
+> produtos.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -263,18 +288,20 @@ npm run start
 
 ## 📜 7. Scripts
 
-| Script                | Descrição                                   |
-| --------------------- | ------------------------------------------- |
-| npm run dev           | Executa a aplicação em modo desenvolvimento |
-| npm run test          | Executa os testes                           |
-| npm run test:watch    | Executa os testes em modo observação        |
-| npm run test:coverage | Gera relatório de cobertura dos testes      |
-| npm run start         | Executa a aplicação em modo produção        |
-| npm run lint          | Verifica problemas de lint                  |
-| npm run lint:fix      | Corrige problemas de lint automaticamente   |
-| npm run format        | Formata o código                            |
-| npm run format:check  | Verifica formatação                         |
-| npm run prepare       | Configura os hooks do Husky                 |
+| Script                     | Descrição                                        |
+| -------------------------- | ------------------------------------------------ |
+| npm run dev                | Executa a aplicação em modo desenvolvimento      |
+| npm run test               | Executa os testes                                |
+| npm run test:watch         | Executa os testes em modo observação             |
+| npm run test:coverage      | Gera relatório de cobertura dos testes           |
+| npm run start              | Executa a aplicação em modo produção             |
+| npm run seed:products:dev  | Popula o cardápio no ambiente de desenvolvimento |
+| npm run seed:products:prod | Popula o cardápio no ambiente de produção        |
+| npm run lint               | Verifica problemas de lint                       |
+| npm run lint:fix           | Corrige problemas de lint automaticamente        |
+| npm run format             | Formata o código                                 |
+| npm run format:check       | Verifica formatação                              |
+| npm run prepare            | Configura os hooks do Husky                      |
 
 [Voltar ao topo 🔝](#top)
 
@@ -1003,6 +1030,22 @@ O `Mongoose` passa a criar e atualizar automaticamente os campos:
 
 Isso elimina a necessidade de controle manual dessas informações e fornece uma
 trilha básica de auditoria para os documentos persistidos.
+
+#### Inicialização de dados (Seed)
+
+Durante o desenvolvimento e implantação, o projeto disponibiliza scripts de seed
+para cadastrar os produtos iniciais do cardápio no MongoDB.
+
+O script é executado manualmente através de:
+
+```bash
+npm run seed:products:dev
+npm run seed:products:prod
+```
+
+Essa estratégia facilita o desenvolvimento das funcionalidades relacionadas ao
+cardápio enquanto as operações administrativas de cadastro e gerenciamento de
+produtos ainda não estão disponíveis por meio da API ou da interface web.
 
 ### ✔️ Validação em camadas
 
@@ -1778,6 +1821,8 @@ quando uma assinatura já existe para o proprietário autenticado.
 │     │     │     └── users.validation.js
 │     ├── routes/
 │     │     └── index.js
+│     ├── seeds/
+│     │     └── products.seed.js
 │     ├── shared/
 │     │     ├── errors/
 │     │     │     ├── ConfigError.js
@@ -1856,6 +1901,8 @@ quando uma assinatura já existe para o proprietário autenticado.
 - `config`: carregamento de ambiente, validações de configuração, conexão com
   banco de dados e configurações de infraestrutura
 - `modules`: módulos organizados por domínio de negócio
+- `seeds`: scripts utilitários para carga inicial e população controlada de
+  dados no banco de dados
 - `shared`: recursos compartilhados entre módulos
   - `errors`: classes de erros customizados da aplicação
   - `logger`: configuração centralizada de logs da aplicação
@@ -2053,6 +2100,7 @@ Deploy
 
 #### Cardápio
 
+- [x] Seed de produtos
 - [ ] Busca de menu
 - [ ] Controle de disponibilidade
 

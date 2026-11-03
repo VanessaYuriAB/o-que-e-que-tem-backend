@@ -27,6 +27,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "start": "cross-env NODE_ENV=production node server.js",
+    "seed:products:dev": "cross-env NODE_ENV=development node src/seeds/products.seed.js",
+    "seed:products:prod": "cross-env NODE_ENV=production node src/seeds/products.seed.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
