@@ -1,8 +1,15 @@
 import { Router } from 'express';
+import getMenu from './menu.controller.js';
 
 // Cria um roteador para a rota principal de menu
 const router = Router();
 
-// sem celebrate e validateContentType, pq é um GET?
+// ---------------
+// Rotas públicas
+// ---------------
+
+// getMenu > '/menu'
+// Sem validações celebrate/joi e content-type, pq é um GET
+router.get('/', getMenu);
 
 export default router;
