@@ -346,6 +346,12 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | ----- | ------------------------------------------------ |
 | GET    | /menu | Recuperação dos produtos disponíveis do cardápio |
 
+- ### Contact
+
+| Método | Rota      | Descrição                       |
+| ------ | --------- | ------------------------------- |
+| POST   | /messages | Cadastro de mensagem do usuário |
+
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
 
@@ -423,9 +429,10 @@ funcionalidade de assinaturas:
 - criação de assinatura (`POST /subscriptions`)
 
 Além das funcionalidades de assinatura, a suíte contempla testes de integração
-da funcionalidade de cardápio:
+das funcionalidades de cardápio e contato:
 
 - busca de produtos do cardápio (`GET /menu`)
+- cadastro de mensagens (`POST /messages`)
 
 ### ✔️ Cobertura Atual
 
@@ -709,6 +716,23 @@ O fluxo de busca de menu (`GET /menu`) possui testes de integração que validam
 - retorno dos campos principais dos produtos
 - retorno de lista vazia quando não existem produtos cadastrados
 - integração entre Express, controller, rota e MongoDB
+
+O fluxo de cadastro de mensagens (`POST /messages`) possui testes de integração
+que validam:
+
+- cadastro de mensagem realizado com sucesso para usuário previamente cadastrado
+- persistência da mensagem vinculada ao proprietário (`owner`)
+- cadastro de mensagem realizado com sucesso para usuário não cadastrado
+- persistência da mensagem sem proprietário associado (`owner: null`)
+- validação do cabeçalho `Content-Type`
+- validação dos campos obrigatórios (`required`)
+- validação do tamanho mínimo e máximo dos campos, quando aplicável
+- validação dos formatos permitidos através de expressões regulares (`match`)
+- validação de e-mail através do Celebrate/Joi
+- validação do formato do WhatsApp
+- validação dos valores permitidos pelo campo `method`
+- rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
+- integração entre Express, rota, middleware de validação, controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -1134,9 +1158,14 @@ requisições cheguem à lógica de negócio já validadas.
 
 Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
 autenticação, incluindo cadastro, login e validação de cookies relacionados à
-autenticação e autorização. Também é utilizado para validação das rotas de
-atualização de perfil cadastral, atualização de perfil de assinatura e cadastro
-de assinatura.
+autenticação e autorização.
+
+Também é utilizado para validação das rotas de:
+
+- atualização de perfil cadastral;
+- atualização de perfil de assinatura;
+- cadastro de assinatura;
+- cadastro de mensagens.
 
 ### ✔️ Validação de Content-Type
 
@@ -1830,6 +1859,52 @@ A funcionalidade é utilizada em conjunto com o mecanismo de atualização
 periódica (polling) implementado no frontend para manter o cardápio sincronizado
 com o estado atual do banco de dados.
 
+### ✔️ Fale Conosco
+
+#### Cadastro de mensagens
+
+A aplicação disponibiliza um endpoint público para envio de mensagens de
+contato:
+
+```text
+POST /messages
+```
+
+A funcionalidade permite que visitantes autenticados ou não autenticados enviem
+mensagens para a plataforma.
+
+A rota utiliza validação de entrada através do Celebrate/Joi e validações de
+persistência implementadas no Mongoose.
+
+Fluxo simplificado:
+
+```text
+POST /messages
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados da requisição
+↓
+Controller localiza usuário através do e-mail informado
+↓
+Usuário encontrado?
+├─ Sim → owner recebe o _id do usuário
+└─ Não → owner recebe null
+↓
+MongoDB cria a mensagem
+↓
+Resposta HTTP 201 Created
+```
+
+A implementação utiliza uma `whitelist` explícita durante a criação do
+documento, persistindo apenas os campos previstos pela aplicação.
+
+Quando o e-mail informado pertence a um usuário já cadastrado, a mensagem é
+automaticamente associada ao proprietário através do campo `owner`.
+
+Mensagens enviadas por usuários ainda não cadastrados permanecem registradas
+normalmente, porém sem vínculo de proprietário (`owner: null`).
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -1863,6 +1938,10 @@ com o estado atual do banco de dados.
 │     │     │     ├── auth.routes.js
 │     │     │     └── auth.validation.js
 │     │     ├── contact/
+│     │     │     ├── contact.controller.js
+│     │     │     ├── contact.index.js
+│     │     │     ├── contact.routes.js
+│     │     │     ├── contact.validation.js
 │     │     │     └── message.model.js
 │     │     ├── menu/
 │     │     │     ├── menu.controller.js
@@ -1943,6 +2022,8 @@ com o estado atual do banco de dados.
 │     │     │     ├── refreshAccess.test.js
 │     │     │     ├── refreshUser.test.js
 │     │     │     └── register.test.js
+│     │     ├── contact/
+│     │     │     └── registerUserMsg.test.js
 │     │     ├── menu/
 │     │     │     └── getMenu.test.js
 │     │     ├── subscriptions/
@@ -2148,7 +2229,7 @@ Deploy
 - [ ] `users.validation.js`
 - [ ] `subscriptions.validation.js`
 - [ ] `orders.validation.js`
-- [ ] `contact.validation.js`
+- [x] `contact.validation.js`
 - [ ] `partners.validation.js`
 - [ ] `recipes.validation.js`
 
@@ -2181,7 +2262,7 @@ Deploy
 
 #### Fale Conosco
 
-- [ ] Cadastro de mensagens
+- [x] Cadastro de mensagens
 - [ ] API Externa para envio de e-mail/WhatsApp
 
 #### Mercados Parceiros
@@ -2201,6 +2282,7 @@ Deploy
 - [ ] Cadastro de admin
 - [ ] Adicionar produto no cardápio
 - [ ] Remover produto do cardápio
+- [ ] Responder mensagens + API Externa para envio de e-mail/WhatsApp
 
 #### Testes de Integração (Supertest)
 
