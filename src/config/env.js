@@ -47,6 +47,9 @@ const env = {
     .filter(Boolean),
   RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX),
   JWT_SECRET: process.env.JWT_SECRET,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
 };
 
 export default env;
