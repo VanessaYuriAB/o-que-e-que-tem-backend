@@ -18,8 +18,11 @@ const validateEnv = (envs) => {
     'MONGODB_URI',
     'DB_NAME',
     'CORS_ORIGIN',
-    'JWT_SECRET',
     'RATE_LIMIT_MAX',
+    'JWT_SECRET',
+    'RESEND_API_KEY',
+    'RESEND_FROM_EMAIL',
+    'ADMIN_EMAIL',
   ];
 
   for (const varName of requiredEnvVars) {
