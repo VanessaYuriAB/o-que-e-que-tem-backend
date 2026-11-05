@@ -16,6 +16,9 @@ describe('validateEnv', () => {
         CORS_ORIGIN: 'http://localhost:3000',
         JWT_SECRET: 'secret',
         RATE_LIMIT_MAX: '200',
+        RESEND_API_KEY: 're_xxxxxxxxxxxxxxxxxxxxxx',
+        RESEND_FROM_EMAIL: 'onboarding@resend.dev',
+        ADMIN_EMAIL: 'email@admin.com',
       }),
     ).not.toThrow();
   });
