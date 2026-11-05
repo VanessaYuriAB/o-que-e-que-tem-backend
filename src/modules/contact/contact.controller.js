@@ -1,5 +1,6 @@
 import Message from './message.model.js';
 import User from '../users/user.model.js';
+import sendUserMsgNotificationToAdmin from './contact.service.js';
 
 // registerUserMsg > '/messages'
 const registerUserMsg = async (req, res) => {
@@ -13,7 +14,7 @@ const registerUserMsg = async (req, res) => {
   }).select('_id');
 
   // Whilelist: princípio de defesa em profundidade
-  const msg = await Message.create({
+  const msgData = await Message.create({
     owner: userInDb?._id ?? null,
     userName: req.body.userName,
     email: req.body.email,
@@ -22,7 +23,9 @@ const registerUserMsg = async (req, res) => {
     method: req.body.method,
   });
 
-  res.status(201).send(msg);
+  await sendUserMsgNotificationToAdmin(msgData);
+
+  res.status(201).send(msgData);
 };
 
 export default registerUserMsg;
