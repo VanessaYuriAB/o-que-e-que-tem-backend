@@ -26,6 +26,7 @@
 ![Husky](https://img.shields.io/badge/Husky-007ACC)
 ![lint-staged](https://img.shields.io/badge/lint--staged-007ACC) .
 ![VS_Code_Workspace_Settings](https://img.shields.io/badge/VS_Code_Workspace_Settings-007ACC)
+. ![Resend](https://img.shields.io/badge/Resend-007ACC)
 
 ## Índice
 
@@ -105,6 +106,10 @@ produtos próximos ao vencimento.
 - cross-env
 - winston
 - express-winston
+
+### Integrações Externas
+
+- Resend
 
 [Voltar ao topo 🔝](#top)
 
@@ -189,6 +194,9 @@ DB_NAME=oqueequetemdb
 CORS_ORIGIN=http://localhost:3000
 RATE_LIMIT_MAX=100
 JWT_SECRET=your-secret-key
+RESEND_API_KEY=<resend-api-key>
+RESEND_FROM_EMAIL=onboarding@resend.dev
+ADMIN_EMAIL=<admin-email>
 ```
 
 ### ✔️ Validação automática
@@ -214,6 +222,21 @@ acoplamento e centralizando validações.
 
 O módulo também converte valores para seus tipos apropriados, como números e
 arrays, antes de disponibilizá-los para a aplicação.
+
+### ✔️ Notificações por e-mail
+
+O projeto utiliza o serviço Resend para envio de notificações administrativas.
+
+Atualmente, o envio é utilizado pelo fluxo de cadastro de mensagens
+(`POST /messages`).
+
+Quando uma nova mensagem é criada com sucesso:
+
+- a mensagem é persistida no MongoDB;
+- uma notificação é enviada para o e-mail administrativo configurado em
+  `ADMIN_EMAIL`.
+
+Falhas no envio da notificação não impedem a persistência da mensagem.
 
 [Voltar ao topo 🔝](#top)
 
@@ -302,6 +325,7 @@ carregando automaticamente o arquivo `.env` correspondente.
 | npm run format             | Formata o código                                 |
 | npm run format:check       | Verifica formatação                              |
 | npm run prepare            | Configura os hooks do Husky                      |
+| npm run logs:clear         | Limpa os arquivos de logs da aplicação           |
 
 [Voltar ao topo 🔝](#top)
 
@@ -1893,6 +1917,8 @@ Usuário encontrado?
 ↓
 MongoDB cria a mensagem
 ↓
+Notificação por e-mail é enviada ao administrador, via API Externa (Resend)
+↓
 Resposta HTTP 201 Created
 ```
 
@@ -1921,6 +1947,8 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     └── settings.json
 ├── docs/
 │     └── images/
+├── scripts/
+│     └── clearLogs.js
 ├── src/
 │     ├── config/
 │     │     ├── cors.js
@@ -1941,6 +1969,7 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     │     ├── contact.controller.js
 │     │     │     ├── contact.index.js
 │     │     │     ├── contact.routes.js
+│     │     │     ├── contact.service.js
 │     │     │     ├── contact.validation.js
 │     │     │     └── message.model.js
 │     │     ├── menu/
@@ -1991,6 +2020,8 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     │     ├── requestLogger.js
 │     │     │     ├── roleMiddleware.js
 │     │     │     └── validateContentType.js
+│     │     ├── services/
+│     │           └── email.service.js
 │     │     └── utils/
 │     │           ├── constants.js
 │     │           └── errorsMessages.js
@@ -2053,6 +2084,8 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 - `config`: carregamento de ambiente, validações de configuração, conexão com
   banco de dados e configurações de infraestrutura
 - `modules`: módulos organizados por domínio de negócio
+- `scripts`: scripts administrativos e utilitários executados manualmente
+  através do npm
 - `seeds`: scripts utilitários para carga inicial e população controlada de
   dados no banco de dados
 - `shared`: recursos compartilhados entre módulos
@@ -2060,6 +2093,8 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
   - `logger`: configuração centralizada de logs da aplicação
   - `middlewares`: middlewares reutilizáveis, incluindo tratamento centralizado
     de erros
+  - `services`: serviços compartilhados entre módulos, incluindo integrações
+    externas
   - `utils`: funções utilitárias compartilhadas
 - `tests`: testes unitários, testes de integração, aplicação auxiliar de teste
   (`testApp`) e rotas específicas para cenários de validação
@@ -2263,7 +2298,7 @@ Deploy
 #### Fale Conosco
 
 - [x] Cadastro de mensagens
-- [ ] API Externa para envio de e-mail/WhatsApp
+- [x] Notificação administrativa por e-mail (API Externa: Resend)
 
 #### Mercados Parceiros
 
@@ -2295,12 +2330,9 @@ Deploy
 - [ ] Receitas
 - [ ] Admin
 
-### 🚧 Fase 9: Integrações Externas
+### 🚧 Fase 9: Integrações Externas Extras
 
 - [ ] API de clima
-
-#### Integrações Externas Extras
-
 - [ ] API de CEP
 - [ ] API de mapa
 
