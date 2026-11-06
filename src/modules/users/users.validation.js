@@ -63,4 +63,19 @@ const celebrateForUpdateSubscription = celebrate({
     .min(1), // impede chamadas vazias: {} (endpoint de atualização parcial)
 });
 
-export { celebrateForUpdateUser, celebrateForUpdateSubscription };
+// getOrdersByUserId > '/users/:userId/orders'
+
+// getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
+
+// getMessagesByUserId > '/users/:userId/messages'
+const celebrateForGetUserMsgs = celebrate({
+  params: Joi.object({
+    userId: Joi.string().hex().length(24).required(),
+  }),
+});
+
+export {
+  celebrateForUpdateUser,
+  celebrateForUpdateSubscription,
+  celebrateForGetUserMsgs,
+};

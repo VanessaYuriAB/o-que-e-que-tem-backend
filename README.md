@@ -351,6 +351,7 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | ----------------------- | ----------------------------------- |
 | PATCH  | /users/me               | Atualização de perfil cadastral     |
 | PATCH  | /users/subscriptions/me | Atualização do perfil de assinatura |
+| GET    | /users/:userId/messages | Histórico de mensagens do usuário   |
 
 - ### Admin
 
@@ -446,6 +447,8 @@ integração da funcionalidade de gerenciamento de perfil do usuário:
 
 - atualização de perfil cadastral (`PATCH /users/me`)
 - atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
+- recuperação do histórico de mensagens do usuário
+  (`GET /users/:userId/messages`)
 
 Além do gerenciamento de perfil, a suíte contempla testes de integração da
 funcionalidade de assinaturas:
@@ -747,6 +750,23 @@ possui testes de integração que validam:
 - validação de corpo de requisição vazio para atualização parcial
 - localização da assinatura através do proprietário autenticado
 - retorno de `404 Not Found` para assinatura inexistente
+
+O fluxo de recuperação do histórico de mensagens do usuário
+(`GET /users/:userId/messages`) possui testes de integração que validam:
+
+- recuperação das mensagens associadas ao usuário autenticado
+- retorno de coleção (`array`) contendo os documentos encontrados
+- retorno dos campos esperados das mensagens persistidas
+- retorno de coleção vazia quando não existem mensagens cadastradas
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação do formato do parâmetro `userId`
+- validação dos parâmetros da rota através do Celebrate/Joi
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- bloqueio de acesso a mensagens pertencentes a outro usuário
+- integração entre Celebrate/Joi, `accessMiddleware`,
+  `isOwnerOrAdminMiddleware`, controller e MongoDB
 
 O fluxo de busca de menu (`GET /menu`) possui testes de integração que validam:
 
@@ -1211,6 +1231,7 @@ Também é utilizado para validação das rotas de:
 
 - atualização de perfil cadastral;
 - atualização de perfil de assinatura;
+- recuperação do histórico de mensagens do usuário;
 - cadastro de assinatura;
 - cadastro de mensagens.
 
@@ -1679,6 +1700,20 @@ Demais casos
 403 Forbidden
 ```
 
+A rota protegida também utiliza validação prévia dos parâmetros através do
+Celebrate/Joi, garantindo que identificadores inválidos sejam rejeitados antes
+da execução da camada de autenticação e autorização.
+
+Fluxo:
+
+```text
+Celebrate
+↓
+accessMiddleware
+↓
+isOwnerOrAdminMiddleware
+```
+
 Essa abordagem permite proteger recursos pertencentes ao próprio usuário, como
 perfil, histórico de pedidos e assinaturas, sem necessidade de criar regras
 específicas em cada controller.
@@ -1789,6 +1824,77 @@ schema.pre('validate');
 
 garantindo que ambos representem exatamente os mesmos dias antes da persistência
 no banco de dados.
+
+#### Histórico de mensagens
+
+Usuários autenticados podem consultar o próprio histórico de mensagens através
+do endpoint:
+
+```text
+GET /users/:userId/messages
+```
+
+A rota utiliza autenticação baseada em `accessToken` e autorização por
+proprietário através do middleware `isOwnerOrAdminMiddleware`.
+
+Fluxo simplificado:
+
+```text
+GET /users/:userId/messages
+↓
+Celebrate/Joi valida:
+  - presença e formato do accessToken
+  - formato do parâmetro userId
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+isOwnerOrAdminMiddleware valida acesso ao recurso
+↓
+MongoDB localiza mensagens associadas ao proprietário
+↓
+Resposta HTTP 200 OK
+```
+
+O parâmetro `userId` é validado através do Celebrate/Joi antes da execução da
+camada de autenticação e autorização.
+
+A rota exige um identificador válido no formato `ObjectId` do MongoDB.
+
+Exemplo:
+
+```text
+/users/6869ef6c3fbc2f6d0f4e6e6a/messages
+```
+
+Identificadores inválidos são rejeitados com resposta `400 Bad Request`.
+
+Somente o proprietário das mensagens ou um usuário com perfil administrativo
+pode acessar o recurso.
+
+Quando existem mensagens cadastradas:
+
+```json
+[
+  {
+    "_id": "...",
+    "owner": "...",
+    "message": "..."
+  }
+]
+```
+
+Quando não existem mensagens cadastradas:
+
+```json
+[]
+```
+
+A ausência de mensagens não é tratada como erro, pois o recurso consultado é uma
+coleção. Por esse motivo a API retorna `200 OK` juntamente com um array vazio.
 
 ### ✔️ Assinaturas
 
@@ -2084,6 +2190,7 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     ├── subscriptions/
 │     │     │     └── createSubscription.test.js
 │     │     └── users/
+│     │           ├── getUserMsgs.test.js
 │     │           ├── updateSubscriptionProfile.test.js
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
@@ -2279,13 +2386,13 @@ Deploy
 #### Testes de Integração (Supertest)
 
 - [x] Middleware de autorização (`roleMiddleware`)
-- [ ] Middleware de proprietário (`isOwnerOrAdminMiddleware`)
+- [x] Middleware de proprietário (`isOwnerOrAdminMiddleware`)
 
 ### 🚧 Fase 8: Funcionalidades Core
 
 #### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
-- [x] `users.validation.js`
+- [ ] `users.validation.js`
 - [ ] `subscriptions.validation.js`
 - [ ] `orders.validation.js`
 - [x] `contact.validation.js`
@@ -2300,7 +2407,7 @@ Deploy
   - [x] Pausar assinatura
 - [ ] Histórico de pedidos
 - [ ] Histórico de pedidos de assinatura
-- [ ] Histórico de mensagens
+- [x] Histórico de mensagens
 
 #### Assinaturas
 

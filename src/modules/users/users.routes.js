@@ -3,6 +3,7 @@ import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import validateContentType from '../../shared/middlewares/validateContentType.js';
 import {
+  celebrateForGetUserMsgs,
   celebrateForUpdateSubscription,
   celebrateForUpdateUser,
 } from './users.validation.js';
@@ -54,6 +55,7 @@ router.patch(
 router.get(
   '/:userId/messages',
   celebrateForAccessToken,
+  celebrateForGetUserMsgs,
   accessMiddleware,
   isOwnerOrAdminMiddleware('userId'),
   getUserMsgs,

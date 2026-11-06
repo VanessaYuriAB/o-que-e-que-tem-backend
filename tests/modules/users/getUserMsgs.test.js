@@ -80,6 +80,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     expect(res.type).toMatch(/json/);
     expect(res.statusCode).toBe(200);
 
+    expect(res.body).toHaveLength(1);
     expect(res.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -194,11 +195,29 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     );
   });
 
+  // ---------------------------------
+  // celebrateForGetUserMsgs (params)
+  // ---------------------------------
+
+  // 8
+  it('userId deve possuir formato válido de ObjectId', async () => {
+    const error = await request
+      .get('/users/id-invalido/messages')
+      .set('Cookie', cookies);
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body).toMatchObject({
+      message: expect.stringMatching('Validation failed'),
+    });
+  });
+
   // -------------------------
   // isOwnerOrAdminMiddleware
   // -------------------------
 
-  // 8
+  // 9
   it('Bloqueia acesso quando usuário tenta acessar mensagens de outro usuário', async () => {
     // Seed (usuário B)
     // Cadastro + login + access e refresh Tokens + refreshUser (id) + cadastro de msg
