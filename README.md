@@ -458,6 +458,12 @@ das funcionalidades de cardápio e contato:
 - busca de produtos do cardápio (`GET /menu`)
 - cadastro de mensagens (`POST /messages`)
 
+Além dos testes de integração, a funcionalidade de contato possui testes
+unitários do serviço responsável pelo envio de notificações administrativas por
+e-mail:
+
+- `sendUserMsgNotificationToAdmin`
+
 ### ✔️ Cobertura Atual
 
 O `validateEnv` é um teste unitário puro que valida:
@@ -584,6 +590,18 @@ O `TodayRecipe Model` possui testes unitários para validação de:
 - validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e
   Patê)
 - validação de documento válido
+
+O serviço `sendUserMsgNotificationToAdmin` possui testes unitários para
+validação de:
+
+- montagem e disparo da notificação administrativa
+- integração com o serviço compartilhado de e-mail (`email.service`)
+- tratamento de falhas durante o envio da notificação
+- registro de erros através da infraestrutura de logs da aplicação
+
+Os testes utilizam mocks para as dependências externas (`email.service`) e para
+o mecanismo de observabilidade (`logger`), permitindo validar o comportamento do
+serviço de forma isolada e determinística.
 
 O fluxo de cadastro de usuário (`POST /auth/register`) possui testes de
 integração que validam:
@@ -748,6 +766,7 @@ que validam:
 - persistência da mensagem vinculada ao proprietário (`owner`)
 - cadastro de mensagem realizado com sucesso para usuário não cadastrado
 - persistência da mensagem sem proprietário associado (`owner: null`)
+- acionamento do serviço de notificação administrativa por e-mail
 - validação do cabeçalho `Content-Type`
 - validação dos campos obrigatórios (`required`)
 - validação do tamanho mínimo e máximo dos campos, quando aplicável
@@ -762,6 +781,10 @@ que validam:
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e
   validações)
+- Utilização de mocks para isolar integrações externas e componentes de
+  observabilidade durante testes unitários
+- Utilização de mocks ESM (`jest.unstable_mockModule`) para módulos externos em
+  projetos baseados em `ECMAScript Modules`
 - Testes de integração para fluxos HTTP completos utilizando Supertest
 - Integração entre Express, middlewares, validações e banco de dados quando
   aplicável
@@ -2054,6 +2077,7 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     │     ├── refreshUser.test.js
 │     │     │     └── register.test.js
 │     │     ├── contact/
+│     │     │     ├── contact.service.test.js
 │     │     │     └── registerUserMsg.test.js
 │     │     ├── menu/
 │     │     │     └── getMenu.test.js
@@ -2325,7 +2349,7 @@ Deploy
 - [ ] Assinaturas
 - [x] Cardápio
 - [ ] Pedidos
-- [ ] Fale Conosco
+- [x] Fale Conosco
 - [ ] Mercados Parceiros
 - [ ] Receitas
 - [ ] Admin
