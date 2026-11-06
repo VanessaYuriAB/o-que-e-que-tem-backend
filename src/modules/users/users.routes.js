@@ -9,7 +9,9 @@ import {
 import {
   updateUserProfile,
   updateSubscriptionProfile,
+  getUserMsgs,
 } from './users.controller.js';
+import isOwnerOrAdminMiddleware from '../../shared/middlewares/isOwnerOrAdminMiddleware.js';
 
 // Cria um roteador para a rota principal de users
 const router = Router();
@@ -49,5 +51,12 @@ router.patch(
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
 
 // getMessagesByUserId > '/users/:userId/messages'
+router.get(
+  '/:userId/messages',
+  celebrateForAccessToken,
+  accessMiddleware,
+  isOwnerOrAdminMiddleware('userId'),
+  getUserMsgs,
+);
 
 export default router;

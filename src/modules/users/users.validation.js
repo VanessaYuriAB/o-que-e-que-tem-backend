@@ -63,10 +63,4 @@ const celebrateForUpdateSubscription = celebrate({
     .min(1), // impede chamadas vazias: {} (endpoint de atualização parcial)
 });
 
-// getOrdersByUserId > '/users/:userId/orders'
-
-// getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
-
-// getMessagesByUserId > '/users/:userId/messages'
-
 export { celebrateForUpdateUser, celebrateForUpdateSubscription };

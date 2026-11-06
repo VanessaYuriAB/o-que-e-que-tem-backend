@@ -2285,7 +2285,7 @@ Deploy
 
 #### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
-- [ ] `users.validation.js`
+- [x] `users.validation.js`
 - [ ] `subscriptions.validation.js`
 - [ ] `orders.validation.js`
 - [x] `contact.validation.js`

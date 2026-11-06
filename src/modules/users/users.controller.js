@@ -2,6 +2,7 @@ import User from './user.model.js';
 import NotFoundError from '../../shared/errors/NotFoundError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
 import Subscription from '../subscriptions/subscription.model.js';
+import Message from '../contact/message.model.js';
 //import logger from '../../shared/logger/logger.js';
 
 // updateUserProfile > '/users/me'
@@ -81,5 +82,14 @@ const updateSubscriptionProfile = async (req, res) => {
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
 
 // getMessagesByUserId > '/users/:userId/messages'
+const getUserMsgs = async (req, res) => {
+  const msgs = await Message.find({
+    owner: req.user._id,
+  });
 
-export { updateUserProfile, updateSubscriptionProfile };
+  // Caso não existam mensagens, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
+
+  res.send(msgs);
+};
+
+export { updateUserProfile, updateSubscriptionProfile, getUserMsgs };
