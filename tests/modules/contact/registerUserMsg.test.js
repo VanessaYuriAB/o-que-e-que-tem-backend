@@ -1,7 +1,21 @@
 // Supertest
 import supertest from 'supertest';
+
+// Resend
+import { jest } from '@jest/globals';
+
+jest.unstable_mockModule(
+  '../../../src/shared/services/email.service.js',
+  () => ({
+    default: jest.fn(),
+  }),
+);
+
+const { default: sendEmail } =
+  await import('../../../src/shared/services/email.service.js');
+
 // Express test service
-import app from '../../../src/app.js';
+const { default: app } = await import('../../../src/app.js');
 // Utils
 import UserModel from '../../../src/modules/users/user.model.js';
 import MessageModel from '../../../src/modules/contact/message.model.js';
@@ -10,10 +24,15 @@ import errorsMessages from '../../../src/shared/utils/errorsMessages.js';
 // Request to test
 const request = supertest(app);
 
-// Testes de integração (HTTP + DB) > fluxo de cadastro de mensagem
-// requisição HTTP > validateContentType > celebrateForRegisterUserMsg > registerUserMsg
+// Testes de integração (HTTP + DB) > fluxo de cadastro de mensagem + envio de e-mail de notificação ao admin
+// requisição HTTP > validateContentType > celebrateForRegisterUserMsg > registerUserMsg > Service (com email.service mockado)
 
 describe('Register User Msg Flow > POST "/messages"', () => {
+  // Limpeza do mock (acúmulo de chamadas, para testes de sucesso)
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   // --------
   // Payload
   // --------
@@ -31,7 +50,7 @@ describe('Register User Msg Flow > POST "/messages"', () => {
   // --------
 
   // 1
-  it('Cadastro de mensagem bem sucedido (usuário já cadastrado) + persistência', async () => {
+  it('Cadastro de mensagem bem sucedido (usuário já cadastrado) + persistência + acionamento do serviço de notificação', async () => {
     // Seed (cadastro de usuário)
     await request.post('/auth/register').send({
       userName: 'Vanessa Yuri A. Brito',
@@ -79,6 +98,14 @@ describe('Register User Msg Flow > POST "/messages"', () => {
       response: null,
     });
 
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.any(String), // emailTo
+      'Nova mensagem de usuário recebida', // emailSubject
+      expect.any(String), // emailHtml
+    );
+
     // Persistência
     const user = await UserModel.findOne({
       email: 'emaildavanessayuri@gmail.com',
@@ -110,7 +137,7 @@ describe('Register User Msg Flow > POST "/messages"', () => {
   });
 
   // 2
-  it('Cadastro de mensagem bem sucedido (usuário não cadastrado) + persistência', async () => {
+  it('Cadastro de mensagem bem sucedido (usuário não cadastrado) + persistência + acionamento do serviço de notificação', async () => {
     // Mensagem
     const res = await request.post('/messages').send(messagePayload);
 
@@ -132,6 +159,14 @@ describe('Register User Msg Flow > POST "/messages"', () => {
       responseAt: null,
       response: null,
     });
+
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.any(String), // emailTo
+      'Nova mensagem de usuário recebida', // emailSubject
+      expect.any(String), // emailHtml
+    );
 
     // Persistência
     const msg = await MessageModel.findOne({
