@@ -15,7 +15,6 @@ const partnerSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       validate: {
         validator: (v) => validator.isEmail(v),
         message: (props) => `${props.value} não é um email válido!`,
