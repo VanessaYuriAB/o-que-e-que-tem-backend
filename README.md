@@ -227,16 +227,26 @@ arrays, antes de disponibilizá-los para a aplicação.
 
 O projeto utiliza o serviço Resend para envio de notificações administrativas.
 
-Atualmente, o envio é utilizado pelo fluxo de cadastro de mensagens
-(`POST /messages`).
+Atualmente, o envio é utilizado pelos fluxos:
+
+- cadastro de mensagens (`POST /messages`);
+- cadastro de mercados parceiros (`POST /partners`).
 
 Quando uma nova mensagem é criada com sucesso:
 
 - a mensagem é persistida no MongoDB;
 - uma notificação é enviada para o e-mail administrativo configurado em
-  `ADMIN_EMAIL`.
+  `ADMIN_EMAIL`;
+  - a mensagem enviada contém os dados cadastrais do responsável.
 
-Falhas no envio da notificação não impedem a persistência da mensagem.
+Quando uma nova solicitação de parceria é criada com sucesso:
+
+- os dados da empresa são persistidos no MongoDB;
+- uma notificação é enviada para o e-mail administrativo configurado em
+  `ADMIN_EMAIL`;
+- a mensagem enviada contém os dados cadastrais do responsável e da empresa.
+
+Falhas no envio da notificação não impedem a persistência dos dados.
 
 [Voltar ao topo 🔝](#top)
 
@@ -377,6 +387,12 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | --------- | ------------------------------- |
 | POST   | /messages | Cadastro de mensagem do usuário |
 
+- ### Mercados Parceiros
+
+| Método | Rota      | Descrição                           |
+| ------ | --------- | ----------------------------------- |
+| POST   | /partners | Cadastro de solicitação de parceria |
+
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
 
@@ -456,10 +472,11 @@ funcionalidade de assinaturas:
 - criação de assinatura (`POST /subscriptions`)
 
 Além das funcionalidades de assinatura, a suíte contempla testes de integração
-das funcionalidades de cardápio e contato:
+das funcionalidades de cardápio, contato e mercados parceiros:
 
 - busca de produtos do cardápio (`GET /menu`)
 - cadastro de mensagens (`POST /messages`)
+- inscrição de parceria (`POST /partners`)
 
 Além dos testes de integração, a funcionalidade de contato possui testes
 unitários do serviço responsável pelo envio de notificações administrativas por
@@ -796,6 +813,24 @@ que validam:
 - validação dos valores permitidos pelo campo `method`
 - rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
 - integração entre Express, rota, middleware de validação, controller e MongoDB
+
+O fluxo de inscrição de parceria (`POST /partners`) possui testes de integração
+que validam:
+
+- cadastro realizado com sucesso
+- persistência dos dados do parceiro no MongoDB
+- acionamento do serviço de notificação administrativa por e-mail
+- validação do cabeçalho `Content-Type`
+- validação dos campos obrigatórios (`required`)
+- validação dos tamanhos mínimos e máximos dos campos, quando aplicável
+- validação dos formatos permitidos através de expressões regulares (`match`)
+- validação de e-mail através do Celebrate/Joi
+- validação dos valores permitidos pelo campo `contactMethod`
+- rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
+- prevenção de cadastro duplicado através do campo `cnpj`
+- retorno de `409 Conflict` para CNPJ previamente cadastrado
+- integração entre Express, rota, middleware de validação, controller, serviço
+  de notificação e MongoDB
 
 ### ✔️ Estratégia
 
@@ -2060,6 +2095,49 @@ automaticamente associada ao proprietário através do campo `owner`.
 Mensagens enviadas por usuários ainda não cadastrados permanecem registradas
 normalmente, porém sem vínculo de proprietário (`owner: null`).
 
+### ✔️ Mercados Parceiros
+
+#### Inscrição de parceria
+
+A aplicação disponibiliza um endpoint público para cadastro de mercados
+interessados em estabelecer parceria com a plataforma:
+
+```text
+POST /partners
+```
+
+A rota utiliza validação de entrada através do Celebrate/Joi e validações de
+persistência implementadas no Mongoose.
+
+Fluxo simplificado:
+
+```text
+POST /partners
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados da requisição
+↓
+Controller verifica existência prévia do CNPJ
+↓
+CNPJ já cadastrado?
+├─ Sim → 409 Conflict
+└─ Não
+↓
+MongoDB cria o parceiro
+↓
+Notificação administrativa é enviada via Resend
+↓
+HTTP 201 Created
+```
+
+A implementação utiliza uma `whitelist` explícita durante a criação do
+documento, persistindo apenas os campos previstos pela aplicação.
+
+Falhas no envio da notificação administrativa não impedem a persistência dos
+dados do parceiro, garantindo disponibilidade do fluxo mesmo diante de
+indisponibilidade temporária do serviço de e-mail.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -2109,7 +2187,12 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     ├── orders/
 │     │     │     └── order.model.js
 │     │     ├── partners/
-│     │     │     └── partner.model.js
+│     │     │     ├── partner.model.js
+│     │     │     ├── partners.controller.js
+│     │     │     ├── partners.index.js
+│     │     │     ├── partners.routes.js
+│     │     │     ├── partners.service.js
+│     │     │     └── partners.validation.js
 │     │     ├── recipes/
 │     │     │     └── today-recipe.model.js
 │     │     ├── subscriptions/
@@ -2187,6 +2270,8 @@ normalmente, porém sem vínculo de proprietário (`owner: null`).
 │     │     │     └── registerUserMsg.test.js
 │     │     ├── menu/
 │     │     │     └── getMenu.test.js
+│     │     ├── partners/
+│     │     │     └── registerPartner.test.js
 │     │     ├── subscriptions/
 │     │     │     └── createSubscription.test.js
 │     │     └── users/
@@ -2375,7 +2460,7 @@ Deploy
 - [x] Renovação de sessão (`refreshAccess`)
 - [x] Logout
 
-### 🚧 Fase 7: Autorização
+### ✅ Fase 7: Autorização
 
 - [x] Campo `role` em User Model
 - [x] Integração entre JWT e roles
@@ -2396,7 +2481,7 @@ Deploy
 - [ ] `subscriptions.validation.js`
 - [ ] `orders.validation.js`
 - [x] `contact.validation.js`
-- [ ] `partners.validation.js`
+- [x] `partners.validation.js`
 - [ ] `recipes.validation.js`
 
 #### Usuários
@@ -2433,8 +2518,8 @@ Deploy
 
 #### Mercados Parceiros
 
-- [ ] Inscrição de parceria
-- [ ] API Externa para envio de e-mail/WhatsApp
+- [x] Inscrição de parceria
+- [x] Notificação administrativa por e-mail (API Externa: Resend)
 
 #### Receitas
 
@@ -2457,7 +2542,7 @@ Deploy
 - [x] Cardápio
 - [ ] Pedidos
 - [x] Fale Conosco
-- [ ] Mercados Parceiros
+- [x] Mercados Parceiros
 - [ ] Receitas
 - [ ] Admin
 
