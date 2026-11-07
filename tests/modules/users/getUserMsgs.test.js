@@ -1,7 +1,19 @@
 // Supertest
 import supertest from 'supertest';
+
+// Resend
+import { jest } from '@jest/globals';
+
+jest.unstable_mockModule(
+  '../../../src/shared/services/email.service.js',
+  () => ({
+    default: jest.fn(),
+  }),
+);
+
 // Express test service
-import app from '../../../src/app.js';
+const { default: app } = await import('../../../src/app.js');
+
 // Utils
 import jwt from 'jsonwebtoken';
 import env from '../../../src/config/env.js';
