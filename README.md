@@ -408,7 +408,7 @@ O projeto utiliza:
 
 - Jest para testes unitários
 - Supertest para testes de integração de rotas HTTP
-- Mocks para validação isolada de middleware
+- Mocks para isolamento de dependências externas e componentes de infraestrutura
 
 Os testes são executados em ambiente isolado (`NODE_ENV=test`), utilizando o
 arquivo `.env.test` (exceto `validateEnv` que utiliza objeto mockado).
@@ -478,11 +478,20 @@ das funcionalidades de cardápio, contato e mercados parceiros:
 - cadastro de mensagens (`POST /messages`)
 - inscrição de parceria (`POST /partners`)
 
-Além dos testes de integração, a funcionalidade de contato possui testes
-unitários do serviço responsável pelo envio de notificações administrativas por
-e-mail:
+Além dos testes de integração, as funcionalidades de contato e parceria possuem
+testes unitários do serviço responsável pelo envio de notificações
+administrativas por e-mail:
 
 - `sendUserMsgNotificationToAdmin`
+- `sendNewPartnerNotificationToAdmin`
+
+Os fluxos de integração que acionam notificações administrativas utilizam mocks
+do serviço compartilhado de e-mail (`email.service`), impedindo chamadas reais
+ao Resend durante a execução dos testes.
+
+Essa abordagem permite validar o acionamento da integração externa sem gerar
+envios reais de e-mail, reduzindo dependências externas e tornando a suíte mais
+rápida, previsível e determinística.
 
 ### ✔️ Cobertura Atual
 
@@ -611,8 +620,8 @@ O `TodayRecipe Model` possui testes unitários para validação de:
   Patê)
 - validação de documento válido
 
-O serviço `sendUserMsgNotificationToAdmin` possui testes unitários para
-validação de:
+Os serviços `sendUserMsgNotificationToAdmin` e
+`sendNewPartnerNotificationToAdmin` possuem testes unitários para validação de:
 
 - montagem e disparo da notificação administrativa
 - integração com o serviço compartilhado de e-mail (`email.service`)
@@ -621,7 +630,7 @@ validação de:
 
 Os testes utilizam mocks para as dependências externas (`email.service`) e para
 o mecanismo de observabilidade (`logger`), permitindo validar o comportamento do
-serviço de forma isolada e determinística.
+serviço de forma isolada.
 
 O fluxo de cadastro de usuário (`POST /auth/register`) possui testes de
 integração que validam:
@@ -803,7 +812,8 @@ que validam:
 - persistência da mensagem vinculada ao proprietário (`owner`)
 - cadastro de mensagem realizado com sucesso para usuário não cadastrado
 - persistência da mensagem sem proprietário associado (`owner: null`)
-- acionamento do serviço de notificação administrativa por e-mail
+- acionamento do serviço de notificação administrativa por e-mail através de
+  mock do `email.service`
 - validação do cabeçalho `Content-Type`
 - validação dos campos obrigatórios (`required`)
 - validação do tamanho mínimo e máximo dos campos, quando aplicável
@@ -819,7 +829,8 @@ que validam:
 
 - cadastro realizado com sucesso
 - persistência dos dados do parceiro no MongoDB
-- acionamento do serviço de notificação administrativa por e-mail
+- acionamento do serviço de notificação administrativa por e-mail através de
+  mock do `email.service`
 - validação do cabeçalho `Content-Type`
 - validação dos campos obrigatórios (`required`)
 - validação dos tamanhos mínimos e máximos dos campos, quando aplicável
@@ -837,7 +848,7 @@ que validam:
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e
   validações)
 - Utilização de mocks para isolar integrações externas e componentes de
-  observabilidade durante testes unitários
+  observabilidade durante testes unitários e cenários específicos de integração
 - Utilização de mocks ESM (`jest.unstable_mockModule`) para módulos externos em
   projetos baseados em `ECMAScript Modules`
 - Testes de integração para fluxos HTTP completos utilizando Supertest
@@ -2271,6 +2282,7 @@ indisponibilidade temporária do serviço de e-mail.
 │     │     ├── menu/
 │     │     │     └── getMenu.test.js
 │     │     ├── partners/
+│     │     │     ├── partners.service.test.js
 │     │     │     └── registerPartner.test.js
 │     │     ├── subscriptions/
 │     │     │     └── createSubscription.test.js
