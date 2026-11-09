@@ -5,6 +5,7 @@ import subscriptionsModule from '../modules/subscriptions/subscriptions.index.js
 import menuModule from '../modules/menu/menu.index.js';
 import contactModule from '../modules/contact/contact.index.js';
 import partnersModule from '../modules/partners/partners.index.js';
+import ordersModule from '../modules/orders/orders.index.js';
 
 // Índice de roteamento da aplicação
 
@@ -16,6 +17,7 @@ const modules = [
   menuModule,
   contactModule,
   partnersModule,
+  ordersModule,
 ];
 
 export default modules;
