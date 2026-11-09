@@ -387,11 +387,17 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | --------- | ------------------------------- |
 | POST   | /messages | Cadastro de mensagem do usuário |
 
-- ### Mercados Parceiros
+- ### Partners
 
 | Método | Rota      | Descrição                           |
 | ------ | --------- | ----------------------------------- |
 | POST   | /partners | Cadastro de solicitação de parceria |
+
+- ### Orders
+
+| Método | Rota    | Descrição                |
+| ------ | ------- | ------------------------ |
+| POST   | /orders | Criação de pedido avulso |
 
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
@@ -1220,22 +1226,8 @@ Responsável por validar regras de domínio e persistência:
 - validações customizadas;
 - consistência entre propriedades do documento.
 
-2. Celebrate/Joi
-
-Responsável por validar dados recebidos pelas rotas HTTP:
-
-- `req.body`
-- `req.params`
-- `req.query`
-- `req.cookies`
-
-As validações de autenticação utilizam cookies `httpOnly`, permitindo verificar
-a presença dos tokens esperados antes que a requisição alcance a camada de
-negócio.
-
-Além das validações de entrada realizadas pelo Celebrate/Joi, determinadas
-regras de consistência do domínio são implementadas diretamente nos modelos do
-`Mongoose`.
+Determinadas regras de consistência do domínio são implementadas diretamente nos
+modelos do `Mongoose`.
 
 Exemplo: o modelo de assinatura exige que todos os dias selecionados em `daysOn`
 e todos os horários preenchidos em `schedules` representem exatamente os mesmos
@@ -1269,17 +1261,39 @@ Persistência
 Essa abordagem evita validações manuais dentro dos controllers e garante que as
 requisições cheguem à lógica de negócio já validadas.
 
-Atualmente a aplicação utiliza Celebrate/Joi para validação das rotas de
-autenticação, incluindo cadastro, login e validação de cookies relacionados à
-autenticação e autorização.
+2. Celebrate/Joi
 
-Também é utilizado para validação das rotas de:
+Responsável por validar dados recebidos pelas rotas HTTP:
 
-- atualização de perfil cadastral;
-- atualização de perfil de assinatura;
-- recuperação do histórico de mensagens do usuário;
-- cadastro de assinatura;
-- cadastro de mensagens.
+- `req.body`
+- `req.params`
+- `req.query`
+- `req.cookies`
+
+Além das validações simples de tipo e formato, o Celebrate/Joi também é
+utilizado para aplicar validações condicionais.
+
+Exemplo: pedidos com método de entrega (`delivery`) exigem o preenchimento do
+objeto `addressSnapshot`.
+
+Pedidos para retirada local não permitem o envio desses dados.
+
+Essa regra é implementada através dos recursos de validação condicional do Joi:
+
+```js
+Joi.when('method', {
+  is: 'delivery',
+  then: Joi.object(...).required(),
+  otherwise: Joi.forbidden(),
+});
+```
+
+permitindo adaptar as exigências da validação ao contexto específico da
+requisição.
+
+Validações de autenticação utilizam cookies `httpOnly`, permitindo verificar a
+presença dos tokens esperados antes que a requisição alcance a camada de
+negócio.
 
 ### ✔️ Validação de Content-Type
 
@@ -1862,7 +1876,7 @@ A funcionalidade suporta dois cenários:
 
 Assim como na criação da assinatura, regras de consistência entre os dias
 selecionados em `daysOn` e os horários informados em `schedules` são validadas
-através de middleware de documento do Mongoose:
+através de middleware de documento do `Mongoose`:
 
 ```js
 schema.pre('validate');
@@ -2026,7 +2040,7 @@ GET /menu
 ```
 
 A implementação atual realiza a consulta diretamente na coleção de produtos
-utilizando o Mongoose, retornando os documentos persistidos no MongoDB para
+utilizando o `Mongoose`, retornando os documentos persistidos no MongoDB para
 consumo do frontend.
 
 Fluxo simplificado:
@@ -2073,7 +2087,7 @@ A funcionalidade permite que visitantes autenticados ou não autenticados enviem
 mensagens para a plataforma.
 
 A rota utiliza validação de entrada através do Celebrate/Joi e validações de
-persistência implementadas no Mongoose.
+persistência implementadas no `Mongoose`.
 
 Fluxo simplificado:
 
@@ -2118,7 +2132,7 @@ POST /partners
 ```
 
 A rota utiliza validação de entrada através do Celebrate/Joi e validações de
-persistência implementadas no Mongoose.
+persistência implementadas no `Mongoose`.
 
 Fluxo simplificado:
 
@@ -2148,6 +2162,93 @@ documento, persistindo apenas os campos previstos pela aplicação.
 Falhas no envio da notificação administrativa não impedem a persistência dos
 dados do parceiro, garantindo disponibilidade do fluxo mesmo diante de
 indisponibilidade temporária do serviço de e-mail.
+
+### ✔️ Geração de Número do Pedido
+
+A aplicação gera automaticamente o número dos pedidos no backend, tanto para
+pedidos avulsos, quanto para pedidos de assinatura.
+
+O identificador é composto pela data atual e por uma sequência numérica
+aleatória. Para pedidos de assinatura, é adicionado um 'S' no início na
+numeração.
+
+Exemplos:
+
+```text
+Pedido avulso:
+202611061234
+
+Pedido de assinatura:
+S202611061234
+```
+
+A geração ocorre antes da persistência do pedido através do utilitário
+`generateOrderNumber`.
+
+Essa abordagem centraliza a geração do identificador no servidor e impede que o
+frontend defina ou manipule números de pedido.
+
+### ✔️ Precificação no Servidor
+
+O valor total dos pedidos não é recebido do frontend.
+
+Embora a interface calcule e exiba o valor durante o preenchimento do pedido, o
+backend recalcula o valor utilizando as regras de negócio definidas no módulo de
+pedidos.
+
+Essa abordagem evita manipulação de preços através de requisições alteradas,
+garantindo que o valor persistido seja sempre consistente com as regras da
+aplicação.
+
+As regras de precificação estão centralizadas no módulo `orders.pricing.js`,
+permitindo que alterações de preços sejam realizadas em um único local da
+aplicação.
+
+### ✔️ Pedidos
+
+#### Cadastro de pedido avulso
+
+A aplicação disponibiliza um endpoint público para criação de pedidos avulsos:
+
+```text
+POST /orders
+```
+
+A rota utiliza validação de entrada através do Celebrate/Joi e validações de
+persistência implementadas no `Mongoose`.
+
+Fluxo:
+
+```text
+POST /orders
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados da requisição
+↓
+Controller localiza usuário através do e-mail informado
+↓
+Usuário encontrado?
+  ├─ Sim → owner recebe o _id do usuário
+  └─ Não → owner recebe null
+↓
+Backend gera o número do pedido
+↓
+Backend calcula o valor total do pedido
+↓
+MongoDB cria o pedido
+↓
+HTTP 201 Created
+```
+
+A funcionalidade permite que pedidos sejam realizados por usuários cadastrados
+ou visitantes.
+
+Quando o e-mail informado pertence a um usuário previamente cadastrado, o pedido
+é automaticamente associado ao proprietário.
+
+Pedidos realizados por visitantes permanecem registrados normalmente com
+`owner: null`.
 
 [Voltar ao topo 🔝](#top)
 
@@ -2196,7 +2297,12 @@ indisponibilidade temporária do serviço de e-mail.
 │     │     │     ├── menu.routes.js
 │     │     │     └── product.model.js
 │     │     ├── orders/
-│     │     │     └── order.model.js
+│     │     │     ├── order.model.js
+│     │     │     ├── orders.controller.js
+│     │     │     ├── orders.index.js
+│     │     │     ├── orders.pricing.js
+│     │     │     ├── orders.routes.js
+│     │     │     └── orders.validation.js
 │     │     ├── partners/
 │     │     │     ├── partner.model.js
 │     │     │     ├── partners.controller.js
@@ -2244,10 +2350,11 @@ indisponibilidade temporária do serviço de e-mail.
 │     │     │     ├── roleMiddleware.js
 │     │     │     └── validateContentType.js
 │     │     ├── services/
-│     │           └── email.service.js
+│     │     │     └── email.service.js
 │     │     └── utils/
 │     │           ├── constants.js
-│     │           └── errorsMessages.js
+│     │           ├── errorsMessages.js
+│     │           └── generateOrderNumber.js
 │     └── app.js
 ├── tests/
 │     ├── config/
@@ -2337,6 +2444,8 @@ Cada módulo concentra seus próprios arquivos:
   rotas
 - `.middleware.js`: middlewares específicos do módulo, quando necessário
 - `.model.js`: modelos do MongoDB para persistência de dados
+- `.pricing.js`: regras de precificação e cálculos relacionados ao domínio,
+  quando aplicável
 - `.routes.js`: definição das rotas
 - `.service.js`: lógica de negócio e integrações externas quando necessário
 - `.validation.js`: validação dos dados recebidos do frontend
@@ -2520,7 +2629,7 @@ Deploy
 
 #### Pedidos
 
-- [ ] Criar pedido
+- [x] Criar pedido
 - [ ] Localizar pedido
 
 #### Fale Conosco
