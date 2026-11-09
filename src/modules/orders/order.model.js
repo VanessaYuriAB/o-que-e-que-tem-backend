@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // nome do model registrado no Mongoose
-      required: true,
+      default: null,
     },
 
     orderNumber: {
