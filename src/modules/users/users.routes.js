@@ -4,6 +4,7 @@ import { accessMiddleware } from '../auth/auth.middleware.js';
 import validateContentType from '../../shared/middlewares/validateContentType.js';
 import {
   celebrateForGetUserMsgs,
+  celebrateForGetUserOrders,
   celebrateForUpdateSubscription,
   celebrateForUpdateUser,
 } from './users.validation.js';
@@ -11,6 +12,7 @@ import {
   updateUserProfile,
   updateSubscriptionProfile,
   getUserMsgs,
+  getUserOrders,
 } from './users.controller.js';
 import isOwnerOrAdminMiddleware from '../../shared/middlewares/isOwnerOrAdminMiddleware.js';
 
@@ -48,6 +50,14 @@ router.patch(
 // -------------------------------------------------------------
 
 // getOrdersByUserId > '/users/:userId/orders'
+router.get(
+  '/:userId/orders',
+  celebrateForAccessToken,
+  celebrateForGetUserOrders,
+  accessMiddleware,
+  isOwnerOrAdminMiddleware('userId'),
+  getUserOrders,
+);
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
 

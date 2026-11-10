@@ -3,6 +3,7 @@ import NotFoundError from '../../shared/errors/NotFoundError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
 import Subscription from '../subscriptions/subscription.model.js';
 import Message from '../contact/message.model.js';
+import Order from '../orders/order.model.js';
 //import logger from '../../shared/logger/logger.js';
 
 // updateUserProfile > '/users/me'
@@ -78,11 +79,24 @@ const updateSubscriptionProfile = async (req, res) => {
 };
 
 // getOrdersByUserId > '/users/:userId/orders'
+const getUserOrders = async (req, res) => {
+  // Aqui, 'owner' já foi validado pelo 'isOwnerOrAdminMiddleware', por isso a consulta utiliza o usuário autenticado
+  const orders = await Order.find({
+    owner: req.user._id,
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // Caso não existam pedidos avulsos, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
+
+  res.send(orders);
+};
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
 
 // getMessagesByUserId > '/users/:userId/messages'
 const getUserMsgs = async (req, res) => {
+  // Aqui, 'owner' já foi validado pelo 'isOwnerOrAdminMiddleware', por isso a consulta utiliza o usuário autenticado
   const msgs = await Message.find({
     owner: req.user._id,
   });
@@ -92,4 +106,9 @@ const getUserMsgs = async (req, res) => {
   res.send(msgs);
 };
 
-export { updateUserProfile, updateSubscriptionProfile, getUserMsgs };
+export {
+  updateUserProfile,
+  updateSubscriptionProfile,
+  getUserMsgs,
+  getUserOrders,
+};
