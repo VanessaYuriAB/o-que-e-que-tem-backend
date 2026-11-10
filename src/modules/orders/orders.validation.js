@@ -83,5 +83,16 @@ const celebrateForCreateOrder = celebrate({
 });
 
 // getOrderByNumber > `/orders/:orderNumber` > Query: ?email=user@email.com
+const celebrateForGetOrderByNumber = celebrate({
+  params: Joi.object({
+    orderNumber: Joi.string()
+      .pattern(/^\d{12}$/)
+      .required(),
+  }),
 
-export { celebrateForCreateOrder };
+  query: Joi.object({
+    email: Joi.string().email().required(),
+  }).unknown(false),
+});
+
+export { celebrateForCreateOrder, celebrateForGetOrderByNumber };

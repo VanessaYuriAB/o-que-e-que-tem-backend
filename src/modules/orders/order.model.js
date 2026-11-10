@@ -21,7 +21,6 @@ const orderSchema = new mongoose.Schema(
       required: true,
       match: /^\d{12}$/,
       unique: true,
-      index: true,
       trim: true,
     },
 

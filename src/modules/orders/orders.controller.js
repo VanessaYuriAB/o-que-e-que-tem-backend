@@ -2,6 +2,8 @@ import Order from './order.model.js';
 import User from '../users/user.model.js';
 import generateOrderNumber from '../../shared/utils/generateOrderNumber.js';
 import calculateOrderAmount from './orders.pricing.js';
+import NotFoundError from '../../shared/errors/NotFoundError.js';
+import errorsMessages from '../../shared/utils/errorsMessages.js';
 
 // createOrder > '/orders'
 const createOrder = async (req, res) => {
@@ -56,5 +58,17 @@ const createOrder = async (req, res) => {
 };
 
 // getOrderByNumber > `/orders/:orderNumber` > Query: ?email=user@email.com
+const getOrderByNumber = async (req, res) => {
+  const order = await Order.findOne({
+    orderNumber: req.params.orderNumber,
+    'customerSnapshot.email': req.query.email,
+  }).orFail(() => {
+    throw new NotFoundError(
+      `${errorsMessages.notFound} Erro ao buscar pedido avulso: pedido ${req.params.orderNumber} não encontrado.`,
+    );
+  });
 
-export { createOrder };
+  res.send(order);
+};
+
+export { createOrder, getOrderByNumber };
