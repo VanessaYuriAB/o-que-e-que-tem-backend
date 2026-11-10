@@ -237,7 +237,7 @@ Quando uma nova mensagem é criada com sucesso:
 - a mensagem é persistida no MongoDB;
 - uma notificação é enviada para o e-mail administrativo configurado em
   `ADMIN_EMAIL`;
-  - a mensagem enviada contém os dados cadastrais do responsável.
+- a mensagem enviada contém os dados cadastrais do responsável.
 
 Quando uma nova solicitação de parceria é criada com sucesso:
 
@@ -423,9 +423,9 @@ Além do `validateEnv`, os testes de integração dos middlewares `errorHandler`
 `limiter` utilizam uma aplicação Express isolada (`tests/helpers/testApp.js`).
 
 Essa aplicação registra apenas as rotas e middlewares necessários para os
-cenários em validação, evitando dependência da configuração completa da
-aplicação, reduzindo o acoplamento entre os testes e garantindo cenários
-determinísticos para validação da infraestrutura HTTP.
+cenários em validação, evitando dependência da configuração completa, reduzindo
+o acoplamento entre os testes e garantindo cenários determinísticos para
+validação da infraestrutura HTTP.
 
 Para cenários que dependem de persistência, a suíte utiliza uma configuração
 global do Jest (`tests/setup/jest.setup.js`) responsável pela preparação do
@@ -497,16 +497,20 @@ ao Resend durante a execução dos testes.
 
 Essa abordagem permite validar o acionamento da integração externa sem gerar
 envios reais de e-mail, reduzindo dependências externas e tornando a suíte mais
-rápida, previsível e determinística.
+rápida e previsível.
+
+Além dos serviços, a suíte contempla testes de integração da funcionalidade de
+pedidos avulsos:
+
+- criação de pedido avulso (`POST /orders`)
+
+Além das funcionalidades de pedidos avulsos, a suíte contempla testes unitários
+dos utilitários:
+
+- `generateOrderNumber`
+- `calculateOrderAmount`
 
 ### ✔️ Cobertura Atual
-
-O `validateEnv` é um teste unitário puro que valida:
-
-- presença das variáveis obrigatórias
-- valores permitidos para `NODE_ENV`
-- detecção de configurações inválidas
-- geração de mensagens de erro apropriadas
 
 O `notFoundPage` valida, com teste de integração:
 
@@ -581,7 +585,7 @@ O `Order Model` possui testes unitários para validação de:
 - validação de array não vazio para os itens do pedido
 - validação do formato do número do pedido através de expressão regular
   (`match`)
-- validação de documento válido
+- validação de documento válido, inclusive quando owner é `null`
 
 O `SubscriptionOrder Model` possui testes unitários para validação de:
 
@@ -637,6 +641,22 @@ Os serviços `sendUserMsgNotificationToAdmin` e
 Os testes utilizam mocks para as dependências externas (`email.service`) e para
 o mecanismo de observabilidade (`logger`), permitindo validar o comportamento do
 serviço de forma isolada.
+
+O utilitário `generateOrderNumber` possui testes unitários para validação de:
+
+- geração de pedidos avulsos
+- geração de pedidos de assinatura
+- prefixo utilizado para pedidos de assinatura (`S`)
+- tamanho esperado dos identificadores gerados
+
+O utilitário `calculateOrderAmount` possui testes unitários para validação de:
+
+- precificação da sopa
+- precificação do creme
+- precificação do patê
+- aplicação da taxa de entrega
+- cálculo correto para pedidos `delivery`
+- cálculo correto para pedidos `drive-thru`
 
 O fluxo de cadastro de usuário (`POST /auth/register`) possui testes de
 integração que validam:
@@ -849,6 +869,25 @@ que validam:
 - integração entre Express, rota, middleware de validação, controller, serviço
   de notificação e MongoDB
 
+O fluxo de criação de pedidos avulsos (`POST /orders`) possui testes de
+integração que validam:
+
+- criação de pedido com sucesso para usuário previamente cadastrado
+- associação automática do pedido ao proprietário (`owner`)
+- criação de pedido com sucesso para visitante
+- persistência do pedido sem proprietário associado (`owner: null`)
+- geração automática do número do pedido
+- cálculo automático do valor total do pedido no backend
+- validação do cabeçalho `Content-Type`
+- validação dos campos obrigatórios (`required`)
+- validação dos valores permitidos por enum (`enum`)
+- validação de formatos através de expressões regulares (`match`)
+- validação de e-mail através do Celebrate/Joi
+- validação condicional de endereço conforme o método de entrega
+- suporte a pedidos `drive-thru` com ou sem endereço informado
+- rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
+- integração entre Express, rota, middleware de validação, controller e MongoDB
+
 ### ✔️ Estratégia
 
 - Testes unitários para funções isoladas (configurações, utilitários, serviços e
@@ -875,7 +914,7 @@ que validam:
 
 O backend adota uma arquitetura orientada a features (domínios de negócio).
 
-Em vez de organizar arquivos por camadas técnicas globais (como controllers,
+Ao invés de organizar arquivos por camadas técnicas globais (como controllers,
 models e routes), cada módulo concentra os artefatos relacionados à sua
 responsabilidade.
 
@@ -931,7 +970,7 @@ Benefícios:
 
 ### ✔️ ESM-first
 
-O projeto utiliza ECMAScript Modules (ESM) como padrão.
+O projeto utiliza `ECMAScript Modules` (ESM) como padrão.
 
 Benefícios:
 
@@ -940,8 +979,8 @@ Benefícios:
 - Melhor integração com TypeScript, para possível evolução
 - Compatibilidade com ecossistemas frontend modernos (React)
 - Facilidade de compartilhamento de código entre aplicações (backend e frontend)
-- Compatibilidade com bibliotecas ESM-only (muitos pacotes novos já são
-  ESM-first ou ESM-only)
+- Compatibilidade com bibliotecas `ESM-only` (muitos pacotes novos já são
+  `ESM-first` ou `ESM-only`)
 
 Convenções adotadas:
 
@@ -962,7 +1001,7 @@ O projeto utiliza ESLint 9 com Flat Config.
 Não foi adotado ESLint 10 devido à incompatibilidade atual do
 `eslint-plugin-import`.
 
-Exemplo de regras adotadas, alinhadas à filosofia Airbnb:
+Exemplo de regras adotadas, alinhadas à filosofia `Airbnb`:
 
 ```js
 {
@@ -982,7 +1021,7 @@ O projeto utiliza Express 5.
 Controllers assíncronos não utilizam wrappers como `asyncHandler` porque o
 Express 5 já captura automaticamente:
 
-- exceções lançadas em funções async
+- exceções lançadas em funções `async`
 - rejeições de Promises
 
 e encaminha o erro para o middleware centralizado de tratamento de erros.
@@ -1162,7 +1201,7 @@ Essa abordagem centraliza a observabilidade da aplicação e evita o uso direto 
 
 ### ✔️ Modelagem de dados
 
-O projeto adota uma abordagem model-first.
+O projeto adota uma abordagem `model-first`.
 
 As entidades principais do domínio são modeladas e validadas através do
 `Mongoose` antes da implementação dos controllers e rotas.
@@ -1274,17 +1313,15 @@ Além das validações simples de tipo e formato, o Celebrate/Joi também é
 utilizado para aplicar validações condicionais.
 
 Exemplo: pedidos com método de entrega (`delivery`) exigem o preenchimento do
-objeto `addressSnapshot`.
-
-Pedidos para retirada local não permitem o envio desses dados.
+objeto `addressSnapshot`. Pedidos para retirada local permitem, mas não exigem o
+envio desses dados.
 
 Essa regra é implementada através dos recursos de validação condicional do Joi:
 
 ```js
-Joi.when('method', {
+addressSnapshot: Joi.object(...).when('method', {
   is: 'delivery',
-  then: Joi.object(...).required(),
-  otherwise: Joi.forbidden(),
+  then: Joi.required(),
 });
 ```
 
@@ -1320,8 +1357,8 @@ Após a validação das credenciais, a API gera dois tokens:
 
 Ambos os tokens são enviados ao navegador através dos cookies `httpOnly`.
 
-Essa abordagem reduz a exposição dos tokens a ataques de XSS quando comparada ao
-armazenamento em Local Storage, uma vez que cookies `httpOnly` não podem ser
+Essa abordagem reduz a exposição dos tokens a ataques de `XSS` quando comparada
+ao armazenamento em Local Storage, uma vez que cookies `httpOnly` não podem ser
 acessados via JavaScript no navegador.
 
 #### Configuração dos cookies
@@ -1348,7 +1385,8 @@ Exemplo bloqueado:
 document.cookie;
 ```
 
-Essa configuração reduz a exposição dos tokens em caso de vulnerabilidades XSS.
+Essa configuração reduz a exposição dos tokens em caso de vulnerabilidades
+`XSS`.
 
 - ##### secure
 
@@ -1788,7 +1826,7 @@ Usuários autenticados podem atualizar seus dados cadastrais através do endpoin
 PATCH /users/me
 ```
 
-A rota utiliza autenticação baseada em accessToken e validação de entrada
+A rota utiliza autenticação baseada em `accessToken` e validação de entrada
 através do Celebrate/Joi.
 
 Fluxo simplificado:
@@ -1855,8 +1893,7 @@ Validação de documento do Mongoose executa
 ↓
 Documento atualizado é persistido
 ↓
-Usuário é recuperado com:
-  populate('subscriptionDetails')
+Usuário é recuperado com: populate('subscriptionDetails')
 ↓
 Documento atualizado é retornado
 ```
@@ -1999,7 +2036,7 @@ populate('subscriptionDetails')
 Documento atualizado é retornado
 ```
 
-A funcionalidade utiliza uma whitelist explícita para evitar a persistência de
+A funcionalidade utiliza uma `whitelist` explícita para evitar a persistência de
 campos não previstos pela aplicação.
 
 Além das validações de entrada realizadas pelo Celebrate/Joi, a entidade
@@ -2011,7 +2048,7 @@ Exemplo:
 Os dias selecionados e os horários informados devem corresponder exatamente.
 ```
 
-Essa validação é executada através de:
+Essa validação é executada através do middleware de documento:
 
 ```js
 schema.pre('validate');
@@ -2051,8 +2088,8 @@ GET /menu
 Controller recebe requisição
 ↓
 MongoDB localiza apenas produtos:
-- com estoque disponível
-- dentro do prazo de validade
+  - com estoque disponível
+  - dentro do prazo de validade
 ↓
 Documentos são convertidos com lean()
 ↓
@@ -2066,11 +2103,11 @@ dados, evitando que produtos indisponíveis ou vencidos sejam enviados ao
 frontend.
 
 Por se tratar de uma rota exclusivamente de leitura, não existem validações de
-Content-Type ou Celebrate/Joi na implementação atual.
+`Content-Type` ou Celebrate/Joi na implementação atual.
 
 A funcionalidade é utilizada em conjunto com o mecanismo de atualização
-periódica (polling) implementado no frontend para manter o cardápio sincronizado
-com o estado atual do banco de dados.
+periódica (`polling`) implementado no frontend para manter o cardápio
+sincronizado com o estado atual do banco de dados.
 
 ### ✔️ Fale Conosco
 
@@ -2101,8 +2138,8 @@ Celebrate/Joi valida os dados da requisição
 Controller localiza usuário através do e-mail informado
 ↓
 Usuário encontrado?
-├─ Sim → owner recebe o _id do usuário
-└─ Não → owner recebe null
+  ├─ Sim → owner recebe o _id do usuário
+  └─ Não → owner recebe null
 ↓
 MongoDB cria a mensagem
 ↓
@@ -2146,8 +2183,8 @@ Celebrate/Joi valida os dados da requisição
 Controller verifica existência prévia do CNPJ
 ↓
 CNPJ já cadastrado?
-├─ Sim → 409 Conflict
-└─ Não
+  ├─ Sim → 409 Conflict
+  └─ Não
 ↓
 MongoDB cria o parceiro
 ↓
@@ -2250,6 +2287,11 @@ Quando o e-mail informado pertence a um usuário previamente cadastrado, o pedid
 Pedidos realizados por visitantes permanecem registrados normalmente com
 `owner: null`.
 
+Os dados enviados pelo cliente são persistidos como snapshots
+(`customerSnapshot`, `addressSnapshot` e `itemsSnapshot`), preservando o estado
+do pedido no momento da compra, independentemente de alterações futuras nos
+cadastros relacionados.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -2320,11 +2362,11 @@ Pedidos realizados por visitantes permanecem registrados normalmente com
 │     │     │     ├── subscriptions.routes.js
 │     │     │     └── subscriptions.validation.js
 │     │     └── users/
-│     │     │     ├── user.model.js
-│     │     │     ├── users.controller.js
-│     │     │     ├── users.index.js
-│     │     │     ├── users.routes.js
-│     │     │     └── users.validation.js
+│     │           ├── user.model.js
+│     │           ├── users.controller.js
+│     │           ├── users.index.js
+│     │           ├── users.routes.js
+│     │           └── users.validation.js
 │     ├── routes/
 │     │     └── index.js
 │     ├── seeds/
@@ -2388,6 +2430,9 @@ Pedidos realizados por visitantes permanecem registrados normalmente com
 │     │     │     └── registerUserMsg.test.js
 │     │     ├── menu/
 │     │     │     └── getMenu.test.js
+│     │     ├── orders/
+│     │     │     ├── createOrder.test.js
+│     │     │     └── orders.pricing.test.js
 │     │     ├── partners/
 │     │     │     ├── partners.service.test.js
 │     │     │     └── registerPartner.test.js
@@ -2399,8 +2444,10 @@ Pedidos realizados por visitantes permanecem registrados normalmente com
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
 │     │     └── testRoutes.js
-│     └── setup/
-│           └── jest.setup.js
+│     ├── setup/
+│     │     └── jest.setup.js
+│     └── utils/
+│           └── generateOrderNumber.test.js
 ├── .editorconfig
 ├── .env.example
 ├── .gitignore
