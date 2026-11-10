@@ -395,9 +395,10 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Orders
 
-| Método | Rota    | Descrição                |
-| ------ | ------- | ------------------------ |
-| POST   | /orders | Criação de pedido avulso |
+| Método | Rota                 | Descrição                 |
+| ------ | -------------------- | ------------------------- |
+| POST   | /orders              | Criação de pedido avulso  |
+| GET    | /orders/:orderNumber | Consulta de pedido avulso |
 
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
@@ -503,6 +504,7 @@ Além dos serviços, a suíte contempla testes de integração da funcionalidade
 pedidos avulsos:
 
 - criação de pedido avulso (`POST /orders`)
+- consulta de pedido avulso (`GET /orders/:orderNumber`)
 
 Além das funcionalidades de pedidos avulsos, a suíte contempla testes unitários
 dos utilitários:
@@ -887,6 +889,19 @@ integração que validam:
 - suporte a pedidos `drive-thru` com ou sem endereço informado
 - rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
 - integração entre Express, rota, middleware de validação, controller e MongoDB
+
+O fluxo de consulta de pedidos avulsos (`GET /orders/:orderNumber`) possui
+testes de integração que validam:
+
+- recuperação de pedido através do número do pedido e e-mail do cliente
+- retorno do documento persistido no MongoDB
+- retorno de `404 Not Found` para número de pedido inexistente
+- retorno de `404 Not Found` para e-mail não associado ao pedido
+- validação de obrigatoriedade do parâmetro de consulta (`email`)
+- validação do formato do número do pedido
+- validação do formato do e-mail
+- bloqueio de parâmetros de consulta não permitidos
+- integração entre Express, Celebrate/Joi, controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -2292,6 +2307,43 @@ Os dados enviados pelo cliente são persistidos como snapshots
 do pedido no momento da compra, independentemente de alterações futuras nos
 cadastros relacionados.
 
+#### Consulta de pedido avulso
+
+A aplicação disponibiliza um endpoint público para consulta de pedidos avulsos:
+
+```text
+GET /orders/:orderNumber?email=user@email.com
+```
+
+A consulta exige simultaneamente:
+
+- número do pedido (orderNumber);
+- e-mail utilizado durante o cadastro do pedido.
+
+Fluxo:
+
+```text
+GET /orders/:orderNumber
+↓
+Celebrate/Joi valida:
+  - presença do e-mail
+  - formato do orderNumber
+  - formato do e-mail
+  - ausência de parâmetros não permitidos
+↓
+MongoDB localiza o pedido através de:
+  - orderNumber
+  - customerSnapshot.email
+↓
+Pedido encontrado?
+  ├─ Sim → HTTP 200 OK
+  └─ Não → 404 Not Found
+```
+
+A utilização combinada do número do pedido com o e-mail informado durante a
+compra reduz a exposição de pedidos de terceiros e impede consultas baseadas
+apenas na numeração do pedido.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -2432,6 +2484,7 @@ cadastros relacionados.
 │     │     │     └── getMenu.test.js
 │     │     ├── orders/
 │     │     │     ├── createOrder.test.js
+│     │     │     ├── getOrderByNumber.test.js
 │     │     │     └── orders.pricing.test.js
 │     │     ├── partners/
 │     │     │     ├── partners.service.test.js
@@ -2647,7 +2700,7 @@ Deploy
 
 - [ ] `users.validation.js`
 - [ ] `subscriptions.validation.js`
-- [ ] `orders.validation.js`
+- [x] `orders.validation.js`
 - [x] `contact.validation.js`
 - [x] `partners.validation.js`
 - [ ] `recipes.validation.js`
@@ -2658,7 +2711,7 @@ Deploy
 - [x] Atualizar perfil de assinatura
   - [x] Ativar assinatura
   - [x] Pausar assinatura
-- [ ] Histórico de pedidos
+- [ ] Histórico de pedidos avulsos
 - [ ] Histórico de pedidos de assinatura
 - [x] Histórico de mensagens
 
@@ -2674,10 +2727,10 @@ Deploy
 - [x] Busca de menu
 - [x] Controle de disponibilidade
 
-#### Pedidos
+#### Pedidos avulsos
 
-- [x] Criar pedido
-- [ ] Localizar pedido
+- [x] Criar pedido avulso
+- [x] Localizar pedido avulso
 
 #### Fale Conosco
 
@@ -2708,7 +2761,7 @@ Deploy
 - [ ] Usuários
 - [ ] Assinaturas
 - [x] Cardápio
-- [ ] Pedidos
+- [x] Pedidos avulsos
 - [x] Fale Conosco
 - [x] Mercados Parceiros
 - [ ] Receitas
