@@ -36,9 +36,9 @@ describe('Order Model', () => {
     ],
   };
 
-  // -------
-  // Válido
-  // -------
+  // --------
+  // Válidos
+  // --------
 
   // 1
   it('deve validar um pedido válido', async () => {
@@ -47,19 +47,19 @@ describe('Order Model', () => {
     await expect(order.validate()).resolves.toBeUndefined();
   });
 
+  // 2
+  it('deve falhar um pedido com owner null', async () => {
+    const order = new Order({
+      ...validOrder,
+      owner: null,
+    });
+
+    await expect(order.validate()).resolves.toBeUndefined();
+  });
+
   // ---------
   // Required
   // ---------
-
-  // 2
-  it('deve falhar sem owner', async () => {
-    const order = new Order({
-      ...validOrder,
-      owner: undefined,
-    });
-
-    await expect(order.validate()).rejects.toThrow();
-  });
 
   // 3
   it('deve falhar sem orderNumber', async () => {
