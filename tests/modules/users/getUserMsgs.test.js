@@ -19,12 +19,13 @@ import jwt from 'jsonwebtoken';
 import env from '../../../src/config/env.js';
 import errorsMessages from '../../../src/shared/utils/errorsMessages.js';
 import MessageModel from '../../../src/modules/contact/message.model.js';
+import UserModel from '../../../src/modules/users/user.model.js';
 
 // Request to test
 const request = supertest(app);
 
 // Testes de integração (HTTP + DB) > fluxo de busca de mensagens do usuário
-// requisição HTTP > celebrateForAccessToken > accessMiddleware > isOwnerOrAdminMiddleware > getUserMsgs
+// requisição HTTP > celebrateForAccessToken > celebrateForGetUserMsgs > accessMiddleware > isOwnerOrAdminMiddleware > getUserMsgs
 
 describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   // -------------------------------------------------------------------------------------------
@@ -161,11 +162,29 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     });
   });
 
+  // ---------------------------------
+  // celebrateForGetUserMsgs (params)
+  // ---------------------------------
+
+  // 6
+  it('userId deve possuir formato válido de ObjectId', async () => {
+    const error = await request
+      .get('/users/id-invalido/messages')
+      .set('Cookie', cookies);
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body).toMatchObject({
+      message: expect.stringMatching('Validation failed'),
+    });
+  });
+
   // -----------------
   // accessMiddleware
   // -----------------
 
-  // 6
+  // 7
   it('accessToken expirado', async () => {
     const expiredToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -185,7 +204,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     );
   });
 
-  // 7
+  // 8
   it('accessToken assinado com chave inválida', async () => {
     const invalidToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -207,30 +226,12 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     );
   });
 
-  // ---------------------------------
-  // celebrateForGetUserMsgs (params)
-  // ---------------------------------
-
-  // 8
-  it('userId deve possuir formato válido de ObjectId', async () => {
-    const error = await request
-      .get('/users/id-invalido/messages')
-      .set('Cookie', cookies);
-
-    expect(error.type).toMatch(/json/);
-    expect(error.statusCode).toBe(400);
-
-    expect(error.body).toMatchObject({
-      message: expect.stringMatching('Validation failed'),
-    });
-  });
-
   // -------------------------
   // isOwnerOrAdminMiddleware
   // -------------------------
 
   // 9
-  it('Bloqueia acesso quando usuário tenta acessar mensagens de outro usuário', async () => {
+  it('Bloqueia acesso a mensagens de outro usuário', async () => {
     // Seed (usuário B)
     // Cadastro + login + access e refresh Tokens + refreshUser (id) + cadastro de msg
 
@@ -274,5 +275,50 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     expect(error.body.message).toBe(
       `${errorsMessages.forbidden} Acesso negado.`,
     );
+  });
+
+  // 10
+  it('admin pode acessar mensagens de qualquer usuário', async () => {
+    // Seed (admin)
+    // Cadastro + login + access e refresh Tokens + refreshUser (id)
+
+    await request.post('/auth/register').send({
+      userName: 'Admin',
+      email: 'admin@gmail.com',
+      confirmEmail: 'admin@gmail.com',
+      tel: '(11) 99999-9999',
+      password: 'senha789',
+      confirmPassword: 'senha789',
+    });
+
+    await UserModel.findOneAndUpdate(
+      { email: 'admin@gmail.com' },
+      { role: 'admin' },
+      {
+        returnDocument: 'after', // substitui o 'new: true,' atualmente
+        runValidators: true,
+      },
+    );
+
+    const login = await request.post('/auth/login').send({
+      email: 'admin@gmail.com',
+      tel: '(11) 99999-9999',
+      password: 'senha789',
+    });
+
+    const cookiesAdmin = login.headers['set-cookie'];
+
+    // Teste
+    const res = await request
+      .get(`/users/${userId}/messages`)
+      .set('Cookie', cookiesAdmin);
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(1);
+
+    expect(res.body[0].owner).toBe(userId);
   });
 });

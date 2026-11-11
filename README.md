@@ -840,6 +840,7 @@ O fluxo de recuperação do histórico de mensagens do usuário
 - validação de `accessToken` expirado
 - validação de `accessToken` assinado com chave inválida
 - bloqueio de acesso a mensagens pertencentes a outro usuário
+- acesso permitido para administradores
 - integração entre Celebrate/Joi, `accessMiddleware`,
   `isOwnerOrAdminMiddleware`, controller e MongoDB
 
