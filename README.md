@@ -357,11 +357,12 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Users
 
-| Método | Rota                    | Descrição                           |
-| ------ | ----------------------- | ----------------------------------- |
-| PATCH  | /users/me               | Atualização de perfil cadastral     |
-| PATCH  | /users/subscriptions/me | Atualização do perfil de assinatura |
-| GET    | /users/:userId/messages | Histórico de mensagens do usuário   |
+| Método | Rota                    | Descrição                               |
+| ------ | ----------------------- | --------------------------------------- |
+| PATCH  | /users/me               | Atualização de perfil cadastral         |
+| PATCH  | /users/subscriptions/me | Atualização do perfil de assinatura     |
+| GET    | /users/:userId/orders   | Histórico de pedidos avulsos do usuário |
+| GET    | /users/:userId/messages | Histórico de mensagens do usuário       |
 
 - ### Admin
 
@@ -470,6 +471,8 @@ integração da funcionalidade de gerenciamento de perfil do usuário:
 
 - atualização de perfil cadastral (`PATCH /users/me`)
 - atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
+- recuperação do histórico de pedidos avulsos do usuário
+  (`GET /users/:userId/orders`)
 - recuperação do histórico de mensagens do usuário
   (`GET /users/:userId/messages`)
 
@@ -804,6 +807,24 @@ possui testes de integração que validam:
 - validação de corpo de requisição vazio para atualização parcial
 - localização da assinatura através do proprietário autenticado
 - retorno de `404 Not Found` para assinatura inexistente
+
+O fluxo de recuperação do histórico de pedidos avulsos do usuário
+(`GET /users/:userId/orders`) possui testes de integração que validam:
+
+- recuperação dos pedidos associados ao usuário autenticado
+- retorno de coleção (`array`) contendo os documentos encontrados
+- retorno dos campos esperados dos pedidos persistidos
+- retorno de coleção vazia quando não existem pedidos cadastrados
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação do formato do parâmetro `userId`
+- validação dos parâmetros da rota através do Celebrate/Joi
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- bloqueio de acesso a pedidos pertencentes a outro usuário
+- acesso permitido para administradores
+- integração entre Celebrate/Joi, `accessMiddleware`,
+  `isOwnerOrAdminMiddleware`, controller e MongoDB
 
 O fluxo de recuperação do histórico de mensagens do usuário
 (`GET /users/:userId/messages`) possui testes de integração que validam:
@@ -1937,10 +1958,53 @@ schema.pre('validate');
 garantindo que ambos representem exatamente os mesmos dias antes da persistência
 no banco de dados.
 
+#### Histórico de pedidos avulsos
+
+Usuários autenticados podem consultar o histórico de pedidos associado a um
+usuário através do endpoint:
+
+```text
+GET /users/:userId/orders
+```
+
+Fluxo simplificado:
+
+```text
+GET /users/:userId/orders
+↓
+Celebrate/Joi valida:
+  - presença e formato do accessToken
+  - formato do parâmetro userId
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+isOwnerOrAdminMiddleware valida acesso ao recurso
+↓
+MongoDB localiza pedidos associados ao proprietário
+↓
+Resposta HTTP 200 OK
+```
+
+Somente o proprietário dos pedidos ou um usuário com perfil administrativo pode
+acessar o recurso.
+
+Quando não existem pedidos cadastrados:
+
+```json
+[]
+```
+
+A ausência de pedidos não é tratada como erro, pois o recurso consultado é uma
+coleção. Por esse motivo a API retorna `200 OK` juntamente com um array vazio.
+
 #### Histórico de mensagens
 
-Usuários autenticados podem consultar o próprio histórico de mensagens através
-do endpoint:
+Usuários autenticados podem consultar o histórico de mensagens associado a um
+usuário através do endpoint:
 
 ```text
 GET /users/:userId/messages
@@ -2493,6 +2557,7 @@ apenas na numeração do pedido.
 │     │     │     └── createSubscription.test.js
 │     │     └── users/
 │     │           ├── getUserMsgs.test.js
+│     │           ├── getUserOrders.test.js
 │     │           ├── updateSubscriptionProfile.test.js
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
@@ -2711,7 +2776,7 @@ Deploy
 - [x] Atualizar perfil de assinatura
   - [x] Ativar assinatura
   - [x] Pausar assinatura
-- [ ] Histórico de pedidos avulsos
+- [x] Histórico de pedidos avulsos
 - [ ] Histórico de pedidos de assinatura
 - [x] Histórico de mensagens
 
