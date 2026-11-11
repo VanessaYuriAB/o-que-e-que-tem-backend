@@ -80,9 +80,9 @@ const updateSubscriptionProfile = async (req, res) => {
 
 // getOrdersByUserId > '/users/:userId/orders'
 const getUserOrders = async (req, res) => {
-  // Aqui, 'owner' já foi validado pelo 'isOwnerOrAdminMiddleware', por isso a consulta utiliza o usuário autenticado
+  // O acesso ao recurso já foi autorizado pelo isOwnerOrAdminMiddleware
   const orders = await Order.find({
-    owner: req.user._id,
+    owner: req.params.userId,
   })
     .sort({ createdAt: -1 })
     .lean();
@@ -96,9 +96,9 @@ const getUserOrders = async (req, res) => {
 
 // getMessagesByUserId > '/users/:userId/messages'
 const getUserMsgs = async (req, res) => {
-  // Aqui, 'owner' já foi validado pelo 'isOwnerOrAdminMiddleware', por isso a consulta utiliza o usuário autenticado
+  // O acesso ao recurso já foi autorizado pelo isOwnerOrAdminMiddleware
   const msgs = await Message.find({
-    owner: req.user._id,
+    owner: req.params.userId,
   });
 
   // Caso não existam mensagens, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
