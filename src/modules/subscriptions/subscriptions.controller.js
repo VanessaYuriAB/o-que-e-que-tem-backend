@@ -3,6 +3,8 @@ import errorsMessages from '../../shared/utils/errorsMessages.js';
 import ConflictError from '../../shared/errors/ConflictError.js';
 import User from '../users/user.model.js';
 import NotFoundError from '../../shared/errors/NotFoundError.js';
+import SubscriptionOrder from './subscription-order.model.js';
+import generateOrderNumber from '../../shared/utils/generateOrderNumber.js';
 //import logger from '../../shared/logger/logger.js';
 
 // createSubscription > '/subscriptions'
@@ -48,9 +50,50 @@ const createSubscription = async (req, res) => {
   return res.status(201).send(updatedUserWithSubscription);
 };
 
+// createSubscriptionOrder > '/subscriptions/orders'
+const createSubscriptionOrder = async (req, res) => {
+  // Whilelist : defesa em profundidade
+  const subscriptionOrderData = await SubscriptionOrder.create({
+    owner: req.user._id,
+    orderNumber: generateOrderNumber('subscriptionOrderType'),
+
+    meal: req.body.meal,
+    method: req.body.method,
+
+    day: req.body.day,
+    time: req.body.time,
+
+    customerSnapshot: {
+      userName: req.body.customerSnapshot.userName,
+      email: req.body.customerSnapshot.email,
+      tel: req.body.customerSnapshot.tel,
+    },
+
+    addressSnapshot:
+      req.body.method === 'delivery'
+        ? {
+            address: req.body.addressSnapshot.address,
+            number: req.body.addressSnapshot.number,
+            complement: req.body.addressSnapshot.complement,
+            district: req.body.addressSnapshot.district,
+            cep: req.body.addressSnapshot.cep,
+          }
+        : undefined,
+
+    itemsSnapshot: req.body.itemsSnapshot.map((item) => ({
+      _id: item._id,
+      productName: item.productName,
+      category: item.category,
+      partnerName: item.partnerName,
+    })),
+
+    obs: req.body.obs,
+  });
+
+  res.status(201).send(subscriptionOrderData);
+};
+
 // getSubscriptionOrderByNumber > `/subscriptions/orders/:subscriptionOrderNumber` > Query:
 // ?email=user@email.com
 
-// sendSubscriptionOrderToServer > '/subscriptions/orders'
-
-export { createSubscription };
+export { createSubscription, createSubscriptionOrder };

@@ -2,8 +2,14 @@ import { Router } from 'express';
 import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import validateContentType from '../../shared/middlewares/validateContentType.js';
-import { celebrateForCreateSubscription } from './subscriptions.validation.js';
-import { createSubscription } from './subscriptions.controller.js';
+import {
+  celebrateForCreateSubscription,
+  celebrateForCreateSubscriptionOrder,
+} from './subscriptions.validation.js';
+import {
+  createSubscription,
+  createSubscriptionOrder,
+} from './subscriptions.controller.js';
 
 // Cria um roteador para a rota principal de subscriptions
 const router = Router();
@@ -31,6 +37,14 @@ router.post(
   createSubscription,
 );
 
-// sendSubscriptionOrderToServer > '/subscriptions/orders'
+// createSubscriptionOrder > '/subscriptions/orders'
+router.post(
+  '/orders',
+  celebrateForAccessToken,
+  accessMiddleware,
+  validateContentType,
+  celebrateForCreateSubscriptionOrder,
+  createSubscriptionOrder,
+);
 
 export default router;
