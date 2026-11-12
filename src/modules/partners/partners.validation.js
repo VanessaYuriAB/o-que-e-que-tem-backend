@@ -33,10 +33,18 @@ const celebrateForRegisterPartner = celebrate({
       .pattern(/^[0-9]{5}-?[0-9]{3}$/)
       .required(),
 
-    address: Joi.string().pattern(/^[^<>]+$/),
-    numberAddress: Joi.string().pattern(/^[a-zA-Z0-9\s]*$/),
-    complementAddress: Joi.string().pattern(/^[a-zA-Z0-9\s.-]*$/),
-    district: Joi.string().pattern(/^[a-zA-ZÀ-ÿ0-9\s]*$/),
+    address: Joi.string()
+      .allow('')
+      .pattern(/^[^<>]*$/),
+    numberAddress: Joi.string()
+      .allow('')
+      .pattern(/^[a-zA-Z0-9\s]*$/),
+    complementAddress: Joi.string()
+      .allow('')
+      .pattern(/^[a-zA-Z0-9\s.-]*$/),
+    district: Joi.string()
+      .allow('')
+      .pattern(/^[a-zA-ZÀ-ÿ0-9\s]*$/),
   }),
 });
 
