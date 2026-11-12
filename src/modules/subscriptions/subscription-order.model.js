@@ -36,7 +36,7 @@ const subscriptionOrderSchema = new mongoose.Schema(
     },
 
     day: {
-      type: Date, // formato no frontend '01/09/2026'
+      type: Date,
       required: true,
     },
 

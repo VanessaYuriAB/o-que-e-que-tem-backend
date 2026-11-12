@@ -29,7 +29,7 @@ const productSchema = new mongoose.Schema(
     },
 
     availableUntil: {
-      type: Date, // formato no frontend 'new Date().toISOString()'
+      type: Date,
       required: true,
     },
   },

@@ -55,7 +55,7 @@ const messageSchema = new mongoose.Schema(
     },
 
     responseAt: {
-      type: Date, // formato no frontend '08/09/2026, 19:40:05'
+      type: Date,
       default: null,
     },
 
