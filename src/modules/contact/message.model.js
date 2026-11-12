@@ -61,7 +61,7 @@ const messageSchema = new mongoose.Schema(
 
     response: {
       type: String,
-      match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+      match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
       default: null,
     },

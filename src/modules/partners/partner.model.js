@@ -60,7 +60,7 @@ const partnerSchema = new mongoose.Schema(
 
     address: {
       type: String,
-      match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+      match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
     numberAddress: {

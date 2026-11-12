@@ -76,7 +76,7 @@ const orderSchema = new mongoose.Schema(
     addressSnapshot: {
       address: {
         type: String,
-        match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+        match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
         trim: true,
         required() {
           return this.method === 'delivery';
@@ -153,7 +153,7 @@ const orderSchema = new mongoose.Schema(
 
     obs: {
       type: String,
-      match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+      match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
   },

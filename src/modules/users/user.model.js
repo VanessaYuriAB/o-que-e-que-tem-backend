@@ -49,13 +49,11 @@ const userSchema = new mongoose.Schema(
 
     cep: {
       type: String,
-      minlength: 9,
-      maxlength: 9,
-      match: /^[0-9]{5}-[0-9]{3}$/,
+      match: /^$|^\d{5}-\d{3}$/, // permite campo vazio ou em formato definido
     },
     address: {
       type: String,
-      match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+      match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
     number: {
@@ -75,7 +73,7 @@ const userSchema = new mongoose.Schema(
     },
     infoText: {
       type: String,
-      match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
+      match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
 
