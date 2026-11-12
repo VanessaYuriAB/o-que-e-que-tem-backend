@@ -99,7 +99,9 @@ const getUserMsgs = async (req, res) => {
   // O acesso ao recurso já foi autorizado pelo isOwnerOrAdminMiddleware
   const msgs = await Message.find({
     owner: req.params.userId,
-  });
+  })
+    .sort({ createdAt: -1 })
+    .lean();
 
   // Caso não existam mensagens, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
 

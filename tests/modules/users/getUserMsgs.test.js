@@ -119,6 +119,32 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   });
 
   // 3
+  it('Deve retornar array com objetos de mensagens ordenados do mais recente para o mais antigo', async () => {
+    // Seed (2ª mensagem)
+    await request.post('/messages').send({
+      userName: 'Vanessa Yuri A. Brito',
+      email: 'emaildavanessayuri@gmail.com',
+      whatsapp: '(11) 98950-2164',
+      message:
+        'Olá! Fazendo teste para busca de mensagens de usuário. 2ª mensagem.',
+      method: 'whatsapp',
+    });
+
+    // Teste
+    const res = await request
+      .get(`/users/${userId}/messages`)
+      .set('Cookie', cookies);
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(2);
+
+    expect(res.body[0].createdAt >= res.body[1].createdAt).toBe(true);
+  });
+
+  // 4
   it('Deve retornar array vazio quando não houver msg cadastrada', async () => {
     await MessageModel.deleteMany({});
 
@@ -136,7 +162,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   // celebrateForAccessToken
   // ------------------------
 
-  // 4
+  // 5
   it('Exige accessToken', async () => {
     const error = await request.get(`/users/${userId}/messages`);
 
@@ -148,7 +174,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     });
   });
 
-  // 5
+  // 6
   it('accessToken fora do padrão JWT', async () => {
     const error = await request
       .get(`/users/${userId}/messages`)
@@ -166,7 +192,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   // celebrateForGetUserMsgs (params)
   // ---------------------------------
 
-  // 6
+  // 7
   it('userId deve possuir formato válido de ObjectId', async () => {
     const error = await request
       .get('/users/id-invalido/messages')
@@ -184,7 +210,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   // accessMiddleware
   // -----------------
 
-  // 7
+  // 8
   it('accessToken expirado', async () => {
     const expiredToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -204,7 +230,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     );
   });
 
-  // 8
+  // 9
   it('accessToken assinado com chave inválida', async () => {
     const invalidToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -230,7 +256,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
   // isOwnerOrAdminMiddleware
   // -------------------------
 
-  // 9
+  // 10
   it('Bloqueia acesso a mensagens de outro usuário', async () => {
     // Seed (usuário B)
     // Cadastro + login + access e refresh Tokens + refreshUser (id) + cadastro de msg
@@ -277,7 +303,7 @@ describe('Get User Messages Flow > GET "/users/:userId/messages"', () => {
     );
   });
 
-  // 10
+  // 11
   it('admin pode acessar mensagens de qualquer usuário', async () => {
     // Seed (admin)
     // Cadastro + login + access e refresh Tokens + refreshUser (id)

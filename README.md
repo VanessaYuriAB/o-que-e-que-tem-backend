@@ -814,6 +814,8 @@ O fluxo de recuperação do histórico de pedidos avulsos do usuário
 - recuperação dos pedidos associados ao usuário autenticado
 - retorno de coleção (`array`) contendo os documentos encontrados
 - retorno dos campos esperados dos pedidos persistidos
+- ordenação dos pedidos do mais recente para o mais antigo (`createdAt`
+  decrescente)
 - retorno de coleção vazia quando não existem pedidos cadastrados
 - validação de presença do cookie `accessToken`
 - validação de formato inválido do JWT
@@ -832,6 +834,8 @@ O fluxo de recuperação do histórico de mensagens do usuário
 - recuperação das mensagens associadas ao usuário autenticado
 - retorno de coleção (`array`) contendo os documentos encontrados
 - retorno dos campos esperados das mensagens persistidas
+- ordenação das mensagens do mais recente para o mais antigo (`createdAt`
+  decrescente)
 - retorno de coleção vazia quando não existem mensagens cadastradas
 - validação de presença do cookie `accessToken`
 - validação de formato inválido do JWT
