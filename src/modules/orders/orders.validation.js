@@ -37,7 +37,7 @@ const celebrateForCreateOrder = celebrate({
 
     addressSnapshot: Joi.object({
       address: Joi.string()
-        .pattern(/^[^<>]+$/)
+        .pattern(/^[^<>]*$/)
         .required(),
 
       number: Joi.string()
@@ -59,7 +59,7 @@ const celebrateForCreateOrder = celebrate({
     }).when('method', {
       is: 'delivery',
       then: Joi.required(),
-    }), // endereço é opcional para drive-thru
+    }), // addressSnapshot não é enviado para drive-thru
 
     itemsSnapshot: Joi.array()
       .items(
@@ -78,7 +78,9 @@ const celebrateForCreateOrder = celebrate({
       .min(1)
       .required(),
 
-    obs: Joi.string().pattern(/^[^<>]+$/),
+    obs: Joi.string()
+      .allow('')
+      .pattern(/^[^<>]*$/),
   }),
 });
 

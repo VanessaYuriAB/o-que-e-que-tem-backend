@@ -81,6 +81,7 @@ const celebrateForCreateSubscriptionOrder = celebrate({
       .required(),
 
     day: Joi.date().required(),
+
     time: Joi.string()
       .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)
       .custom((value, helpers) => {
@@ -142,7 +143,7 @@ const celebrateForCreateSubscriptionOrder = celebrate({
     }).when('method', {
       is: 'delivery',
       then: Joi.required(),
-    }), // endereço é opcional para drive-thru
+    }), // addressSnapshot não é enviado para drive-thru
 
     itemsSnapshot: Joi.array()
       .items(
