@@ -10,6 +10,7 @@ import generateOrderNumber from '../../shared/utils/generateOrderNumber.js';
 // createSubscription > '/subscriptions'
 const createSubscription = async (req, res) => {
   // Quando chegar aqui, se o usuário não possuía cadastro, ele foi realizado antes do envio da criação da assinatura, pelo hook da feature no frontend - portanto haverá JWT com _id
+  // Também já foi realizada a atualização de dados cadastrais, portanto os dados retornados na requisição, estarão atualizados - são retornados os dados de usuário completos, conforme contrato do frontend, para atualização do estado global de 'user'
   const userId = req.user._id;
 
   const existingUserSubscription = await Subscription.findOne({

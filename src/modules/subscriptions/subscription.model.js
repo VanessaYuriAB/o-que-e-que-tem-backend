@@ -54,6 +54,11 @@ const subscriptionSchema = new mongoose.Schema(
       enum: PAYMENT_METHODS,
       required: true,
     },
+
+    endAt: {
+      type: Date,
+      required: true,
+    },
   },
   /* Opções */
   {
@@ -62,8 +67,11 @@ const subscriptionSchema = new mongoose.Schema(
   },
 );
 
+// --------------------------------------------------------
+// Middlewares de documento do Mongoose para pré-validação
+// --------------------------------------------------------
+
 // Validação de consistência entre propriedades do documento inteiro (daysOn e schedules)
-// Middleware de documento do Mongoose para pré-validação
 subscriptionSchema.pre('validate', function () {
   const daysOn = [...this.daysOn].sort();
 
@@ -76,6 +84,31 @@ subscriptionSchema.pre('validate', function () {
       'schedules',
       'Os dias selecionados e os horários informados devem corresponder exatamente.',
     );
+  }
+});
+
+// Calcula a data de término (endAt) automaticamente antes de salvar
+const MONTHS_MAP = {
+  two: 2,
+  four: 4,
+  six: 6,
+  twelve: 12,
+};
+
+subscriptionSchema.pre('validate', function () {
+  if (this.isNew && this.howLong) {
+    const monthsToAdd = MONTHS_MAP[this.howLong];
+
+    if (monthsToAdd === undefined) {
+      this.invalidate('howLong', 'O período selecionado não é válido.');
+      return;
+    }
+
+    const startDate = this.createdAt || new Date();
+    const endDate = new Date(startDate);
+
+    endDate.setMonth(endDate.getMonth() + monthsToAdd);
+    this.endAt = endDate;
   }
 });
 

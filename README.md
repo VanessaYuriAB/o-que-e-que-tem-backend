@@ -2909,6 +2909,9 @@ Deploy
   - Criar pedido de assinatura
   - Criar pedido avulso
 
+- Criar uma rotina automática no backend para mudar `status` de assinatura para
+  `false `quando a data `endAt` vencer
+
 - [ ] Documentação com Swagger/OpenAPI
 
 ---
