@@ -93,7 +93,44 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// Método estático do mongoose (model) > autenticação por credenciais, com msg de erro genérica, sem revelar sobre a existência do e-mail, para evitar enumeração de usuários > loginUser
+// -------------------------------------------------------
+// Middleware de documento do Mongoose para pré-validação
+// -------------------------------------------------------
+
+// Usuários assinantes 'delivery' devem ter endereço cadastrado
+userSchema.pre('validate', async function () {
+  if (!this.subscription) return;
+  if (!this.subscriptionDetails) return;
+
+  const Subscription = mongoose.model('Subscription');
+
+  const subscription = await Subscription.findById(this.subscriptionDetails);
+
+  if (subscription?.status && subscription?.method === 'delivery') {
+    const requiredFields = [
+      'address',
+      'number',
+      'complement',
+      'district',
+      'cep',
+    ];
+
+    for (const field of requiredFields) {
+      if (!this[field]?.trim()) {
+        this.invalidate(
+          field,
+          'Campo de endereço obrigatório para assinantes com entrega delivery.',
+        );
+      }
+    }
+  }
+});
+
+// ------------------------------------
+// Método estático do Mongoose (model)
+// ------------------------------------
+
+// Autenticação por credenciais, com msg de erro genérica, sem revelar sobre a existência do e-mail, para evitar enumeração de usuários > loginUser
 userSchema.statics.findUserByCredentials = async function findUserByCredentials(
   email,
   password,
