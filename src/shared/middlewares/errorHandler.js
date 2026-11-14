@@ -15,6 +15,14 @@ const errorHandler = (err, req, res, next) => {
 
   if (err instanceof mongoose.Error.ValidationError) {
     const schedulesError = err.errors?.schedules;
+    const howLongError = err.errors?.howLong;
+
+    const addressFieldsError =
+      err.errors?.address ||
+      err.errors?.number ||
+      err.errors?.complement ||
+      err.errors?.district ||
+      err.errors?.cep;
 
     if (
       schedulesError?.message ===
@@ -22,6 +30,21 @@ const errorHandler = (err, req, res, next) => {
     ) {
       return res.status(400).send({
         message: schedulesError.message,
+      });
+    }
+
+    if (howLongError?.message === 'O período selecionado não é válido.') {
+      return res.status(400).send({
+        message: howLongError.message,
+      });
+    }
+
+    if (
+      addressFieldsError?.message ===
+      'Campo de endereço obrigatório para assinantes com entrega delivery.'
+    ) {
+      return res.status(400).send({
+        message: addressFieldsError.message,
       });
     }
 
