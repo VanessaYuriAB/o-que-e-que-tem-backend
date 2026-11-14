@@ -5,7 +5,7 @@ import User from '../users/user.model.js';
 import NotFoundError from '../../shared/errors/NotFoundError.js';
 import SubscriptionOrder from './subscription-order.model.js';
 import generateOrderNumber from '../../shared/utils/generateOrderNumber.js';
-//import logger from '../../shared/logger/logger.js';
+import BadRequestError from '../../shared/errors/BadRequestError.js';
 
 // createSubscription > '/subscriptions'
 const createSubscription = async (req, res) => {
@@ -23,6 +23,33 @@ const createSubscription = async (req, res) => {
     );
   }
 
+  const user = await User.findById(userId).orFail(() => {
+    throw new NotFoundError(
+      `${errorsMessages.notFound} Erro ao criar assinatura: não existe usuário com o id solicitado (Recurso não encontrado).`,
+    );
+  });
+
+  // Se o método de entrega for delivery, todos os campos de endereço precisam estar preenchidos, em User
+  if (req.body.method === 'delivery') {
+    const addressFieldsData = [
+      user.cep,
+      user.address,
+      user.number,
+      user.complement,
+      user.district,
+    ];
+
+    const allAddressFilled = addressFieldsData.every((field) => {
+      return field !== '' && field !== undefined;
+    });
+
+    if (!allAddressFilled) {
+      throw new BadRequestError(
+        'Erro ao criar assinatura: assinantes com entrega delivery devem possuir endereço completo.',
+      );
+    }
+  }
+
   // Whilelist : defesa em profundidade
   const subscription = await Subscription.create({
     owner: userId,
@@ -33,22 +60,16 @@ const createSubscription = async (req, res) => {
     pay: req.body.pay,
   });
 
-  const updatedUserWithSubscription = await User.findByIdAndUpdate(
-    userId,
-    { subscription: true, subscriptionDetails: subscription._id },
-    {
-      returnDocument: 'after', // substitui o 'new: true,' atualmente
-      runValidators: true,
-    },
-  )
-    .populate('subscriptionDetails')
-    .orFail(() => {
-      throw new NotFoundError(
-        `${errorsMessages.notFound} Erro ao criar assinatura: não existe usuário com o id solicitado (Recurso não encontrado).`,
-      );
-    });
+  Object.assign(user, {
+    subscription: true,
+    subscriptionDetails: subscription._id,
+  });
 
-  return res.status(201).send(updatedUserWithSubscription);
+  await user.save();
+
+  await user.populate('subscriptionDetails');
+
+  return res.status(201).send(user);
 };
 
 // createSubscriptionOrder > '/subscriptions/orders'
