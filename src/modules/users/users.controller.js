@@ -4,7 +4,6 @@ import errorsMessages from '../../shared/utils/errorsMessages.js';
 import Subscription from '../subscriptions/subscription.model.js';
 import Message from '../contact/message.model.js';
 import Order from '../orders/order.model.js';
-//import logger from '../../shared/logger/logger.js';
 
 // updateUserProfile > '/users/me'
 const updateUserProfile = async (req, res) => {
@@ -29,16 +28,17 @@ const updateUserProfile = async (req, res) => {
     }
   });
 
-  const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-    returnDocument: 'after', // substitui o 'new: true,' atualmente
-    runValidators: true,
-  }).orFail(() => {
+  const user = await User.findById(userId).orFail(() => {
     throw new NotFoundError(
       `${errorsMessages.notFound} Erro ao atualizar perfil cadastral: não existe usuário com o id solicitado (Recurso não encontrado).`,
     );
   });
 
-  res.send(updatedUser);
+  Object.assign(user, updateData);
+
+  await user.save();
+
+  res.send(user);
 };
 
 // updateSubscriptionProfile > '/users/subscriptions/me'
