@@ -1,4 +1,5 @@
 const errorsMessages = {
+  badRequest: 'Requisição inválida.',
   config: 'Erro de configuração do ambiente.',
   conflict: 'Cadastro já existente.',
   forbidden: 'Não permitido.',
