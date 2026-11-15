@@ -372,9 +372,10 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Subscriptions
 
-| Método | Rota           | Descrição              |
-| ------ | -------------- | ---------------------- |
-| POST   | /subscriptions | Cadastro de assinatura |
+| Método | Rota                  | Descrição                       |
+| ------ | --------------------- | ------------------------------- |
+| POST   | /subscriptions        | Cadastro de assinatura          |
+| POST   | /subscriptions/orders | Criação de pedido de assinatura |
 
 - ### Menu
 
@@ -1143,6 +1144,7 @@ utilizadas para falhas de validação comuns.
 A aplicação utiliza, também, classes de erro customizadas para representar
 regras de negócio e respostas HTTP específicas:
 
+- `BadRequestError`
 - `ConfigError`
 - `ConflictError`
 - `ForbiddenError`
@@ -1292,6 +1294,39 @@ Essa estratégia facilita o desenvolvimento das funcionalidades relacionadas ao
 cardápio enquanto as operações administrativas de cadastro e gerenciamento de
 produtos ainda não estão disponíveis por meio da API ou da interface web.
 
+#### Middlewares de documento do Mongoose
+
+O projeto utiliza middlewares de documento (`pre('validate')`) para implementar
+regras de consistência do domínio.
+
+Como esses middlewares são executados apenas durante o ciclo de vida do
+documento, operações de atualização utilizam preferencialmente o fluxo:
+
+```js
+const doc = await Model.findById(id);
+
+Object.assign(doc, updateData);
+
+await doc.save();
+```
+
+ao invés de:
+
+```js
+Model.findByIdAndUpdate(...)
+```
+
+Essa abordagem garante a execução das validações declarativas do schema,
+middlewares de documento (`pre('validate')`) e demais regras de integridade
+implementadas nos modelos.
+
+Essa estratégia é utilizada, por exemplo, nos fluxos de:
+
+- atualização de perfil cadastral (`PATCH /users/me`);
+- criação de assinatura (`POST /subscriptions`), durante a atualização do
+  documento User;
+- atualização de perfil de assinatura (`PATCH /users/subscriptions/me`).
+
 ### ✔️ Validação em camadas
 
 A aplicação utiliza duas camadas complementares de validação:
@@ -1306,21 +1341,21 @@ Responsável por validar regras de domínio e persistência:
 - validações customizadas;
 - consistência entre propriedades do documento.
 
-Determinadas regras de consistência do domínio são implementadas diretamente nos
-modelos do `Mongoose`.
+Além das validações declarativas do schema (`required`, `enum`, `match`, etc.),
+a aplicação utiliza middlewares de documento do Mongoose (`pre('validate')`)
+para implementar regras de domínio que dependem da análise simultânea de
+múltiplas propriedades ou de documentos relacionados.
 
-Exemplo: o modelo de assinatura exige que todos os dias selecionados em `daysOn`
-e todos os horários preenchidos em `schedules` representem exatamente os mesmos
-dias.
+Exemplos atualmente implementados:
 
-Essa validação é executada através de um middleware de documento:
+- consistência entre os dias selecionados em `daysOn` e os horários cadastrados
+  em `schedules`;
+- cálculo automático da data de término da assinatura (`endAt`);
+- validação obrigatória dos campos de endereço para usuários que possuem
+  assinatura ativa com método de entrega `delivery`.
 
-```js
-schema.pre('validate');
-```
-
-permitindo validar a consistência entre propriedades do documento completo antes
-da persistência no banco de dados.
+Essas validações garantem a integridade dos dados independentemente do endpoint
+ou fluxo utilizado para alteração dos documentos.
 
 Fluxo simplificado:
 
@@ -1889,7 +1924,11 @@ Celebrate/Joi valida os dados enviados
 ↓
 Usuário é localizado através de req.user._id
 ↓
-MongoDB atualiza o documento
+Campos permitidos são atribuídos ao documento
+↓
+Validações de documento do Mongoose executam
+↓
+Documento é persistido através de save()
 ↓
 Documento atualizado é retornado
 ```
@@ -1928,13 +1967,13 @@ Celebrate/Joi valida os dados enviados
 ↓
 Controller localiza a assinatura do usuário autenticado
 ↓
-Assinatura é atualizada
+Campos permitidos são atualizados no documento
 ↓
-Validação de documento do Mongoose executa
+Validações de documento do Mongoose executam
 ↓
-Documento atualizado é persistido
+Documento é persistido através de save()
 ↓
-Usuário é recuperado com: populate('subscriptionDetails')
+Usuário é recuperado com populate('subscriptionDetails')
 ↓
 Documento atualizado é retornado
 ```
@@ -2107,15 +2146,17 @@ validateContentType valida o Content-Type
 ↓
 Celebrate/Joi valida os dados enviados
 ↓
-Controller verifica se o usuário já possui assinatura
+Controller valida os dados de endereço do usuário quando o método de entrega é delivery
 ↓
-MongoDB cria a assinatura
+Mongoose executa as validações da assinatura
 ↓
-Documento do usuário é atualizado com:
-  - subscription: true
-  - subscriptionDetails
+Middleware pre('validate') calcula automaticamente o campo endAt
 ↓
-populate('subscriptionDetails')
+Assinatura é persistida
+↓
+Usuário é atualizado através de findById() + save()
+↓
+Validações de documento do User executam
 ↓
 Documento atualizado é retornado
 ```
@@ -2124,21 +2165,15 @@ A funcionalidade utiliza uma `whitelist` explícita para evitar a persistência 
 campos não previstos pela aplicação.
 
 Além das validações de entrada realizadas pelo Celebrate/Joi, a entidade
-Subscription implementa regras de consistência de domínio através do `Mongoose`.
+Subscription implementa regras de consistência de domínio através do `Mongoose`:
 
-Exemplo:
+- consistência entre os dias e horários da assinatura,
+- cálculo automático da data de término (`endAt`), a partir do período
+  selecionado (`howLong`).
 
-```text
-Os dias selecionados e os horários informados devem corresponder exatamente.
-```
-
-Essa validação é executada através do middleware de documento:
-
-```js
-schema.pre('validate');
-```
-
-garantindo a consistência dos dados antes da persistência no banco de dados.
+Essa regra é implementada através de middleware de documento
+`(pre('validate'))`, garantindo que os dados sejam validados antes da
+persistência no banco de dados.
 
 A criação de assinatura também impede que um mesmo usuário possua múltiplas
 assinaturas, retornando:
@@ -2148,6 +2183,61 @@ assinaturas, retornando:
 ```
 
 quando uma assinatura já existe para o proprietário autenticado.
+
+#### Cadastro de pedido de assinatura
+
+A aplicação disponibiliza um endpoint autenticado para criação de pedidos
+associados a uma assinatura:
+
+```text
+POST /subscriptions/orders
+```
+
+A rota utiliza autenticação baseada em `accessToken`, validação de entrada
+através do Celebrate/Joi e validações de persistência implementadas no
+`Mongoose`.
+
+Fluxo:
+
+```text
+POST /subscriptions/orders
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+validateContentType valida o Content-Type
+↓
+Celebrate/Joi valida os dados da requisição
+↓
+Backend gera automaticamente o número do pedido
+↓
+MongoDB cria o pedido de assinatura
+↓
+HTTP 201 Created
+```
+
+A funcionalidade é destinada exclusivamente a usuários autenticados e associa
+automaticamente o pedido ao proprietário identificado através do JWT.
+
+Os dados enviados são persistidos como snapshots (`customerSnapshot`,
+`addressSnapshot` e `itemsSnapshot`), preservando o estado do pedido no momento
+da confirmação, independentemente de alterações futuras nos cadastros
+relacionados.
+
+Pedidos com método de entrega `delivery` exigem o preenchimento dos dados de
+endereço por meio do objeto `addressSnapshot`.
+
+Pedidos configurados para `drive-thru` não enviam nem persistem informações de
+endereço.
+
+O número do pedido é gerado automaticamente pelo backend através do utilitário
+`generateOrderNumber`, utilizando o prefixo reservado para pedidos de
+assinatura.
 
 ### ✔️ Cardápio
 
@@ -2494,6 +2584,7 @@ apenas na numeração do pedido.
 │     │     └── products.seed.js
 │     ├── shared/
 │     │     ├── errors/
+│     │     │     ├── BadRequestError.js
 │     │     │     ├── ConfigError.js
 │     │     │     ├── ConflictError.js
 │     │     │     ├── ForbiddenError.js
@@ -2788,7 +2879,7 @@ Deploy
 #### Assinaturas
 
 - [x] Criar assinatura
-- [ ] Criar pedido de assinatura
+- [x] Criar pedido de assinatura
 - [ ] Localizar pedido de assinatura
 
 #### Cardápio
