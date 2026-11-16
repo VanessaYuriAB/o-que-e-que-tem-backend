@@ -120,6 +120,7 @@ userSchema.pre('validate', async function () {
         this.invalidate(
           field,
           'Campo de endereço obrigatório para assinantes com entrega delivery.',
+          // Msg de erro é utilizada na configuração do middleware de tratamento centralizado
         );
       }
     }

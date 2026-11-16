@@ -83,6 +83,7 @@ subscriptionSchema.pre('validate', function () {
     this.invalidate(
       'schedules',
       'Os dias selecionados e os horários informados devem corresponder exatamente.',
+      // Msg de erro é utilizada na configuração do middleware de tratamento centralizado
     );
   }
 });
@@ -100,7 +101,11 @@ subscriptionSchema.pre('validate', function () {
     const monthsToAdd = MONTHS_MAP[this.howLong];
 
     if (monthsToAdd === undefined) {
-      this.invalidate('howLong', 'O período selecionado não é válido.');
+      this.invalidate(
+        'howLong',
+        'O período selecionado não é válido.',
+        // Msg de erro é utilizada na configuração do middleware de tratamento centralizado
+      );
       return;
     }
 
