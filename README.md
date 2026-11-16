@@ -767,6 +767,9 @@ integração que validam:
   `subscriptionDetails`)
 - retorno do documento atualizado com `populate('subscriptionDetails')`
 - ausência de exposição de campos sensíveis (`password`)
+- criação de assinatura delivery para usuários com endereço completo
+- aceitação de assinatura drive-thru independentemente do preenchimento dos
+  campos de endereço
 - validação de presença do cookie `accessToken`
 - validação de formato inválido do JWT
 - validação de `accessToken` expirado
@@ -783,6 +786,7 @@ integração que validam:
 - regra de consistência entre `daysOn` e `schedules` implementada através de
   middleware de documento do `Mongoose` (`pre('validate')`)
 - prevenção de assinaturas duplicadas por proprietário (`409 Conflict`)
+- validação da obrigatoriedade de endereço para assinaturas delivery
 
 O fluxo de atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
 possui testes de integração que validam:

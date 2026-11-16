@@ -45,7 +45,7 @@ const createSubscription = async (req, res) => {
 
     if (!allAddressFilled) {
       throw new BadRequestError(
-        'Erro ao criar assinatura: assinantes com entrega delivery devem possuir endereço completo.',
+        `${errorsMessages.badRequest} Erro ao criar assinatura: assinantes com entrega delivery devem possuir endereço completo.`,
       );
     }
   }
