@@ -20,7 +20,6 @@ const subscriptionOrderSchema = new mongoose.Schema(
       required: true,
       match: /^S\d{12}$/,
       unique: true,
-      index: true,
       trim: true,
     },
 

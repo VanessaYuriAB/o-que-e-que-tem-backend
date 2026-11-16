@@ -481,6 +481,7 @@ Além do gerenciamento de perfil, a suíte contempla testes de integração da
 funcionalidade de assinaturas:
 
 - criação de assinatura (`POST /subscriptions`)
+- criação de pedido de assinatura (`POST /subscriptions/orders`)
 
 Além das funcionalidades de assinatura, a suíte contempla testes de integração
 das funcionalidades de cardápio, contato e mercados parceiros:
@@ -929,6 +930,31 @@ testes de integração que validam:
 - validação do formato do e-mail
 - bloqueio de parâmetros de consulta não permitidos
 - integração entre Express, Celebrate/Joi, controller e MongoDB
+
+O fluxo de criação de pedidos de assinatura (`POST /subscriptions/orders`)
+possui testes de integração que validam:
+
+- criação de pedido com sucesso para usuário autenticado
+- persistência dos dados no MongoDB
+- associação automática do pedido ao proprietário autenticado (`owner`)
+- geração automática do número do pedido
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- validação do cabeçalho `Content-Type`
+- validação dos campos obrigatórios (`required`)
+- validação dos valores permitidos por enum (`enum`)
+- validação de formatos através de expressão regular (`match`)
+- validação da janela permitida de entrega (`10:45` até `19:45`)
+- validação do formato da data de entrega
+- validação do formato de e-mail através do Celebrate/Joi
+- validação de array não vazio para `itemsSnapshot`
+- validação condicional de endereço conforme o método de entrega
+- suporte a pedidos `drive-thru` com ou sem endereço informado
+- rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
+- aceitação de campo opcional `obs` vazio
+- integração entre Express, rota, middleware de validação, controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -2650,7 +2676,8 @@ apenas na numeração do pedido.
 │     │     │     ├── partners.service.test.js
 │     │     │     └── registerPartner.test.js
 │     │     ├── subscriptions/
-│     │     │     └── createSubscription.test.js
+│     │     │     ├── createSubscription.test.js
+│     │     │     └── createSubscriptionOrder.test.js
 │     │     └── users/
 │     │           ├── getUserMsgs.test.js
 │     │           ├── getUserOrders.test.js
