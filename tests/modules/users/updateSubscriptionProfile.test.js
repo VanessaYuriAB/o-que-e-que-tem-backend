@@ -59,11 +59,6 @@ describe('Update Subscription Profile Flow > PATCH "/users/subscriptions/me"', (
       .post('/subscriptions')
       .set('Cookie', cookies)
       .send({
-        userName: 'Vanessa Yuri A. Brito',
-        email: 'emaildavanessayuri@gmail.com',
-        confirmEmail: 'emaildavanessayuri@gmail.com',
-        tel: '(11) 98950-2164',
-
         howLong: 'twelve',
         daysOn: ['seg', 'qua', 'sex'],
         schedules: {
@@ -72,7 +67,6 @@ describe('Update Subscription Profile Flow > PATCH "/users/subscriptions/me"', (
           sex: '18:20',
         },
         method: 'drive-thru',
-
         pay: 'credito',
       });
   });
@@ -113,8 +107,14 @@ describe('Update Subscription Profile Flow > PATCH "/users/subscriptions/me"', (
         schedules: updateSubscriptionPayload.schedules,
         method: updateSubscriptionPayload.method,
         pay: 'credito',
+
+        endAt: expect.any(String),
       },
     });
+
+    expect(new Date(res.body.subscriptionDetails.endAt).toString()).not.toBe(
+      'Invalid Date',
+    );
 
     // Persistência
     const user = await UserModel.findOne({
@@ -139,7 +139,14 @@ describe('Update Subscription Profile Flow > PATCH "/users/subscriptions/me"', (
     expect(Object.fromEntries(updatedSubscription.schedules)).toEqual(
       updateSubscriptionPayload.schedules,
     );
+
     expect(updatedSubscription.method).toBe(updateSubscriptionPayload.method);
+
+    expect(updatedSubscription.endAt).toBeDefined();
+
+    expect(new Date(updatedSubscription.endAt).toString()).not.toBe(
+      'Invalid Date',
+    );
 
     expect(updatedSubscription.createdAt).toBeDefined();
     expect(updatedSubscription.updatedAt).toBeDefined();

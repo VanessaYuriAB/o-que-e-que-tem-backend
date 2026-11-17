@@ -810,6 +810,7 @@ possui testes de integração que validam:
 - atualização da configuração da assinatura
 - persistência dos dados atualizados no MongoDB
 - retorno do documento atualizado com `populate('subscriptionDetails')`
+- validação do cálculo de `endAt`
 - pausa de assinatura através do campo `status`
 - persistência da alteração de status no MongoDB
 - validação de presença do cookie `accessToken`
