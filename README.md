@@ -762,9 +762,16 @@ integração que validam:
 - validação de formato inválido do JWT
 - validação de `accessToken` expirado
 - validação de `accessToken` assinado com chave inválida
-- validação do cabeçalho `Content-Type`
-- validação dos campos recebidos através do Celebrate/Joi
 - localização do usuário autenticado através do identificador presente no JWT
+- validação do cabeçalho `Content-Type`
+- validação de payload vazio (`min(1)`)
+- validação dos campos recebidos através do Celebrate/Joi (`pattern`, `email`)
+- atualização de campos opcionais com string vazia para os campos de endereço
+  `address`, `number`, `complement`, `district`, `cep` e `infoText`
+  (`allow('')`)
+- obrigatoriedade condicional dos dados de endereço para usuários com assinatura
+  do tipo `delivery`
+- integração entre atualização cadastral e regras de assinatura
 - retorno de `404 Not Found` para usuário inexistente
 
 O fluxo de criação de assinatura (`POST /subscriptions`) possui testes de

@@ -195,7 +195,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   // -----------------------
 
   // 7
-  it('userName inválido', async () => {
+  it('userName inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -213,7 +213,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 8
-  it('email inválido', async () => {
+  it('email inválido (email())', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -232,7 +232,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 9
-  it('tel inválido', async () => {
+  it('tel inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -250,7 +250,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 10
-  it('address inválido', async () => {
+  it('address inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -268,7 +268,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 11
-  it('number inválido', async () => {
+  it('number inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -286,7 +286,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 12
-  it('complement inválido', async () => {
+  it('complement inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -304,7 +304,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 13
-  it('district inválido', async () => {
+  it('district inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -322,7 +322,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 14
-  it('cep inválido', async () => {
+  it('cep inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -340,7 +340,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 15
-  it('infoText inválido', async () => {
+  it('infoText inválido (pattern)', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -358,7 +358,7 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
   });
 
   // 16
-  it('Body ausente', async () => {
+  it('Body ausente (min(1))', async () => {
     const error = await request
       .patch('/users/me')
       .set('Cookie', cookies)
@@ -372,12 +372,165 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
     });
   });
 
+  // -----------------------------------------------------------------
+  // celebrateForUpdateUser (allow(''), exceto assinantes 'delivery')
+  // -----------------------------------------------------------------
+
+  // 17
+  it('Permite address vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        address: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.address).toBe('');
+  });
+
+  // 18
+  it('Permite number vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        number: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.number).toBe('');
+  });
+
+  // 19
+  it('Permite complement vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        complement: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.complement).toBe('');
+  });
+
+  // 20
+  it('Permite district vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        district: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.district).toBe('');
+  });
+
+  // 21
+  it('Permite cep vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        cep: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.cep).toBe('');
+  });
+
+  // 22
+  it('Permite infoText vazio', async () => {
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        infoText: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.infoText).toBe('');
+  });
+
+  // ------------------------------------------------------
+  // userSchema: pre('validate') (middleware de documento)
+  // ------------------------------------------------------
+
+  // 23
+  it('Usuários assinantes "delivery" devem ter endereço cadastrado', async () => {
+    // Seed (atualização de perfil cadastral com endereço)
+    const profile = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send(userPayload);
+
+    expect(profile.statusCode).toBe(200);
+
+    // Seed (assinatura)
+    const subscription = await request
+      .post('/subscriptions')
+      .set('Cookie', cookies)
+      .send({
+        howLong: 'twelve',
+        daysOn: ['seg', 'qua', 'sex'],
+        schedules: {
+          seg: '12:45',
+          qua: '12:45',
+          sex: '18:20',
+        },
+        method: 'delivery',
+        pay: 'credito',
+      });
+
+    expect(subscription.statusCode).toBe(201);
+
+    // Teste
+    const error = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        address: '',
+        number: '',
+        complement: '',
+        district: '',
+        cep: '',
+      });
+
+    expect(error.type).toMatch(/json/);
+    expect(error.statusCode).toBe(400);
+
+    expect(error.body.message).toContain(
+      'Campo de endereço obrigatório para assinantes com entrega delivery.',
+    );
+  });
+
   // --------------------
   // NotFoundError (404)
   // --------------------
 
-  // 17
-  it('Atualização de perfil de usuário mal sucedida', async () => {
+  // 24
+  it('Atualização de perfil de usuário mal sucedida (404)', async () => {
     // Gera token válido com _id inexistente
     const fakeToken = jwt.sign(
       {
@@ -395,6 +548,8 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
       .set('Cookie', `accessToken=${fakeToken}`)
       .send({
         userName: 'Sem ID cadastrado',
+        email: 'semidcadastrado@email.com',
+        tel: '(11) 98765-4321',
       });
 
     expect(error.type).toMatch(/json/);
