@@ -543,23 +543,32 @@ O `limiter` possui teste de integração que valida:
 
 O `User Model` possui testes unitários para validação de:
 
+- validação de documento válido
 - campos obrigatórios (`required`)
 - expressões regulares (`match`)
-- validação customizada (`validator.isEmail()`)
-- valor padrão (`default`)
 - restrições de domínio definidas no schema (`minlength`, `maxlength`)
+- validação customizada (`validator.isEmail()`)
 - valores permitidos por `enum`
-- validação de documento válido
+- valor padrão (`default`)
+- pré-validação dos dados de endereço para assinantes `delivery`
+- validação do método estático `findUserByCredentials`:
+  - autenticação com credenciais válidas
+  - rejeição de e-mail inexistente
+  - rejeição de senha incorreta
+  - proteção contra enumeração de usuários através de mensagens de erro
+    idênticas para falhas de autenticação, lançando `UnauthorizedError`
 
 O `Subscription Model` possui testes unitários para validação de:
 
+- validação de documento válido
 - campos obrigatórios (`required`)
 - valores permitidos por `enum`
-- consistência entre dias selecionados (`daysOn`) e horários cadastrados
-  (`schedules`)
-- regra de consistência do domínio implementada através do
-  `middleware de documento` para validação do `Mongoose` (`pre('validate')`)
-- validação de documento válido
+- regras de consistência do domínio implementada através do
+  `middleware de documento` para validação do `Mongoose` (`pre('validate')`):
+  - consistência entre dias selecionados (`daysOn`) e horários cadastrados
+    (`schedules`)
+  - cálculo da data `endAt`
+  - obrigatoriedade de endereço para assinaturas `delivery`
 
 O `Product Model` possui testes unitários para validação de:
 

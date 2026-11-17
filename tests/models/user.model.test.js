@@ -1,4 +1,8 @@
 import User from '../../src/modules/users/user.model.js';
+import Subscription from '../../src/modules/subscriptions/subscription.model.js';
+import bcrypt from 'bcryptjs';
+import UnauthorizedError from '../../src/shared/errors/UnauthorizedError.js';
+import errorsMessages from '../../src/shared/utils/errorsMessages.js';
 
 // Testes unitários de User
 
@@ -268,5 +272,120 @@ describe('User Model', () => {
     });
 
     expect(user.subscription).toBe(false);
+  });
+
+  // --------------------------------------------
+  // Middleware de documento (`pre('validate')`)
+  // --------------------------------------------
+
+  // 16
+  it('obrigatoriedade condicional dos dados de endereço, para usuários com assinatura "delivery"', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+    });
+
+    const subscription = new Subscription({
+      owner: user._id,
+      howLong: 'two',
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '18:50',
+        qua: '19:20',
+      },
+      method: 'delivery',
+      pay: 'pix',
+    });
+
+    await subscription.save();
+
+    user.subscription = true;
+    user.subscriptionDetails = subscription._id;
+
+    await expect(user.validate()).rejects.toMatchObject({
+      errors: {
+        address: expect.objectContaining({
+          message:
+            'Campo de endereço obrigatório para assinantes com entrega delivery.',
+        }),
+
+        number: expect.any(Object),
+        complement: expect.any(Object),
+        district: expect.any(Object),
+        cep: expect.any(Object),
+      },
+    });
+  });
+
+  // ----------------------------------------------------
+  // userSchema: findUserByCredentials (método estático)
+  // ----------------------------------------------------
+
+  // 17
+  it('Deve autenticar usuário com credenciais válidas', async () => {
+    const hash = await bcrypt.hash('abc12345', 10);
+
+    await User.create({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: hash,
+      role: 'user',
+    });
+
+    const user = await User.findUserByCredentials(
+      'vanessa@email.com',
+      'abc12345',
+    );
+
+    expect(user.email).toBe('vanessa@email.com');
+  });
+
+  // 18
+  it('Deve rejeitar e-mail inexistente', async () => {
+    await expect(
+      User.findUserByCredentials('naoexiste@email.com', 'abc12345'),
+    ).rejects.toThrow(UnauthorizedError);
+  });
+
+  // 19
+  it('Deve rejeitar senha incorreta', async () => {
+    const hash = await bcrypt.hash('abc12345', 10);
+
+    await User.create({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: hash,
+      role: 'user',
+    });
+
+    await expect(
+      User.findUserByCredentials('vanessa@email.com', 'senhaErrada'),
+    ).rejects.toThrow(UnauthorizedError);
+  });
+
+  // 20
+  it('Garante proteção contra enumeração, tanto "e-mail inexistente" quanto "senha incorreta" retornam exatamente a mesma resposta', async () => {
+    const hash = await bcrypt.hash('abc12345', 10);
+
+    await User.create({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: hash,
+      role: 'user',
+    });
+
+    await expect(
+      User.findUserByCredentials('naoexiste@email.com', 'abc12345'),
+    ).rejects.toThrow(`${errorsMessages.unauthorized} Login não autenticado.`);
+
+    await expect(
+      User.findUserByCredentials('vanessa@email.com', 'senhaErrada'),
+    ).rejects.toThrow(`${errorsMessages.unauthorized} Login não autenticado.`);
   });
 });
