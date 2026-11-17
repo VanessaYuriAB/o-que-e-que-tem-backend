@@ -550,6 +550,7 @@ O `User Model` possui testes unitários para validação de:
 - validação customizada (`validator.isEmail()`)
 - valores permitidos por `enum`
 - valor padrão (`default`)
+- permissão para campos de endereço vazios
 - pré-validação dos dados de endereço para assinantes `delivery`
 - validação do método estático `findUserByCredentials`:
   - autenticação com credenciais válidas
@@ -586,6 +587,7 @@ O `Partner Model` possui testes unitários para validação de:
 - restrição de domínio definida no schema (`minlength`)
 - expressões regulares (`match`)
 - transformação automática de strings (`trim`)
+- permissão para campos de endereço vazios (`allow('')`)
 - validação de documento válido
 
 O `Order Model` possui testes unitários para validação de:
@@ -601,7 +603,7 @@ O `Order Model` possui testes unitários para validação de:
 - validação de array não vazio para os itens do pedido
 - validação do formato do número do pedido através de expressão regular
   (`match`)
-- validação de documento válido, inclusive quando owner é `null`
+- validação de documento válido, inclusive quando owner é `null` e obs vazio
 
 O `SubscriptionOrder Model` possui testes unitários para validação de:
 
@@ -619,7 +621,7 @@ O `SubscriptionOrder Model` possui testes unitários para validação de:
   (`match`)
 - validação da janela permitida de entrega (`10:45` até `19:45`) através de
   regra customizada do schema
-- validação de documento válido
+- validação de documento válido, inclusive com campo obs vazio
 
 O `Message Model` possui testes unitários para validação de:
 
@@ -904,7 +906,7 @@ que validam:
 O fluxo de inscrição de parceria (`POST /partners`) possui testes de integração
 que validam:
 
-- cadastro realizado com sucesso
+- cadastro realizado com sucesso, inclusive com campos de endereço vazios
 - persistência dos dados do parceiro no MongoDB
 - acionamento do serviço de notificação administrativa por e-mail através de
   mock do `email.service`
@@ -926,6 +928,7 @@ integração que validam:
 - criação de pedido com sucesso para usuário previamente cadastrado
 - associação automática do pedido ao proprietário (`owner`)
 - criação de pedido com sucesso para visitante
+- criação de pedido com sucesso quando capmos obs é vazio
 - persistência do pedido sem proprietário associado (`owner: null`)
 - geração automática do número do pedido
 - cálculo automático do valor total do pedido no backend
@@ -955,7 +958,8 @@ testes de integração que validam:
 O fluxo de criação de pedidos de assinatura (`POST /subscriptions/orders`)
 possui testes de integração que validam:
 
-- criação de pedido com sucesso para usuário autenticado
+- criação de pedido com sucesso para usuário autenticado, inclusive com campo
+  obs vazio
 - persistência dos dados no MongoDB
 - associação automática do pedido ao proprietário autenticado (`owner`)
 - geração automática do número do pedido
