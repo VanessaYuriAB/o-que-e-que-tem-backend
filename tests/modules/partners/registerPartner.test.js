@@ -47,12 +47,12 @@ describe('Register Partner Flow > POST "/partners"', () => {
     district: 'Bairro do mercado',
   };
 
-  // -------
-  // Válido
-  // -------
+  // --------
+  // Válidos
+  // --------
 
   // 1
-  it('Cadastro de parceria bem sucedido + persistência + acionamento do serviço de notificação', async () => {
+  it('Cadastro de parceria bem sucedido (com campos de endereço) + persistência + acionamento do serviço de notificação', async () => {
     // Cadastro
     const res = await request.post('/partners').send(partnerPayload);
 
@@ -116,11 +116,83 @@ describe('Register Partner Flow > POST "/partners"', () => {
     expect(partner.updatedAt).toBeDefined();
   });
 
+  // 2
+  it('Cadastro de parceria bem sucedido (campos de endereço vazios) + persistência + acionamento do serviço de notificação', async () => {
+    // Cadastro
+    const res = await request.post('/partners').send({
+      ...partnerPayload,
+      address: '',
+      numberAddress: '',
+      complementAddress: '',
+      district: '',
+    });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(201);
+
+    expect(res.body).toMatchObject({
+      userName: partnerPayload.userName,
+      email: partnerPayload.email,
+      tel: partnerPayload.tel,
+
+      contactMethod: partnerPayload.contactMethod,
+
+      companyName: partnerPayload.companyName,
+      cnpj: partnerPayload.cnpj,
+      cep: partnerPayload.cep,
+
+      address: '',
+      numberAddress: '',
+      complementAddress: '',
+      district: '',
+
+      _id: expect.stringMatching(/^[0-9a-fA-F]{24}$/), // formato de ObjectId do Mongo DB
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
+
+    // Notificação
+    expect(sendEmail).toHaveBeenCalledTimes(2); // acumuilativo, contagem a partir do teste de sucesso com endereço
+
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.any(String), // emailTo
+      'Nova inscrição de parceria recebida', // emailSubject
+      expect.any(String), // emailHtml
+    );
+
+    // Persistência
+    const partner = await PartnerModel.findOne({
+      cnpj: partnerPayload.cnpj,
+    });
+
+    expect(partner).not.toBeNull();
+
+    expect(partner.userName).toBe(partnerPayload.userName);
+    expect(partner.email).toBe(partnerPayload.email);
+    expect(partner.tel).toBe(partnerPayload.tel);
+
+    expect(partner.contactMethod).toBe(partnerPayload.contactMethod);
+
+    expect(partner.companyName).toBe(partnerPayload.companyName);
+    expect(partner.cnpj).toBe(partnerPayload.cnpj);
+
+    expect(partner.cep).toBe(partnerPayload.cep);
+
+    expect(partner.address).toBe('');
+    expect(partner.numberAddress).toBe('');
+    expect(partner.complementAddress).toBe('');
+    expect(partner.district).toBe('');
+
+    expect(partner._id).toBeDefined();
+    expect(partner.createdAt).toBeDefined();
+    expect(partner.updatedAt).toBeDefined();
+  });
+
   // --------------------
   // validateContentType
   // --------------------
 
-  // 2
+  // 3
   it('Content-Type inválido', async () => {
     const error = await request
       .post('/partners')
@@ -141,7 +213,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (required)
   // ---------------------------------------
 
-  // 3
+  // 4
   it('Exige userName', async () => {
     const payload = { ...partnerPayload };
 
@@ -157,7 +229,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 4
+  // 5
   it('Exige email', async () => {
     const payload = { ...partnerPayload };
 
@@ -173,7 +245,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 5
+  // 6
   it('Exige tel', async () => {
     const payload = { ...partnerPayload };
 
@@ -189,7 +261,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 6
+  // 7
   it('Exige companyName', async () => {
     const payload = { ...partnerPayload };
 
@@ -205,7 +277,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 7
+  // 8
   it('Exige cnpj', async () => {
     const payload = { ...partnerPayload };
 
@@ -221,7 +293,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 8
+  // 9
   it('Exige cep', async () => {
     const payload = { ...partnerPayload };
 
@@ -241,7 +313,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (userName)
   // ---------------------------------------
 
-  // 9
+  // 10
   it('userName deve conter, no mínimo, 2 caracteres', async () => {
     const payload = { ...partnerPayload, userName: 'N' };
 
@@ -255,7 +327,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 10
+  // 11
   it('userName deve conter, no máximo, 40 caracteres', async () => {
     const payload = { ...partnerPayload, userName: 'N'.repeat(41) };
 
@@ -269,7 +341,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 11
+  // 12
   it('userName deve rejeitar os caracteres HTML básicos (< e >)', async () => {
     const payload = { ...partnerPayload, userName: '<Nome do usuário>' };
 
@@ -287,7 +359,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (email)
   // ------------------------------------
 
-  // 12
+  // 13
   it('email deve deve ser um e-mail válido', async () => {
     const payload = { ...partnerPayload, email: 'email-invalido' };
 
@@ -305,7 +377,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (tel)
   // ----------------------------------
 
-  // 13
+  // 14
   it('tel deve seguir estrutura padronizada: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX', async () => {
     const payload = { ...partnerPayload, tel: '11 987654321' };
 
@@ -319,7 +391,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 14
+  // 15
   it('tel deve conter, no mínimo, 14 caracteres', async () => {
     const payload = { ...partnerPayload, tel: '9'.repeat(13) };
 
@@ -333,7 +405,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 15
+  // 16
   it('tel deve conter, no máximo, 15 caracteres', async () => {
     const payload = { ...partnerPayload, tel: '9'.repeat(16) };
 
@@ -351,7 +423,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (contactMethod)
   // --------------------------------------------
 
-  // 16
+  // 17
   it('contactMethod deve rejeitar valores não definidos', async () => {
     const payload = {
       ...partnerPayload,
@@ -372,7 +444,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (companyName)
   // ------------------------------------------
 
-  // 17
+  // 18
   it('companyName deve rejeitar os caracteres HTML básicos (< e >)', async () => {
     const payload = {
       ...partnerPayload,
@@ -393,7 +465,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (cnpj)
   // -----------------------------------
 
-  // 18
+  // 19
   it('cnpj deve conter, no mínimo, 14 caracteres', async () => {
     const payload = {
       ...partnerPayload,
@@ -410,7 +482,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 19
+  // 20
   it('cnpj deve conter, no máximo, 18 caracteres', async () => {
     const payload = {
       ...partnerPayload,
@@ -427,7 +499,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 20
+  // 21
   it('cnpj deve seguir um dos formatos aceitos, AA.AAA.AAA/AAAA-XX ou AAAAAAAAAAAAXX', async () => {
     const payload = {
       ...partnerPayload,
@@ -448,7 +520,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (cep)
   // -----------------------------------
 
-  // 21
+  // 22
   it('cep deve conter, no mínimo, 8 caracteres', async () => {
     const payload = {
       ...partnerPayload,
@@ -465,7 +537,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 22
+  // 23
   it('cep deve conter, no máximo, 9 caracteres', async () => {
     const payload = {
       ...partnerPayload,
@@ -482,7 +554,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
     });
   });
 
-  // 23
+  // 24
   it('cep deve seguir os formatos XXXXXXXX ou XXXXX-XXX', async () => {
     const payload = {
       ...partnerPayload,
@@ -503,7 +575,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (address)
   // --------------------------------------
 
-  // 24
+  // 25
   it('address deve rejeitar os caracteres HTML básicos (< e >)', async () => {
     const payload = {
       ...partnerPayload,
@@ -524,7 +596,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (numberAddress)
   // --------------------------------------------
 
-  // 25
+  // 26
   it('numberAddress deve aceitar apenas letras, números e espaços', async () => {
     const payload = {
       ...partnerPayload,
@@ -545,7 +617,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (complementAddress)
   // ------------------------------------------------
 
-  // 26
+  // 27
   it('complementAddress deve aceitar apenas letras, números, espaços, pontos e traços', async () => {
     const payload = {
       ...partnerPayload,
@@ -566,7 +638,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // celebrateForRegisterPartner (district)
   // ---------------------------------------
 
-  // 27
+  // 28
   it('district deve aceitar apenas letras, números e espaços', async () => {
     const payload = {
       ...partnerPayload,
@@ -587,7 +659,7 @@ describe('Register Partner Flow > POST "/partners"', () => {
   // ConflictError (409)
   // --------------------
 
-  // 28
+  // 29
   it('cnpj duplicado', async () => {
     // Cria seed (201)
     const res = await request.post('/partners').send(partnerPayload);

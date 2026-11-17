@@ -221,11 +221,89 @@ describe('Create Order Flow > POST "/orders"', () => {
     expect(order.amount).toBe(35);
   });
 
+  // 3
+  it('Cadastro com sucesso + persistência (com campo "obs" vazio)', async () => {
+    // Teste
+    const res = await request
+      .post('/orders')
+      .send({ ...orderPayload, obs: '' });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(201);
+
+    expect(res.body.owner).toBeNull();
+
+    expect(res.body).toMatchObject(
+      expect.objectContaining({
+        meal: orderPayload.meal,
+        method: orderPayload.method,
+        payment: orderPayload.payment,
+
+        customerSnapshot: expect.objectContaining({
+          userName: orderPayload.customerSnapshot.userName,
+          email: orderPayload.customerSnapshot.email,
+          tel: orderPayload.customerSnapshot.tel,
+        }),
+
+        addressSnapshot: expect.objectContaining({
+          address: orderPayload.addressSnapshot.address,
+          number: orderPayload.addressSnapshot.number,
+          complement: orderPayload.addressSnapshot.complement,
+          district: orderPayload.addressSnapshot.district,
+          cep: orderPayload.addressSnapshot.cep,
+        }),
+
+        itemsSnapshot: expect.arrayContaining([
+          {
+            _id: orderPayload.itemsSnapshot[0]._id,
+            productName: orderPayload.itemsSnapshot[0].productName,
+            category: orderPayload.itemsSnapshot[0].category,
+            partnerName: orderPayload.itemsSnapshot[0].partnerName,
+          },
+          {
+            _id: orderPayload.itemsSnapshot[1]._id,
+            productName: orderPayload.itemsSnapshot[1].productName,
+            category: orderPayload.itemsSnapshot[1].category,
+            partnerName: orderPayload.itemsSnapshot[1].partnerName,
+          },
+        ]),
+
+        obs: '',
+      }),
+    );
+
+    // Persistência
+    const user = await UserModel.findOne({
+      email: orderPayload.customerSnapshot.email,
+    });
+
+    expect(user).toBeNull();
+
+    const order = await OrderModel.findOne({
+      'customerSnapshot.email': orderPayload.customerSnapshot.email,
+    });
+
+    expect(order).not.toBeNull();
+    expect(order.owner).toBeNull();
+
+    expect(order.customerSnapshot.email).toBe(
+      orderPayload.customerSnapshot.email,
+    );
+
+    expect(order._id.toString()).toMatch(/^[0-9a-fA-F]{24}$/); // formato de ObjectId do Mongo DB
+    expect(order.orderNumber).toEqual(expect.any(String));
+    expect(order.orderNumber).toHaveLength(12);
+    expect(order.orderNumber).toMatch(/^\d{12}$/);
+    expect(order.amount).toBe(35);
+
+    expect(order.obs).toBe('');
+  });
+
   // --------------------
   // validateContentType
   // --------------------
 
-  // 3
+  // 4
   it('Content-Type inválido', async () => {
     const error = await request
       .post('/orders')
@@ -246,7 +324,7 @@ describe('Create Order Flow > POST "/orders"', () => {
   // celebrateForCreateOrder (required)
   // -----------------------------------
 
-  // 4
+  // 5
   it('Exige meal', async () => {
     const payload = { ...orderPayload };
     delete payload.meal;
@@ -261,7 +339,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 5
+  // 6
   it('Exige method', async () => {
     const payload = { ...orderPayload };
     delete payload.method;
@@ -276,7 +354,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 6
+  // 7
   it('Exige payment', async () => {
     const payload = { ...orderPayload };
     delete payload.payment;
@@ -291,7 +369,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 7
+  // 8
   it('Exige customerSnapshot ({userName, email, tel})', async () => {
     const payload = { ...orderPayload };
     delete payload.customerSnapshot;
@@ -306,7 +384,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 8
+  // 9
   it('Exige itemsSnapshot ([{_id, productName, category, partnerName}])', async () => {
     const payload = { ...orderPayload };
     delete payload.itemsSnapshot;
@@ -325,7 +403,7 @@ describe('Create Order Flow > POST "/orders"', () => {
   // celebrateForCreateOrder (when/is/then + required)
   // --------------------------------------------------
 
-  // 9
+  // 10
   it('delivery exige addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...orderPayload };
     delete payload.addressSnapshot;
@@ -340,7 +418,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 10
+  // 11
   it('Aceita drive-thru com addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...orderPayload, method: 'drive-thru' };
 
@@ -350,7 +428,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     expect(res.statusCode).toBe(201);
   });
 
-  // 11
+  // 12
   it('Aceita drive-thru sem addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...orderPayload, method: 'drive-thru' };
     delete payload.addressSnapshot;
@@ -365,7 +443,7 @@ describe('Create Order Flow > POST "/orders"', () => {
   // celebrateForCreateOrder (valid)
   // --------------------------------
 
-  // 12
+  // 13
   it('Rejeita meal inválido', async () => {
     const payload = { ...orderPayload, meal: 'risoto' };
 
@@ -379,7 +457,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 13
+  // 14
   it('Rejeita method inválido', async () => {
     const payload = { ...orderPayload, method: 'motoboy' };
 
@@ -393,7 +471,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 14
+  // 15
   it('Rejeita payment inválido', async () => {
     const payload = { ...orderPayload, payment: 'dinheiro' };
 
@@ -407,7 +485,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 15
+  // 16
   it('Rejeita itemsSnapshot.category inválido', async () => {
     const payload = {
       ...orderPayload,
@@ -433,7 +511,7 @@ describe('Create Order Flow > POST "/orders"', () => {
   // celebrateForCreateOrder (pattern)
   // ----------------------------------
 
-  // 16
+  // 17
   it('Rejeita customerSnapshot.userName com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...orderPayload,
@@ -453,7 +531,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 17
+  // 18
   it('Rejeita tel com formato inválido, regex para (XX) XXXXX-XXXX', async () => {
     const payload = {
       ...orderPayload,
@@ -473,7 +551,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 18
+  // 19
   it('Rejeita addressSnapshot.address com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...orderPayload,
@@ -493,7 +571,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 19
+  // 20
   it('Rejeita addressSnapshot.number com formato inválido, são aceitos: letras, números e espaços em branco', async () => {
     const payload = {
       ...orderPayload,
@@ -513,7 +591,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 20
+  // 21
   it('Rejeita addressSnapshot.complement com formato inválido, são aceitos: letras, números, espaços em branco, pontos finais e traços', async () => {
     const payload = {
       ...orderPayload,
@@ -533,7 +611,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 21
+  // 22
   it('Rejeita addressSnapshot.district com formato inválido, são aceitos: letras, acentos, números e espaços em branco', async () => {
     const payload = {
       ...orderPayload,
@@ -553,7 +631,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 22
+  // 23
   it('Rejeita addressSnapshot.cep com formato inválido, regex para XXXXX-XXX', async () => {
     const payload = {
       ...orderPayload,
@@ -573,7 +651,7 @@ describe('Create Order Flow > POST "/orders"', () => {
     });
   });
 
-  // 23
+  // 24
   it('Rejeita obs com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...orderPayload,
@@ -594,7 +672,7 @@ describe('Create Order Flow > POST "/orders"', () => {
   // celebrateForCreateOrder (email)
   // --------------------------------
 
-  // 24
+  // 25
   it('Rejeita email inválido', async () => {
     const payload = {
       ...orderPayload,

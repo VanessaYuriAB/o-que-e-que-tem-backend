@@ -526,7 +526,7 @@ describe('Update Subscription Profile Flow > PATCH "/users/subscriptions/me"', (
   // ----------------------------------------
 
   // 17
-  it('Body ausente', async () => {
+  it('Bloqueia body ausente', async () => {
     const error = await request
       .patch('/users/subscriptions/me')
       .set('Cookie', cookies)

@@ -220,4 +220,68 @@ describe('Partner Model', () => {
 
     expect(partner.userName).toBe('João Silva');
   });
+
+  // ----------
+  // Allow('')
+  // ----------
+
+  // 12
+  it('Permite address vazio', async () => {
+    const partner = new Partner({
+      userName: '  João Silva',
+      email: 'joao@email.com',
+      tel: '(11) 99999-9999',
+      companyName: 'Mercado Exemplo',
+      cnpj: '12345678000199',
+      cep: '12345-678',
+      address: '',
+    });
+
+    expect(partner.address).toBe('');
+  });
+
+  // 13
+  it('Permite number vazio', async () => {
+    const partner = new Partner({
+      userName: '  João Silva',
+      email: 'joao@email.com',
+      tel: '(11) 99999-9999',
+      companyName: 'Mercado Exemplo',
+      cnpj: '12345678000199',
+      cep: '12345-678',
+      numberAddress: '',
+    });
+
+    expect(partner.numberAddress).toBe('');
+  });
+
+  // 14
+  it('Permite complement vazio', async () => {
+    const partner = new Partner({
+      userName: '  João Silva',
+      email: 'joao@email.com',
+      tel: '(11) 99999-9999',
+      companyName: 'Mercado Exemplo',
+      cnpj: '12345678000199',
+      cep: '12345-678',
+      complementAddress: '',
+    });
+
+    expect(partner.complementAddress).toBe('');
+  });
+
+  // 15
+  it('Permite district vazio', async () => {
+    const partner = new Partner({
+      userName: '  João Silva',
+      email: 'joao@email.com',
+      tel: '(11) 99999-9999',
+      companyName: 'Mercado Exemplo',
+      cnpj: '12345678000199',
+      cep: '12345-678',
+      district: '',
+    });
+
+    expect(partner.district).toBe('');
+  });
 });

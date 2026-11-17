@@ -34,6 +34,8 @@ describe('Order Model', () => {
         partnerName: 'Mercado 1',
       },
     ],
+
+    obs: 'Observação teste',
   };
 
   // --------
@@ -41,13 +43,20 @@ describe('Order Model', () => {
   // --------
 
   // 1
-  it('deve validar um pedido válido', async () => {
+  it('deve validar um pedido válido (completo)', async () => {
     const order = new Order(validOrder);
 
     await expect(order.validate()).resolves.toBeUndefined();
   });
 
   // 2
+  it('deve validar um pedido válido (com campos "obs" vazio)', async () => {
+    const order = new Order({ ...validOrder, obs: '' });
+
+    await expect(order.validate()).resolves.toBeUndefined();
+  });
+
+  // 3
   it('deve falhar um pedido com owner null', async () => {
     const order = new Order({
       ...validOrder,
@@ -61,7 +70,7 @@ describe('Order Model', () => {
   // Required
   // ---------
 
-  // 3
+  // 4
   it('deve falhar sem orderNumber', async () => {
     const order = new Order({
       ...validOrder,
@@ -71,7 +80,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 4
+  // 5
   it('deve falhar sem itemsSnapshot._id', async () => {
     const order = new Order({
       ...validOrder,
@@ -87,7 +96,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 5
+  // 6
   it('deve falhar sem itemsSnapshot.productName', async () => {
     const order = new Order({
       ...validOrder,
@@ -103,7 +112,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 6
+  // 7
   it('deve falhar sem itemsSnapshot.category', async () => {
     const order = new Order({
       ...validOrder,
@@ -119,7 +128,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 7
+  // 8
   it('deve falhar sem itemsSnapshot.partnerName', async () => {
     const order = new Order({
       ...validOrder,
@@ -135,7 +144,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 8
+  // 9
   it('deve exigir addressSnapshot quando method for delivery', async () => {
     const order = new Order({
       ...validOrder,
@@ -146,7 +155,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 9
+  // 10
   it('não deve exigir addressSnapshot quando method for drive-thru', async () => {
     const order = new Order({
       ...validOrder,
@@ -161,7 +170,7 @@ describe('Order Model', () => {
   // Enum
   // -----
 
-  // 10
+  // 11
   it('deve falhar com meal inválido', async () => {
     const order = new Order({
       ...validOrder,
@@ -171,7 +180,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 11
+  // 12
   it('deve falhar com method inválido', async () => {
     const order = new Order({
       ...validOrder,
@@ -181,7 +190,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 12
+  // 13
   it('deve falhar com payment inválido', async () => {
     const order = new Order({
       ...validOrder,
@@ -191,7 +200,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 13
+  // 14
   it('deve falhar com itemsSnapshot.category inválida', async () => {
     const order = new Order({
       ...validOrder,
@@ -212,7 +221,7 @@ describe('Order Model', () => {
   // Validação customizada
   // ----------------------
 
-  // 14
+  // 15
   it('deve falhar com email inválido', async () => {
     const order = new Order({
       ...validOrder,
@@ -225,7 +234,7 @@ describe('Order Model', () => {
     await expect(order.validate()).rejects.toThrow();
   });
 
-  // 15
+  // 16
   it('deve falhar sem itens', async () => {
     const order = new Order({
       ...validOrder,
@@ -239,7 +248,7 @@ describe('Order Model', () => {
   // Min
   // ----
 
-  // 16
+  // 17
   it('deve falhar com amount negativo', async () => {
     const order = new Order({
       ...validOrder,
@@ -252,6 +261,8 @@ describe('Order Model', () => {
   // ------
   // Match
   // ------
+
+  // 18
   it('deve falhar com orderNumber inválido', async () => {
     const order = new Order({
       ...validOrder,

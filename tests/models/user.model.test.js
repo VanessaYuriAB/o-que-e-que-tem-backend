@@ -274,11 +274,99 @@ describe('User Model', () => {
     expect(user.subscription).toBe(false);
   });
 
+  // --------------
+  // Campos vazios
+  // --------------
+
+  // 16
+  it('Permite address vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      address: '',
+    });
+
+    expect(user.address).toBe('');
+  });
+
+  // 17
+  it('Permite number vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      number: '',
+    });
+
+    expect(user.number).toBe('');
+  });
+
+  // 18
+  it('Permite complement vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      complement: '',
+    });
+
+    expect(user.complement).toBe('');
+  });
+
+  // 19
+  it('Permite district vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      district: '',
+    });
+
+    expect(user.district).toBe('');
+  });
+
+  // 20
+  it('Permite cep vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      cep: '',
+    });
+
+    expect(user.cep).toBe('');
+  });
+
+  // 21
+  it('Permite infoText vazio', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+      infoText: '',
+    });
+
+    expect(user.infoText).toBe('');
+  });
+
   // --------------------------------------------
   // Middleware de documento (`pre('validate')`)
   // --------------------------------------------
 
-  // 16
+  // 22
   it('obrigatoriedade condicional dos dados de endereço, para usuários com assinatura "delivery"', async () => {
     const user = new User({
       userName: 'Vanessa',
@@ -320,11 +408,11 @@ describe('User Model', () => {
     });
   });
 
-  // ----------------------------------------------------
-  // userSchema: findUserByCredentials (método estático)
-  // ----------------------------------------------------
+  // ----------------------------------------
+  // findUserByCredentials (método estático)
+  // ----------------------------------------
 
-  // 17
+  // 23
   it('Deve autenticar usuário com credenciais válidas', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
@@ -344,14 +432,14 @@ describe('User Model', () => {
     expect(user.email).toBe('vanessa@email.com');
   });
 
-  // 18
+  // 24
   it('Deve rejeitar e-mail inexistente', async () => {
     await expect(
       User.findUserByCredentials('naoexiste@email.com', 'abc12345'),
     ).rejects.toThrow(UnauthorizedError);
   });
 
-  // 19
+  // 25
   it('Deve rejeitar senha incorreta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
@@ -368,7 +456,7 @@ describe('User Model', () => {
     ).rejects.toThrow(UnauthorizedError);
   });
 
-  // 20
+  // 26
   it('Garante proteção contra enumeração, tanto "e-mail inexistente" quanto "senha incorreta" retornam exatamente a mesma resposta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
