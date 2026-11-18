@@ -367,7 +367,7 @@ describe('User Model', () => {
   // --------------------------------------------
 
   // 22
-  it('obrigatoriedade condicional dos dados de endereço, para usuários com assinatura "delivery"', async () => {
+  it('obrigatoriedade condicional dos dados de endereço, para usuários com assinatura "delivery" e "status: true"', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -408,11 +408,81 @@ describe('User Model', () => {
     });
   });
 
+  // 23
+  it('permissão condicional para validação sem dados de endereço, para usuários com assinatura "delivery" e "status: false"', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+    });
+
+    const subscription = new Subscription({
+      owner: user._id,
+      howLong: 'two',
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '18:50',
+        qua: '19:20',
+      },
+      method: 'delivery',
+      pay: 'pix',
+
+      status: false,
+    });
+
+    await subscription.save();
+
+    user.subscription = true;
+    user.subscriptionDetails = subscription._id;
+
+    await expect(user.validate()).resolves.toBeUndefined();
+  });
+
+  // 24
+  it('permissão condicional dos dados de endereço vazios, para usuários com assinatura "delivery" e "status: false"', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+    });
+
+    const subscription = new Subscription({
+      owner: user._id,
+      howLong: 'two',
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '18:50',
+        qua: '19:20',
+      },
+      method: 'delivery',
+      pay: 'pix',
+
+      status: false,
+    });
+
+    await subscription.save();
+
+    user.address = '';
+    user.number = '';
+    user.complement = '';
+    user.district = '';
+    user.cep = '';
+
+    user.subscription = true;
+    user.subscriptionDetails = subscription._id;
+
+    await expect(user.validate()).resolves.toBeUndefined();
+  });
+
   // ----------------------------------------
   // findUserByCredentials (método estático)
   // ----------------------------------------
 
-  // 23
+  // 25
   it('Deve autenticar usuário com credenciais válidas', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
@@ -432,14 +502,14 @@ describe('User Model', () => {
     expect(user.email).toBe('vanessa@email.com');
   });
 
-  // 24
+  // 26
   it('Deve rejeitar e-mail inexistente', async () => {
     await expect(
       User.findUserByCredentials('naoexiste@email.com', 'abc12345'),
     ).rejects.toThrow(UnauthorizedError);
   });
 
-  // 25
+  // 27
   it('Deve rejeitar senha incorreta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
@@ -456,7 +526,7 @@ describe('User Model', () => {
     ).rejects.toThrow(UnauthorizedError);
   });
 
-  // 26
+  // 28
   it('Garante proteção contra enumeração, tanto "e-mail inexistente" quanto "senha incorreta" retornam exatamente a mesma resposta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 

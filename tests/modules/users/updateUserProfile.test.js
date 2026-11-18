@@ -7,6 +7,8 @@ import jwt from 'jsonwebtoken';
 import env from '../../../src/config/env.js';
 import errorsMessages from '../../../src/shared/utils/errorsMessages.js';
 import mongoose from 'mongoose';
+import SubscriptionModel from '../../../src/modules/subscriptions/subscription.model.js';
+import UserModel from '../../../src/modules/users/user.model.js';
 
 // Request to test
 const request = supertest(app);
@@ -525,11 +527,83 @@ describe('Update User Profile Flow > PATCH "/users/me"', () => {
     );
   });
 
+  // 24
+  it('Usuários assinantes "delivery" com "status: false" podem tem campos de endereço vazios', async () => {
+    // Seed (atualização de perfil cadastral com endereço)
+    // Para sucesso do seed de assinatura
+    const profile = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send(userPayload);
+
+    expect(profile.statusCode).toBe(200);
+
+    // Seed (assinatura)
+    const subscription = await request
+      .post('/subscriptions')
+      .set('Cookie', cookies)
+      .send({
+        howLong: 'twelve',
+        daysOn: ['seg', 'qua', 'sex'],
+        schedules: {
+          seg: '12:45',
+          qua: '12:45',
+          sex: '18:20',
+        },
+        method: 'delivery',
+        pay: 'credito',
+      });
+
+    expect(subscription.statusCode).toBe(201);
+
+    const userInDb = await UserModel.findOne({
+      email: userPayload.email,
+    });
+
+    const subscriptionInDb = await SubscriptionModel.findOne({
+      owner: userInDb._id,
+    });
+
+    subscriptionInDb.status = false;
+    await subscriptionInDb.save();
+
+    // Teste
+    const res = await request
+      .patch('/users/me')
+      .set('Cookie', cookies)
+      .send({
+        ...userPayload,
+        address: '',
+        number: '',
+        complement: '',
+        district: '',
+        cep: '',
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.address).toBe('');
+    expect(res.body.number).toBe('');
+    expect(res.body.complement).toBe('');
+    expect(res.body.district).toBe('');
+    expect(res.body.cep).toBe('');
+
+    // Persistência
+    const updatedUser = await UserModel.findById(userInDb._id);
+
+    expect(updatedUser.address).toBe('');
+    expect(updatedUser.number).toBe('');
+    expect(updatedUser.complement).toBe('');
+    expect(updatedUser.district).toBe('');
+    expect(updatedUser.cep).toBe('');
+  });
+
   // --------------------
   // NotFoundError (404)
   // --------------------
 
-  // 24
+  // 25
   it('Atualização de perfil de usuário mal sucedida (404)', async () => {
     // Gera token válido com _id inexistente
     const fakeToken = jwt.sign(

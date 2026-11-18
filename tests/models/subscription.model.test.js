@@ -245,4 +245,74 @@ describe('Subscription Model', () => {
       },
     });
   });
+
+  // 11
+  it('permissão condicional para validação sem dados de endereço, para usuários com assinatura "delivery" e "status: false"', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+    });
+
+    const subscription = new Subscription({
+      owner: user._id,
+      howLong: 'two',
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '18:50',
+        qua: '19:20',
+      },
+      method: 'delivery',
+      pay: 'pix',
+
+      status: false,
+    });
+
+    await subscription.save();
+
+    user.subscription = true;
+    user.subscriptionDetails = subscription._id;
+
+    await expect(user.validate()).resolves.toBeUndefined();
+  });
+
+  // 12
+  it('permissão condicional dos dados de endereço vazios, para usuários com assinatura "delivery" e "status: false"', async () => {
+    const user = new User({
+      userName: 'Vanessa',
+      email: 'vanessa@email.com',
+      tel: '(11) 99999-9999',
+      password: 'abc12345',
+      role: 'user',
+    });
+
+    const subscription = new Subscription({
+      owner: user._id,
+      howLong: 'two',
+      daysOn: ['seg', 'qua'],
+      schedules: {
+        seg: '18:50',
+        qua: '19:20',
+      },
+      method: 'delivery',
+      pay: 'pix',
+
+      status: false,
+    });
+
+    await subscription.save();
+
+    user.address = '';
+    user.number = '';
+    user.complement = '';
+    user.district = '';
+    user.cep = '';
+
+    user.subscription = true;
+    user.subscriptionDetails = subscription._id;
+
+    await expect(user.validate()).resolves.toBeUndefined();
+  });
 });

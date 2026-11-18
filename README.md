@@ -552,6 +552,8 @@ O `User Model` possui testes unitários para validação de:
 - valor padrão (`default`)
 - permissão para campos de endereço vazios
 - pré-validação dos dados de endereço para assinantes `delivery`
+- pré-validação dos dados de endereço para assinantes `delivery` com status
+  `false`
 - validação do método estático `findUserByCredentials`:
   - autenticação com credenciais válidas
   - rejeição de e-mail inexistente
@@ -570,6 +572,8 @@ O `Subscription Model` possui testes unitários para validação de:
     (`schedules`)
   - cálculo da data `endAt`
   - obrigatoriedade de endereço para assinaturas `delivery`
+  - permissão de campos de endereço inexistentes ou vazios para assinaturas
+    `delivery` com status `false`
 
 O `Product Model` possui testes unitários para validação de:
 
@@ -773,6 +777,8 @@ integração que validam:
   (`allow('')`)
 - obrigatoriedade condicional dos dados de endereço para usuários com assinatura
   do tipo `delivery`
+- permissão condicional dos dados de endereço vazios para usuários com
+  assinatura do tipo `delivery` e status `false`
 - integração entre atualização cadastral e regras de assinatura
 - retorno de `404 Not Found` para usuário inexistente
 
