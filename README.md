@@ -607,7 +607,8 @@ O `Order Model` possui testes unitários para validação de:
 - validação de array não vazio para os itens do pedido
 - validação do formato do número do pedido através de expressão regular
   (`match`)
-- validação de documento válido, inclusive quando owner é `null` e obs vazio
+- validação de documento válido, inclusive quando owner é `null` e campos "obs"
+  ou "addressSnapshot" são vazios
 
 O `SubscriptionOrder Model` possui testes unitários para validação de:
 
@@ -625,7 +626,8 @@ O `SubscriptionOrder Model` possui testes unitários para validação de:
   (`match`)
 - validação da janela permitida de entrega (`10:45` até `19:45`) através de
   regra customizada do schema
-- validação de documento válido, inclusive com campo obs vazio
+- validação de documento válido, inclusive com campos "obs" ou
+  "addressSnapshot.complement" vazios
 
 O `Message Model` possui testes unitários para validação de:
 
@@ -934,7 +936,8 @@ integração que validam:
 - criação de pedido com sucesso para usuário previamente cadastrado
 - associação automática do pedido ao proprietário (`owner`)
 - criação de pedido com sucesso para visitante
-- criação de pedido com sucesso quando capmos obs é vazio
+- criação de pedido com sucesso quando campos "obs" ou
+  "addressSnapshot.complement" são vazios
 - persistência do pedido sem proprietário associado (`owner: null`)
 - geração automática do número do pedido
 - cálculo automático do valor total do pedido no backend
@@ -964,8 +967,8 @@ testes de integração que validam:
 O fluxo de criação de pedidos de assinatura (`POST /subscriptions/orders`)
 possui testes de integração que validam:
 
-- criação de pedido com sucesso para usuário autenticado, inclusive com campo
-  obs vazio
+- criação de pedido com sucesso para usuário autenticado, inclusive com campos
+  'obs' e 'addressSnapshot.complement' vazios
 - persistência dos dados no MongoDB
 - associação automática do pedido ao proprietário autenticado (`owner`)
 - geração automática do número do pedido
@@ -984,7 +987,6 @@ possui testes de integração que validam:
 - validação condicional de endereço conforme o método de entrega
 - suporte a pedidos `drive-thru` com ou sem endereço informado
 - rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
-- aceitação de campo opcional `obs` vazio
 - integração entre Express, rota, middleware de validação, controller e MongoDB
 
 ### ✔️ Estratégia
