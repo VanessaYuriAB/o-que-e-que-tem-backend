@@ -239,7 +239,6 @@ describe('Subscription Model', () => {
         }),
 
         number: expect.any(Object),
-        complement: expect.any(Object),
         district: expect.any(Object),
         cep: expect.any(Object),
       },

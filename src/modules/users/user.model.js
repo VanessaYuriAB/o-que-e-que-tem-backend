@@ -107,13 +107,7 @@ userSchema.pre('validate', async function () {
   const subscription = await Subscription.findById(this.subscriptionDetails);
 
   if (subscription?.status && subscription?.method === 'delivery') {
-    const requiredFields = [
-      'address',
-      'number',
-      'complement',
-      'district',
-      'cep',
-    ];
+    const requiredFields = ['address', 'number', 'district', 'cep'];
 
     for (const field of requiredFields) {
       if (!this[field]?.trim()) {

@@ -279,7 +279,7 @@ describe('User Model', () => {
   // --------------
 
   // 16
-  it('Permite address vazio', async () => {
+  it('permite address vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -293,7 +293,7 @@ describe('User Model', () => {
   });
 
   // 17
-  it('Permite number vazio', async () => {
+  it('permite number vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -307,7 +307,7 @@ describe('User Model', () => {
   });
 
   // 18
-  it('Permite complement vazio', async () => {
+  it('permite complement vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -321,7 +321,7 @@ describe('User Model', () => {
   });
 
   // 19
-  it('Permite district vazio', async () => {
+  it('permite district vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -335,7 +335,7 @@ describe('User Model', () => {
   });
 
   // 20
-  it('Permite cep vazio', async () => {
+  it('permite cep vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -349,7 +349,7 @@ describe('User Model', () => {
   });
 
   // 21
-  it('Permite infoText vazio', async () => {
+  it('permite infoText vazio', async () => {
     const user = new User({
       userName: 'Vanessa',
       email: 'vanessa@email.com',
@@ -401,7 +401,6 @@ describe('User Model', () => {
         }),
 
         number: expect.any(Object),
-        complement: expect.any(Object),
         district: expect.any(Object),
         cep: expect.any(Object),
       },
@@ -483,7 +482,7 @@ describe('User Model', () => {
   // ----------------------------------------
 
   // 25
-  it('Deve autenticar usuário com credenciais válidas', async () => {
+  it('deve autenticar usuário com credenciais válidas', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
     await User.create({
@@ -503,14 +502,14 @@ describe('User Model', () => {
   });
 
   // 26
-  it('Deve rejeitar e-mail inexistente', async () => {
+  it('deve rejeitar e-mail inexistente', async () => {
     await expect(
       User.findUserByCredentials('naoexiste@email.com', 'abc12345'),
     ).rejects.toThrow(UnauthorizedError);
   });
 
   // 27
-  it('Deve rejeitar senha incorreta', async () => {
+  it('deve rejeitar senha incorreta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
     await User.create({
@@ -527,7 +526,7 @@ describe('User Model', () => {
   });
 
   // 28
-  it('Garante proteção contra enumeração, tanto "e-mail inexistente" quanto "senha incorreta" retornam exatamente a mesma resposta', async () => {
+  it('garante proteção contra enumeração, tanto "e-mail inexistente" quanto "senha incorreta" retornam exatamente a mesma resposta', async () => {
     const hash = await bcrypt.hash('abc12345', 10);
 
     await User.create({
