@@ -172,6 +172,68 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   });
 
   // 2
+  it('Cadastro com sucesso + persistência (com campo "addressSnapshot.complement" vazio)', async () => {
+    const res = await request
+      .post('/subscriptions/orders')
+      .set('Cookie', cookies)
+      .send({
+        ...subscriptionOrderPayload,
+        addressSnapshot: {
+          ...subscriptionOrderPayload.addressSnapshot,
+          complement: '',
+        },
+      });
+
+    expect(res.type).toMatch(/json/);
+    expect(res.statusCode).toBe(201);
+
+    expect(res.body.owner).toBeDefined();
+    expect(res.body.owner).toMatch(/^[0-9a-fA-F]{24}$/);
+
+    expect(res.body.orderNumber).toBeDefined();
+    expect(res.body.orderNumber).toMatch(/^S\d{12}$/);
+
+    expect(res.body).toMatchObject(
+      expect.objectContaining({
+        ...subscriptionOrderPayload,
+        addressSnapshot: {
+          ...subscriptionOrderPayload.addressSnapshot,
+          complement: '',
+        },
+      }),
+    );
+
+    expect(res.body.createdAt).toBeDefined();
+    expect(res.body.updatedAt).toBeDefined();
+
+    // Persistência
+    const user = await UserModel.findOne({
+      email: subscriptionOrderPayload.customerSnapshot.email,
+    });
+
+    expect(user).not.toBeNull();
+    expect(user.email).toBe(subscriptionOrderPayload.customerSnapshot.email);
+
+    const subscriptionOrder = await SubscriptionOrderModel.findOne({
+      owner: user._id,
+    });
+
+    expect(subscriptionOrder).not.toBeNull();
+    expect(subscriptionOrder.owner.toString()).toBe(user._id.toString());
+
+    expect(subscriptionOrder.customerSnapshot.email).toBe(
+      subscriptionOrderPayload.customerSnapshot.email,
+    );
+
+    expect(subscriptionOrder._id.toString()).toMatch(/^[0-9a-fA-F]{24}$/); // formato de ObjectId do Mongo DB
+    expect(subscriptionOrder.orderNumber).toEqual(expect.any(String));
+    expect(subscriptionOrder.orderNumber).toHaveLength(13);
+    expect(subscriptionOrder.orderNumber).toMatch(/^S\d{12}$/);
+
+    expect(subscriptionOrder.addressSnapshot.complement).toBe('');
+  });
+
+  // 3
   it('Cadastro com sucesso + persistência (com campo "obs" vazio)', async () => {
     const res = await request
       .post('/subscriptions/orders')
@@ -225,7 +287,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForAccessToken
   // ------------------------
 
-  // 3
+  // 4
   it('Exige accessToken', async () => {
     const error = await request.post('/subscriptions/orders');
 
@@ -237,7 +299,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 4
+  // 5
   it('accessToken fora do padrão JWT', async () => {
     const error = await request
       .post('/subscriptions/orders')
@@ -255,7 +317,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // accessMiddleware
   // -----------------
 
-  // 5
+  // 6
   it('accessToken expirado', async () => {
     const expiredToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -275,7 +337,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     );
   });
 
-  // 6
+  // 7
   it('accessToken assinado com chave inválida', async () => {
     const invalidToken = jwt.sign(
       { _id: '123', role: 'user' },
@@ -301,7 +363,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // validateContentType
   // --------------------
 
-  // 7
+  // 8
   it('Content-Type inválido', async () => {
     const error = await request
       .post('/subscriptions/orders')
@@ -323,7 +385,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (required)
   // -----------------------------------------------
 
-  // 8
+  // 9
   it('Exige meal', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.meal;
@@ -341,7 +403,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 9
+  // 10
   it('Exige method', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.method;
@@ -359,7 +421,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 10
+  // 11
   it('Exige day', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.day;
@@ -377,7 +439,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 11
+  // 12
   it('Exige time', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.time;
@@ -395,7 +457,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 12
+  // 13
   it('Exige customerSnapshot ({userName, email, tel})', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.customerSnapshot;
@@ -413,7 +475,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 13
+  // 14
   it('Exige itemsSnapshot ([{_id, productName, category, partnerName}])', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.itemsSnapshot;
@@ -435,7 +497,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (when/is/then + required)
   // --------------------------------------------------------------
 
-  // 14
+  // 15
   it('delivery exige addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...subscriptionOrderPayload };
     delete payload.addressSnapshot;
@@ -453,7 +515,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 15
+  // 16
   it('Aceita drive-thru com addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...subscriptionOrderPayload, method: 'drive-thru' };
 
@@ -466,7 +528,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     expect(res.statusCode).toBe(201);
   });
 
-  // 16
+  // 17
   it('Aceita drive-thru sem addressSnapshot ({address, number, complement, district, cep})', async () => {
     const payload = { ...subscriptionOrderPayload, method: 'drive-thru' };
     delete payload.addressSnapshot;
@@ -484,7 +546,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (valid)
   // --------------------------------------------
 
-  // 17
+  // 18
   it('Rejeita meal inválido', async () => {
     const payload = { ...subscriptionOrderPayload, meal: 'risoto' };
 
@@ -501,7 +563,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 18
+  // 19
   it('Rejeita method inválido', async () => {
     const payload = { ...subscriptionOrderPayload, method: 'motoboy' };
 
@@ -518,7 +580,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 19
+  // 20
   it('Rejeita itemsSnapshot.category inválido', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -547,7 +609,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (time)
   // -------------------------------------------
 
-  // 20
+  // 21
   it('Rejeita time após 19:45', async () => {
     const payload = { ...subscriptionOrderPayload, time: '19:46' };
 
@@ -564,7 +626,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 21
+  // 22
   it('Rejeita time antes das 10:45', async () => {
     const payload = { ...subscriptionOrderPayload, time: '10:44' };
 
@@ -585,7 +647,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (pattern)
   // ----------------------------------------------
 
-  // 22
+  // 23
   it('Rejeita time em formato inválido pela regex', async () => {
     const payload = { ...subscriptionOrderPayload, time: '12h45' };
 
@@ -602,7 +664,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 23
+  // 24
   it('Rejeita customerSnapshot.userName com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -625,7 +687,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 24
+  // 25
   it('Rejeita customerSnapshot.tel com formato inválido, regex para (XX) XXXXX-XXXX', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -648,7 +710,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 25
+  // 26
   it('Rejeita addressSnapshot.address com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -671,7 +733,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 26
+  // 27
   it('Rejeita addressSnapshot.number com formato inválido, são aceitos: letras, números e espaços em branco', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -694,7 +756,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 27
+  // 28
   it('Rejeita addressSnapshot.complement com formato inválido, são aceitos: letras, números, espaços em branco, pontos finais e traços', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -717,7 +779,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 28
+  // 29
   it('Rejeita addressSnapshot.district com formato inválido, são aceitos: letras, acentos, números e espaços em branco', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -740,7 +802,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 29
+  // 30
   it('Rejeita addressSnapshot.cep com formato inválido, regex para XXXXX-XXX', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -763,7 +825,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     });
   });
 
-  // 30
+  // 31
   it('Rejeita obs com formato inválido, contendo HTML básico (< e >)', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -787,7 +849,7 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
   // celebrateForCreateSubscriptionOrder (email)
   // --------------------------------------------
 
-  // 31
+  // 32
   it('Rejeita email inválido', async () => {
     const payload = {
       ...subscriptionOrderPayload,
@@ -808,28 +870,6 @@ describe('Create Subscription Order Flow > POST "/subscriptions/orders"', () => 
     expect(error.body).toMatchObject({
       message: expect.stringMatching('Validation failed'),
     });
-  });
-
-  // --------------------------------------------
-  // celebrateForCreateSubscriptionOrder (allow)
-  // --------------------------------------------
-
-  // 32
-  it('Aceita obs vazio ("")', async () => {
-    const payload = {
-      ...subscriptionOrderPayload,
-      obs: '',
-    };
-
-    const res = await request
-      .post('/subscriptions/orders')
-      .set('Cookie', cookies)
-      .send(payload);
-
-    expect(res.type).toMatch(/json/);
-    expect(res.statusCode).toBe(201);
-
-    expect(res.body.obs).toBe('');
   });
 
   // ----------------------------------------------------

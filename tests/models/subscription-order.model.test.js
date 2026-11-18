@@ -50,6 +50,19 @@ describe('SubscriptionOrder Model', () => {
   });
 
   // 2
+  it('deve validar um pedido de assinatura válido (com campo "addressSnapshot.complement" vazio)', async () => {
+    const subscriptionOrder = new SubscriptionOrder({
+      ...validSubscriptionOrder,
+      addressSnapshot: {
+        ...validSubscriptionOrder.addressSnapshot,
+        complement: '',
+      },
+    });
+
+    await expect(subscriptionOrder.validate()).resolves.toBeUndefined();
+  });
+
+  // 3
   it('deve validar um pedido de assinatura válido (com campo "obs" vazio)', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -63,7 +76,7 @@ describe('SubscriptionOrder Model', () => {
   // Required
   // ---------
 
-  // 3
+  // 4
   it('deve falhar sem owner', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -73,7 +86,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 4
+  // 5
   it('deve falhar sem orderNumber', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -83,7 +96,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 5
+  // 6
   it('deve falhar sem day', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -93,7 +106,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 6
+  // 7
   it('deve falhar sem time', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -103,7 +116,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 7
+  // 8
   it('deve falhar sem itemsSnapshot._id', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -119,7 +132,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 8
+  // 9
   it('deve falhar sem itemsSnapshot.productName', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -135,7 +148,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 9
+  // 10
   it('deve falhar sem itemsSnapshot.category', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -151,7 +164,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 10
+  // 11
   it('deve falhar sem itemsSnapshot.partnerName', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -167,7 +180,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 11
+  // 12
   it('deve exigir addressSnapshot quando method for delivery', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -178,7 +191,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 12
+  // 13
   it('não deve exigir addressSnapshot quando method for drive-thru', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -193,7 +206,7 @@ describe('SubscriptionOrder Model', () => {
   // Enum
   // -----
 
-  // 13
+  // 14
   it('deve falhar com meal inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -203,7 +216,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 14
+  // 15
   it('deve falhar com method inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -213,7 +226,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 15
+  // 16
   it('deve falhar com itemsSnapshot.category inválida', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -234,7 +247,7 @@ describe('SubscriptionOrder Model', () => {
   // Validação customizada
   // ----------------------
 
-  // 16
+  // 17
   it('deve falhar com email inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -247,7 +260,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 17
+  // 18
   it('deve falhar sem itens', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -261,7 +274,7 @@ describe('SubscriptionOrder Model', () => {
   // Match
   // ------
 
-  // 18
+  // 19
   it('deve falhar com time inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -271,7 +284,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 19
+  // 20
   it('deve falhar com orderNumber inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -281,7 +294,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 20
+  // 21
   it('deve falhar com time antes das 10h45', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -291,7 +304,7 @@ describe('SubscriptionOrder Model', () => {
     await expect(subscriptionOrder.validate()).rejects.toThrow();
   });
 
-  // 21
+  // 22
   it('deve falhar com time depois das 19h45', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
@@ -305,7 +318,7 @@ describe('SubscriptionOrder Model', () => {
   // Type
   // -----
 
-  // 22
+  // 23
   it('deve falhar com day inválido', async () => {
     const subscriptionOrder = new SubscriptionOrder({
       ...validSubscriptionOrder,
