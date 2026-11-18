@@ -106,9 +106,6 @@ const subscriptionOrderSchema = new mongoose.Schema(
         type: String,
         match: /^[a-zA-Z0-9\s.-]*$/,
         trim: true,
-        required() {
-          return this.method === 'delivery';
-        },
       },
       district: {
         type: String,

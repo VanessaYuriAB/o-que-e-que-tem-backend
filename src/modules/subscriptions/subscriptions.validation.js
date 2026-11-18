@@ -99,8 +99,8 @@ const celebrateForCreateSubscriptionOrder = celebrate({
         .required(),
 
       complement: Joi.string()
-        .pattern(/^[a-zA-Z0-9\s.-]*$/)
-        .required(),
+        .allow('')
+        .pattern(/^[a-zA-Z0-9\s.-]*$/),
 
       district: Joi.string()
         .pattern(/^[a-zA-ZÀ-ÿ0-9\s]*$/)
