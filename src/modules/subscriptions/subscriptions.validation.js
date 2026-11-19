@@ -140,5 +140,20 @@ const celebrateForCreateSubscriptionOrder = celebrate({
 
 // getSubscriptionOrderByNumber > `/subscriptions/orders/:subscriptionOrderNumber` > Query:
 // ?email=user@email.com
+const celebrateForGetSubscriptionOrderByNumber = celebrate({
+  params: Joi.object({
+    subscriptionOrderNumber: Joi.string()
+      .pattern(/^S\d{12}$/)
+      .required(),
+  }),
 
-export { celebrateForCreateSubscription, celebrateForCreateSubscriptionOrder };
+  query: Joi.object({
+    email: Joi.string().email().required(),
+  }).unknown(false),
+});
+
+export {
+  celebrateForCreateSubscription,
+  celebrateForCreateSubscriptionOrder,
+  celebrateForGetSubscriptionOrderByNumber,
+};

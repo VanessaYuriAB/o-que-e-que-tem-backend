@@ -5,10 +5,12 @@ import validateContentType from '../../shared/middlewares/validateContentType.js
 import {
   celebrateForCreateSubscription,
   celebrateForCreateSubscriptionOrder,
+  celebrateForGetSubscriptionOrderByNumber,
 } from './subscriptions.validation.js';
 import {
   createSubscription,
   createSubscriptionOrder,
+  getSubscriptionOrderByNumber,
 } from './subscriptions.controller.js';
 
 // Cria um roteador para a rota principal de subscriptions
@@ -20,6 +22,11 @@ const router = Router();
 
 // getSubscriptionOrderByNumber > `/subscriptions/orders/:subscriptionOrderNumber` > Query:
 // ?email=user@email.com
+router.get(
+  `/orders/:subscriptionOrderNumber`,
+  celebrateForGetSubscriptionOrderByNumber,
+  getSubscriptionOrderByNumber,
+);
 
 // ------------------------------
 // Rotas privadas

@@ -117,5 +117,21 @@ const createSubscriptionOrder = async (req, res) => {
 
 // getSubscriptionOrderByNumber > `/subscriptions/orders/:subscriptionOrderNumber` > Query:
 // ?email=user@email.com
+const getSubscriptionOrderByNumber = async (req, res) => {
+  const subscriptionOrder = await SubscriptionOrder.findOne({
+    orderNumber: req.params.subscriptionOrderNumber,
+    'customerSnapshot.email': req.query.email,
+  }).orFail(() => {
+    throw new NotFoundError(
+      `${errorsMessages.notFound} Erro ao buscar pedido de assinatura: pedido ${req.params.subscriptionOrderNumber} não encontrado.`,
+    );
+  });
 
-export { createSubscription, createSubscriptionOrder };
+  res.send(subscriptionOrder);
+};
+
+export {
+  createSubscription,
+  createSubscriptionOrder,
+  getSubscriptionOrderByNumber,
+};
