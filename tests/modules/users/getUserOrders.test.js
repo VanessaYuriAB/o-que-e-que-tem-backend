@@ -324,7 +324,6 @@ describe('Get User Orders Flow > GET "/users/:userId/orders"', () => {
   it('Bloqueia acesso a pedidos avulsos de outro usuário', async () => {
     // Seed (usuário B)
     // Cadastro + login + access e refresh Tokens + refreshUser (id) + cadastro de pedido avulso
-
     await request.post('/auth/register').send({
       userName: 'User B',
       email: 'userb@gmail.com',
