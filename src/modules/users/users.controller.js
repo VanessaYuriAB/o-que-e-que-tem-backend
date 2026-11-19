@@ -4,6 +4,7 @@ import errorsMessages from '../../shared/utils/errorsMessages.js';
 import Subscription from '../subscriptions/subscription.model.js';
 import Message from '../contact/message.model.js';
 import Order from '../orders/order.model.js';
+import SubscriptionOrder from '../subscriptions/subscription-order.model.js';
 
 // updateUserProfile > '/users/me'
 const updateUserProfile = async (req, res) => {
@@ -93,6 +94,18 @@ const getUserOrders = async (req, res) => {
 };
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
+const getUserSubscriptionOrders = async (req, res) => {
+  // O acesso ao recurso já foi autorizado pelo isOwnerOrAdminMiddleware
+  const subscriptionOrders = await SubscriptionOrder.find({
+    owner: req.params.userId,
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // Caso não existam pedidos de assinatura, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
+
+  res.send(subscriptionOrders);
+};
 
 // getMessagesByUserId > '/users/:userId/messages'
 const getUserMsgs = async (req, res) => {
@@ -113,4 +126,5 @@ export {
   updateSubscriptionProfile,
   getUserMsgs,
   getUserOrders,
+  getUserSubscriptionOrders,
 };

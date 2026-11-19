@@ -3,6 +3,7 @@ import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import validateContentType from '../../shared/middlewares/validateContentType.js';
 import {
+  celebrateForGetUserSubscriptionOrders,
   celebrateForGetUserMsgs,
   celebrateForGetUserOrders,
   celebrateForUpdateSubscription,
@@ -13,6 +14,7 @@ import {
   updateSubscriptionProfile,
   getUserMsgs,
   getUserOrders,
+  getUserSubscriptionOrders,
 } from './users.controller.js';
 import isOwnerOrAdminMiddleware from '../../shared/middlewares/isOwnerOrAdminMiddleware.js';
 
@@ -60,6 +62,14 @@ router.get(
 );
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
+router.get(
+  '/:userId/subscriptions/orders',
+  celebrateForAccessToken,
+  celebrateForGetUserSubscriptionOrders,
+  accessMiddleware,
+  isOwnerOrAdminMiddleware('userId'),
+  getUserSubscriptionOrders,
+);
 
 // getMessagesByUserId > '/users/:userId/messages'
 router.get(

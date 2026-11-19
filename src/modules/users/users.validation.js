@@ -83,6 +83,11 @@ const celebrateForGetUserOrders = celebrate({
 });
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
+const celebrateForGetUserSubscriptionOrders = celebrate({
+  params: Joi.object({
+    userId: Joi.string().hex().length(24).required(),
+  }),
+});
 
 // getMessagesByUserId > '/users/:userId/messages'
 const celebrateForGetUserMsgs = celebrate({
@@ -96,4 +101,5 @@ export {
   celebrateForUpdateSubscription,
   celebrateForGetUserMsgs,
   celebrateForGetUserOrders,
+  celebrateForGetUserSubscriptionOrders,
 };
