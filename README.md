@@ -372,10 +372,11 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Subscriptions
 
-| Método | Rota                  | Descrição                       |
-| ------ | --------------------- | ------------------------------- |
-| POST   | /subscriptions        | Cadastro de assinatura          |
-| POST   | /subscriptions/orders | Criação de pedido de assinatura |
+| Método | Rota                                           | Descrição                        |
+| ------ | ---------------------------------------------- | -------------------------------- |
+| POST   | /subscriptions                                 | Cadastro de assinatura           |
+| POST   | /subscriptions/orders                          | Criação de pedido de assinatura  |
+| GET    | /subscriptions/orders/:subscriptionOrderNumber | Consulta de pedido de assinatura |
 
 - ### Menu
 
@@ -482,6 +483,8 @@ funcionalidade de assinaturas:
 
 - criação de assinatura (`POST /subscriptions`)
 - criação de pedido de assinatura (`POST /subscriptions/orders`)
+- consulta de pedido de assinatura
+  (`GET /subscriptions/orders/:subscriptionOrderNumber`)
 
 Além das funcionalidades de assinatura, a suíte contempla testes de integração
 das funcionalidades de cardápio, contato e mercados parceiros:
@@ -988,6 +991,20 @@ possui testes de integração que validam:
 - suporte a pedidos `drive-thru` com ou sem endereço informado
 - rejeição de conteúdos contendo caracteres HTML básicos (`<` e `>`)
 - integração entre Express, rota, middleware de validação, controller e MongoDB
+
+O fluxo de consulta de pedidos de assinatura
+(`GET /subscriptions/orders/:subscriptionOrderNumber`) possui testes de
+integração que validam:
+
+- recuperação de pedido através do número do pedido e e-mail do cliente
+- retorno do documento persistido no MongoDB
+- retorno de `404 Not Found` para número de pedido inexistente
+- retorno de `404 Not Found` para e-mail não associado ao pedido
+- validação de obrigatoriedade do parâmetro de consulta (`email`)
+- validação do formato do número do pedido de assinatura
+- validação do formato do e-mail
+- bloqueio de parâmetros de consulta não permitidos
+- integração entre Express, Celebrate/Joi, controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -2298,6 +2315,51 @@ O número do pedido é gerado automaticamente pelo backend através do utilitár
 `generateOrderNumber`, utilizando o prefixo reservado para pedidos de
 assinatura.
 
+#### Consulta de pedido de assinatura
+
+A aplicação disponibiliza um endpoint público para consulta de pedidos de
+assinatura:
+
+```text
+GET /subscriptions/orders/:subscriptionOrderNumber?email=user@email.com
+```
+
+A consulta exige simultaneamente:
+
+- número do pedido de assinatura (`subscriptionOrderNumber`);
+- e-mail utilizado durante a criação do pedido.
+
+Fluxo:
+
+```text
+GET /subscriptions/orders/:subscriptionOrderNumber
+↓
+Celebrate/Joi valida:
+  - presença do e-mail
+  - formato do número do pedido
+  - formato do e-mail
+  - ausência de parâmetros não permitidos
+↓
+MongoDB localiza o pedido através de:
+  - orderNumber
+  - customerSnapshot.email
+↓
+Pedido encontrado?
+  ├─ Sim → HTTP 200 OK
+  └─ Não → 404 Not Found
+```
+
+A utilização combinada do número do pedido e do e-mail informado durante a
+criação reduz a exposição de pedidos de terceiros e impede consultas baseadas
+apenas na numeração do pedido.
+
+O formato esperado para pedidos de assinatura utiliza o prefixo reservado
+seguido de doze dígitos:
+
+```text
+S202611061234
+```
+
 ### ✔️ Cardápio
 
 #### Consulta de produtos
@@ -2474,7 +2536,7 @@ As regras de precificação estão centralizadas no módulo `orders.pricing.js`,
 permitindo que alterações de preços sejam realizadas em um único local da
 aplicação.
 
-### ✔️ Pedidos
+### ✔️ Pedidos avulsos
 
 #### Cadastro de pedido avulso
 
@@ -2710,7 +2772,8 @@ apenas na numeração do pedido.
 │     │     │     └── registerPartner.test.js
 │     │     ├── subscriptions/
 │     │     │     ├── createSubscription.test.js
-│     │     │     └── createSubscriptionOrder.test.js
+│     │     │     ├── createSubscriptionOrder.test.js
+│     │     │     └── getSubscriptionOrderByNumber.test.js
 │     │     └── users/
 │     │           ├── getUserMsgs.test.js
 │     │           ├── getUserOrders.test.js
@@ -2920,7 +2983,7 @@ Deploy
 #### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
 - [ ] `users.validation.js`
-- [ ] `subscriptions.validation.js`
+- [x] `subscriptions.validation.js`
 - [x] `orders.validation.js`
 - [x] `contact.validation.js`
 - [x] `partners.validation.js`
@@ -2940,7 +3003,7 @@ Deploy
 
 - [x] Criar assinatura
 - [x] Criar pedido de assinatura
-- [ ] Localizar pedido de assinatura
+- [x] Localizar pedido de assinatura
 
 #### Cardápio
 
@@ -2980,7 +3043,7 @@ Deploy
 #### Testes de Integração (Supertest)
 
 - [ ] Usuários
-- [ ] Assinaturas
+- [x] Assinaturas
 - [x] Cardápio
 - [x] Pedidos avulsos
 - [x] Fale Conosco
