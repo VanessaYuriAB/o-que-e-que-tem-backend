@@ -357,12 +357,13 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Users
 
-| Método | Rota                    | Descrição                               |
-| ------ | ----------------------- | --------------------------------------- |
-| PATCH  | /users/me               | Atualização de perfil cadastral         |
-| PATCH  | /users/subscriptions/me | Atualização do perfil de assinatura     |
-| GET    | /users/:userId/orders   | Histórico de pedidos avulsos do usuário |
-| GET    | /users/:userId/messages | Histórico de mensagens do usuário       |
+| Método | Rota                                | Descrição                                     |
+| ------ | ----------------------------------- | --------------------------------------------- |
+| PATCH  | /users/me                           | Atualização de perfil cadastral               |
+| PATCH  | /users/subscriptions/me             | Atualização do perfil de assinatura           |
+| GET    | /users/:userId/orders               | Histórico de pedidos avulsos do usuário       |
+| GET    | /users/:userId/subscriptions/orders | Histórico de pedidos de assinatura do usuário |
+| GET    | /users/:userId/messages             | Histórico de mensagens do usuário             |
 
 - ### Admin
 
@@ -475,6 +476,8 @@ integração da funcionalidade de gerenciamento de perfil do usuário:
 - atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
 - recuperação do histórico de pedidos avulsos do usuário
   (`GET /users/:userId/orders`)
+- recuperação do histórico de pedidos de assinatura do usuário
+  (`GET /users/:userId/subscriptions/orders`)
 - recuperação do histórico de mensagens do usuário
   (`GET /users/:userId/messages`)
 
@@ -860,6 +863,27 @@ O fluxo de recuperação do histórico de pedidos avulsos do usuário
 - validação de `accessToken` expirado
 - validação de `accessToken` assinado com chave inválida
 - bloqueio de acesso a pedidos pertencentes a outro usuário
+- acesso permitido para administradores
+- integração entre Celebrate/Joi, `accessMiddleware`,
+  `isOwnerOrAdminMiddleware`, controller e MongoDB
+
+O fluxo de recuperação do histórico de pedidos de assinatura do usuário
+(`GET /users/:userId/subscriptions/orders`) possui testes de integração que
+validam:
+
+- recuperação dos pedidos de assinatura associados ao usuário autenticado
+- retorno de coleção (`array`) contendo os documentos encontrados
+- retorno dos campos esperados dos pedidos persistidos
+- ordenação dos pedidos do mais recente para o mais antigo (`createdAt`
+  decrescente)
+- retorno de coleção vazia quando não existem pedidos cadastrados
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação do formato do parâmetro `userId`
+- validação dos parâmetros da rota através do Celebrate/Joi
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- bloqueio de acesso a pedidos de assinatura pertencentes a outro usuário
 - acesso permitido para administradores
 - integração entre Celebrate/Joi, `accessMiddleware`,
   `isOwnerOrAdminMiddleware`, controller e MongoDB
@@ -2087,6 +2111,9 @@ usuário através do endpoint:
 GET /users/:userId/orders
 ```
 
+A rota utiliza autenticação baseada em `accessToken` e autorização por
+proprietário através do middleware `isOwnerOrAdminMiddleware`.
+
 Fluxo simplificado:
 
 ```text
@@ -2109,8 +2136,104 @@ MongoDB localiza pedidos associados ao proprietário
 Resposta HTTP 200 OK
 ```
 
+O parâmetro `userId` é validado através do Celebrate/Joi antes da execução da
+camada de autenticação e autorização.
+
+A rota exige um identificador válido no formato `ObjectId` do MongoDB.
+
+Exemplo:
+
+```text
+/users/6869ef6c3fbc2f6d0f4e6e6a/orders
+```
+
+Identificadores inválidos são rejeitados com resposta `400 Bad Request`.
+
 Somente o proprietário dos pedidos ou um usuário com perfil administrativo pode
 acessar o recurso.
+
+Quando existem pedidos cadastrados:
+
+```json
+[
+  {
+    "_id": "...",
+    "owner": "...",
+    "orderNumber": "202611231234"
+  }
+]
+```
+
+Quando não existem pedidos cadastrados:
+
+```json
+[]
+```
+
+A ausência de pedidos não é tratada como erro, pois o recurso consultado é uma
+coleção. Por esse motivo a API retorna `200 OK` juntamente com um array vazio.
+
+#### Histórico de pedidos de assinatura
+
+Usuários autenticados podem consultar o histórico de pedidos de assinatura
+associado a um usuário através do endpoint:
+
+```text
+GET /users/:userId/subscriptions/orders
+```
+
+A rota utiliza autenticação baseada em `accessToken` e autorização por
+proprietário através do middleware `isOwnerOrAdminMiddleware`.
+
+Fluxo simplificado:
+
+```text
+GET /users/:userId/subscriptions/orders
+↓
+Celebrate/Joi valida:
+  - presença e formato do accessToken
+  - formato do parâmetro userId
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+isOwnerOrAdminMiddleware valida acesso ao recurso
+↓
+MongoDB localiza pedidos de assinatura associados ao proprietário
+↓
+Resposta HTTP 200 OK
+```
+
+O parâmetro `userId` é validado através do Celebrate/Joi antes da execução da
+camada de autenticação e autorização.
+
+A rota exige um identificador válido no formato `ObjectId` do MongoDB.
+
+Exemplo:
+
+```text
+/users/6869ef6c3fbc2f6d0f4e6e6a/subscriptions/orders
+```
+
+Identificadores inválidos são rejeitados com resposta `400 Bad Request`.
+
+Somente o proprietário dos pedidos de assinatura ou um usuário com perfil
+administrativo pode acessar o recurso.
+
+Quando existem pedidos cadastrados:
+
+```json
+[
+  {
+    "_id": "...",
+    "owner": "...",
+    "orderNumber": "S202611231234"
+  }
+]
+```
 
 Quando não existem pedidos cadastrados:
 
@@ -2777,6 +2900,7 @@ apenas na numeração do pedido.
 │     │     └── users/
 │     │           ├── getUserMsgs.test.js
 │     │           ├── getUserOrders.test.js
+│     │           ├── getUserSubscriptionOrders.test.js
 │     │           ├── updateSubscriptionProfile.test.js
 │     │           └── updateUserProfile.test.js
 │     ├── routes/
@@ -2826,7 +2950,8 @@ Cada módulo concentra seus próprios arquivos:
   quando necessário, chama o service
 - `.index.js`: ponto de entrada do módulo utilizado pelo agregador central de
   rotas
-- `.middleware.js`: middlewares específicos do módulo, quando necessário
+- `.middleware.js`: middlewares específicos do módulo, quando necessários (ex.:
+  autenticação)
 - `.model.js`: modelos do MongoDB para persistência de dados
 - `.pricing.js`: regras de precificação e cálculos relacionados ao domínio,
   quando aplicável
@@ -2982,7 +3107,7 @@ Deploy
 
 #### Validações de Entrada - Requisições HTTP - Rotas (Celebrate/Joi)
 
-- [ ] `users.validation.js`
+- [x] `users.validation.js`
 - [x] `subscriptions.validation.js`
 - [x] `orders.validation.js`
 - [x] `contact.validation.js`
@@ -2996,7 +3121,7 @@ Deploy
   - [x] Ativar assinatura
   - [x] Pausar assinatura
 - [x] Histórico de pedidos avulsos
-- [ ] Histórico de pedidos de assinatura
+- [x] Histórico de pedidos de assinatura
 - [x] Histórico de mensagens
 
 #### Assinaturas
@@ -3042,7 +3167,7 @@ Deploy
 
 #### Testes de Integração (Supertest)
 
-- [ ] Usuários
+- [x] Usuários
 - [x] Assinaturas
 - [x] Cardápio
 - [x] Pedidos avulsos
@@ -3124,7 +3249,7 @@ Deploy
   - Criar pedido avulso
 
 - Criar uma rotina automática no backend para mudar `status` de assinatura para
-  `false `quando a data `endAt` vencer
+  `false` quando a data `endAt` vencer
 
 - [ ] Documentação com Swagger/OpenAPI
 
