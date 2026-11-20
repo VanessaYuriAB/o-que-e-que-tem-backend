@@ -29,6 +29,8 @@
     "start": "cross-env NODE_ENV=production node server.js",
     "seed:products:dev": "cross-env NODE_ENV=development node src/seeds/products.seed.js",
     "seed:products:prod": "cross-env NODE_ENV=production node src/seeds/products.seed.js",
+    "seed:recipes:dev": "cross-env NODE_ENV=development node src/seeds/recipes.seed.js",
+    "seed:recipes:prod": "cross-env NODE_ENV=production node src/seeds/recipes.seed.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
