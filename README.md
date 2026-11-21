@@ -288,10 +288,12 @@ npm run test:coverage
 npm run start
 ```
 
-### Seed de produtos
+### Seed de dados
 
-O projeto disponibiliza scripts para popular a coleção de produtos com os dados
-iniciais do cardápio.
+O projeto disponibiliza scripts para popular o banco de dados com dados iniciais
+utilizados durante o desenvolvimento.
+
+#### Produtos
 
 Desenvolvimento:
 
@@ -305,13 +307,30 @@ Produção:
 npm run seed:products:prod
 ```
 
-Os scripts utilizam a mesma estratégia de configuração de ambiente adotada pelo
-restante da aplicação, definindo o `NODE_ENV` através do `cross-env` e
-carregando automaticamente o arquivo `.env` correspondente.
-
 > O seed foi criado para facilitar o desenvolvimento das funcionalidades do
 > cardápio enquanto não existe uma interface administrativa para cadastro de
 > produtos.
+
+#### Receitas
+
+Desenvolvimento:
+
+```bash
+npm run seed:recipes:dev
+```
+
+Produção:
+
+```bash
+npm run seed:recipes:prod
+```
+
+> O seed cadastra uma base inicial de sopas, cremes e patês utilizada pela
+> funcionalidade de recomendações e pesquisa de receitas.
+
+Os scripts utilizam a mesma estratégia de configuração de ambiente adotada pelo
+restante da aplicação, definindo o `NODE_ENV` através do `cross-env` e
+carregando automaticamente o arquivo `.env` correspondente.
 
 [Voltar ao topo 🔝](#top)
 
@@ -330,6 +349,8 @@ carregando automaticamente o arquivo `.env` correspondente.
 | npm run start              | Executa a aplicação em modo produção             |
 | npm run seed:products:dev  | Popula o cardápio no ambiente de desenvolvimento |
 | npm run seed:products:prod | Popula o cardápio no ambiente de produção        |
+| npm run seed:recipes:dev   | Popula as receitas em desenvolvimento            |
+| npm run seed:recipes:prod  | Popula as receitas em produção                   |
 | npm run lint               | Verifica problemas de lint                       |
 | npm run lint:fix           | Corrige problemas de lint automaticamente        |
 | npm run format             | Formata o código                                 |
@@ -403,6 +424,28 @@ carregando automaticamente o arquivo `.env` correspondente.
 | ------ | -------------------- | ------------------------- |
 | POST   | /orders              | Criação de pedido avulso  |
 | GET    | /orders/:orderNumber | Consulta de pedido avulso |
+
+- ### Recipes
+
+| Método | Rota     | Descrição                    |
+| ------ | -------- | ---------------------------- |
+| GET    | /recipes | Pesquisa textual de receitas |
+
+Exemplo:
+
+```text
+GET /recipes?search=cenoura
+```
+
+A pesquisa utiliza índice textual (`text index`) do MongoDB e considera os
+campos:
+
+- título da receita;
+- descrição;
+- nome dos ingredientes.
+
+Os resultados são ordenados automaticamente por relevância através do
+`textScore` do MongoDB.
 
 > A documentação detalhada dos contratos HTTP será disponibilizada através da
 > coleção Postman prevista no roadmap do projeto.
@@ -1381,7 +1424,7 @@ trilha básica de auditoria para os documentos persistidos.
 #### Inicialização de dados (Seed)
 
 Durante o desenvolvimento e implantação, o projeto disponibiliza scripts de seed
-para cadastrar os produtos iniciais do cardápio no MongoDB.
+para cadastrar os produtos iniciais do cardápio e receitas no MongoDB.
 
 O script é executado manualmente através de:
 
@@ -1390,9 +1433,17 @@ npm run seed:products:dev
 npm run seed:products:prod
 ```
 
+ou
+
+```bash
+npm run seed:recipes:dev
+npm run seed:recipes:prod
+```
+
 Essa estratégia facilita o desenvolvimento das funcionalidades relacionadas ao
 cardápio enquanto as operações administrativas de cadastro e gerenciamento de
-produtos ainda não estão disponíveis por meio da API ou da interface web.
+produtos ainda não estão disponíveis por meio da API ou da interface web. Também
+mantém uma base de dados estável para pesquisa de receitas, para o projeto.
 
 #### Middlewares de documento do Mongoose
 
@@ -1426,6 +1477,44 @@ Essa estratégia é utilizada, por exemplo, nos fluxos de:
 - criação de assinatura (`POST /subscriptions`), durante a atualização do
   documento User;
 - atualização de perfil de assinatura (`PATCH /users/subscriptions/me`).
+
+#### Pesquisa textual de receitas (MongoDB Text Search)
+
+A funcionalidade de pesquisa de receitas utiliza o mecanismo nativo de busca
+textual do MongoDB (`Text Search`), evitando dependência de APIs externas para
+consulta de conteúdo gastronômico.
+
+O modelo `Recipe` possui um índice textual composto pelos campos:
+
+```js
+recipeSchema.index({
+  title: 'text',
+  description: 'text',
+  'ingredients.name': 'text',
+});
+```
+
+As pesquisas são executadas através do operador:
+
+```js
+{
+  $text: {
+    $search: search,
+  },
+}
+```
+
+e ordenadas por relevância utilizando o metadado `textScore` fornecido pelo
+próprio MongoDB.
+
+Benefícios:
+
+- independência de provedores externos;
+- menor latência;
+- ausência de custos por requisição;
+- controle total sobre os dados utilizados na pesquisa;
+- possibilidade de evolução futura do catálogo de receitas sem dependências
+  externas.
 
 ### ✔️ Validação em camadas
 
@@ -2747,6 +2836,130 @@ A utilização combinada do número do pedido com o e-mail informado durante a
 compra reduz a exposição de pedidos de terceiros e impede consultas baseadas
 apenas na numeração do pedido.
 
+### ✔️ Catálogo próprio de receitas
+
+Inicialmente foi considerada a utilização de uma API externa para fornecimento
+de receitas. Após avaliação da disponibilidade, custo, estabilidade e
+flexibilidade dos provedores pesquisados, optou-se pela manutenção de um
+catálogo próprio persistido no MongoDB.
+
+A abordagem adotada utiliza:
+
+- coleção própria de receitas;
+- seeds para carga inicial dos dados;
+- pesquisa textual nativa do MongoDB;
+- controle total sobre o conteúdo exibido ao usuário.
+
+Benefícios:
+
+- independência de provedores externos;
+- ausência de custos por requisição;
+- menor latência;
+- maior previsibilidade dos resultados;
+- facilidade para curadoria e manutenção das receitas;
+- possibilidade de evolução futura do catálogo sem dependências externas.
+
+### ✔️ Receitas
+
+#### Pesquisa de receitas
+
+A aplicação disponibiliza um endpoint público para pesquisa de receitas:
+
+```text
+GET /recipes?search=termo
+```
+
+A funcionalidade utiliza validação de entrada através do Celebrate/Joi e
+pesquisa textual nativa do MongoDB (`Text Search`).
+
+Fluxo simplificado:
+
+```text
+GET /recipes?search=batata
+↓
+Celebrate/Joi valida:
+  - presença do parâmetro search
+  - formato do parâmetro
+  - ausência de parâmetros não permitidos
+↓
+Controller recebe o termo pesquisado
+↓
+MongoDB executa pesquisa textual através de:
+  - title
+  - description
+  - ingredients.name
+↓
+MongoDB calcula o textScore
+↓
+Resultados são ordenados por relevância
+↓
+Receitas encontradas?
+  ├─ Sim → HTTP 200 OK
+  └─ Não → 404 Not Found
+```
+
+O modelo `Recipe` utiliza um índice textual composto pelos campos:
+
+```js
+recipeSchema.index({
+  title: 'text',
+  description: 'text',
+  'ingredients.name': 'text',
+});
+```
+
+A pesquisa é realizada através do operador `$text` do MongoDB:
+
+```js
+.find(
+  {
+    $text: {
+      $search: search,
+    },
+  },
+  {
+    score: { $meta: 'textScore' },
+  },
+)
+.sort({
+  score: { $meta: 'textScore' },
+});
+```
+
+Os resultados são ordenados automaticamente pelo metadado `textScore`,
+permitindo que as receitas mais relevantes para o termo pesquisado sejam
+retornadas primeiro.
+
+Exemplo:
+
+```text
+GET /recipes?search=batata
+```
+
+A consulta pode localizar receitas que possuam o termo pesquisado em:
+
+- título;
+- descrição;
+- ingredientes.
+
+Exemplo simplificado:
+
+```text
+"Creme de Batata com Alho Assado"
+"Caldo Verde Tradicional"
+"Sopa de Batata-Doce com Couve e Alho-Poró"
+```
+
+A ausência de resultados é tratada como regra de negócio da funcionalidade,
+retornando:
+
+```text
+404 Not Found
+```
+
+com mensagem específica informando que nenhuma receita foi localizada para o
+termo informado.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -2808,6 +3021,11 @@ apenas na numeração do pedido.
 │     │     │     ├── partners.service.js
 │     │     │     └── partners.validation.js
 │     │     ├── recipes/
+│     │     │     ├── recipe.model.js
+│     │     │     ├── recipes.controller.js
+│     │     │     ├── recipes.index.js
+│     │     │     ├── recipes.routes.js
+│     │     │     ├── recipes.validation.js
 │     │     │     └── today-recipe.model.js
 │     │     ├── subscriptions/
 │     │     │     ├── subscription-order.model.js
@@ -2825,7 +3043,8 @@ apenas na numeração do pedido.
 │     ├── routes/
 │     │     └── index.js
 │     ├── seeds/
-│     │     └── products.seed.js
+│     │     ├── products.seed.js
+│     │     └── recipes.seed.js
 │     ├── shared/
 │     │     ├── errors/
 │     │     │     ├── BadRequestError.js
@@ -3046,6 +3265,7 @@ Deploy
 - [x] Model/Message
 - [x] Model/Partner
 - [x] Model/TodayRecipe
+- [x] Model/Recipe
 
 #### Testes Unitários - Models (Jest)
 
@@ -3057,6 +3277,7 @@ Deploy
 - [x] Message Model
 - [x] Partner Model
 - [x] TodayRecipe Model
+- [ ] Recipe Model
 
 ### ✅ Fase 6: Autenticação
 
@@ -3153,10 +3374,9 @@ Deploy
 
 #### Receitas
 
-- [ ] API Externa de receitas
+- [x] Pesquisa de receitas
 - [ ] Busca de receitas de hoje
   - [ ] Persistência das receitas
-- [ ] Pesquisa de receitas
 
 #### Admin
 
