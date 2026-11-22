@@ -500,6 +500,7 @@ domínio:
 - SubscriptionOrder Model
 - Message Model
 - TodayRecipe Model
+- Recipe Model
 
 Além da infraestrutura e dos modelos, a suíte contempla testes de integração do
 fluxo de autenticação e autorização:
@@ -702,6 +703,19 @@ O `TodayRecipe Model` possui testes unitários para validação de:
 - validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e
   Patê)
 - validação de documento válido
+
+O `Recipe Model` possui testes unitários para validação de:
+
+- validação de documento válido
+- campos obrigatórios (`required`):
+- obrigatoriedade dos campos internos do array de ingredientes
+- validação de array não vazio para ingredientes
+- validação de array não vazio para instruções
+- valores permitidos por `enum`
+- aceitação do campo opcional `imageUrl`
+- persistência de receitas válidas no MongoDB
+- recuperação de receitas através da pesquisa textual nativa do MongoDB
+  (`$text`)
 
 Os serviços `sendUserMsgNotificationToAdmin` e
 `sendNewPartnerNotificationToAdmin` possuem testes unitários para validação de:
@@ -3088,6 +3102,7 @@ termo informado.
 │     │     ├── order.model.test.js
 │     │     ├── partner.model.test.js
 │     │     ├── product.model.test.js
+│     │     ├── recipe.model.test.js
 │     │     ├── subscription-order.model.test.js
 │     │     ├── subscription.model.test.js
 │     │     ├── today-recipe.model.test.js
@@ -3277,7 +3292,7 @@ Deploy
 - [x] Message Model
 - [x] Partner Model
 - [x] TodayRecipe Model
-- [ ] Recipe Model
+- [x] Recipe Model
 
 ### ✅ Fase 6: Autenticação
 
