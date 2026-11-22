@@ -60,6 +60,10 @@ const recipeSchema = new mongoose.Schema(
         },
       ],
       required: true,
+      validate: {
+        validator: (arr) => arr.length > 0,
+        message: 'A receita deve possuir ao menos um ingrediente.',
+      },
     },
 
     instructions: {
