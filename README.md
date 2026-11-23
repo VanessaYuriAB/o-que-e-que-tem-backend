@@ -481,8 +481,8 @@ ambiente de banco de dados; incluindo conexão, limpeza das coleções para
 garantia de isolamento entre os testes e encerramento da conexão ao final da
 execução da suíte.
 
-Atualmente a suíte contempla testes para componentes de infraestrutura da
-aplicação, incluindo:
+A suíte contempla testes para componentes de infraestrutura da aplicação,
+incluindo:
 
 - validação de ambiente (`validateEnv`)
 - middleware de rota inexistente (`notFoundPage`)
@@ -502,70 +502,80 @@ domínio:
 - TodayRecipe Model
 - Recipe Model
 
-Além da infraestrutura e dos modelos, a suíte contempla testes de integração do
-fluxo de autenticação e autorização:
+Além da infraestrutura e dos modelos, a suíte contempla testes de integração dos
+fluxos:
 
-- cadastro de usuário (`POST /auth/register`)
-- login (`POST /auth/login`)
-- middleware de autenticação (`GET /auth/health`)
-- recuperação de sessão (`GET /auth/me`)
-- renovação de sessão (`POST /auth/access`)
-- logout (`POST /auth/logout`)
-- middleware de autorização (`GET /admin/health`)
+- Autenticação e autorização:
 
-Além dos fluxos de autenticação e autorização, a suíte contempla testes de
-integração da funcionalidade de gerenciamento de perfil do usuário:
+  - cadastro de usuário (`POST /auth/register`)
+  - login (`POST /auth/login`)
+  - middleware de autenticação (`GET /auth/health`)
+  - recuperação de sessão (`GET /auth/me`)
+  - renovação de sessão (`POST /auth/access`)
+  - logout (`POST /auth/logout`)
+  - middleware de autorização (`GET /admin/health`)
 
-- atualização de perfil cadastral (`PATCH /users/me`)
-- atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
-- recuperação do histórico de pedidos avulsos do usuário
-  (`GET /users/:userId/orders`)
-- recuperação do histórico de pedidos de assinatura do usuário
-  (`GET /users/:userId/subscriptions/orders`)
-- recuperação do histórico de mensagens do usuário
-  (`GET /users/:userId/messages`)
+- Gerenciamento de perfil do usuário:
 
-Além do gerenciamento de perfil, a suíte contempla testes de integração da
-funcionalidade de assinaturas:
+  - atualização de perfil cadastral (`PATCH /users/me`)
+  - atualização de perfil de assinatura (`PATCH /users/subscriptions/me`)
+  - recuperação do histórico de pedidos avulsos do usuário
+    (`GET /users/:userId/orders`)
+  - recuperação do histórico de pedidos de assinatura do usuário
+    (`GET /users/:userId/subscriptions/orders`)
+  - recuperação do histórico de mensagens do usuário
+    (`GET /users/:userId/messages`)
 
-- criação de assinatura (`POST /subscriptions`)
-- criação de pedido de assinatura (`POST /subscriptions/orders`)
-- consulta de pedido de assinatura
-  (`GET /subscriptions/orders/:subscriptionOrderNumber`)
+- Assinaturas:
 
-Além das funcionalidades de assinatura, a suíte contempla testes de integração
-das funcionalidades de cardápio, contato e mercados parceiros:
+  - criação de assinatura (`POST /subscriptions`)
+  - criação de pedido de assinatura (`POST /subscriptions/orders`)
+  - consulta de pedido de assinatura
+    (`GET /subscriptions/orders/:subscriptionOrderNumber`)
 
-- busca de produtos do cardápio (`GET /menu`)
-- cadastro de mensagens (`POST /messages`)
-- inscrição de parceria (`POST /partners`)
+- Cardápio, contato e mercados parceiros:
 
-Além dos testes de integração, as funcionalidades de contato e parceria possuem
-testes unitários do serviço responsável pelo envio de notificações
-administrativas por e-mail:
+  - busca de produtos do cardápio (`GET /menu`)
+  - cadastro de mensagens (`POST /messages`)
+  - inscrição de parceria (`POST /partners`)
 
-- `sendUserMsgNotificationToAdmin`
-- `sendNewPartnerNotificationToAdmin`
+- Pedidos avulsos:
 
-Os fluxos de integração que acionam notificações administrativas utilizam mocks
-do serviço compartilhado de e-mail (`email.service`), impedindo chamadas reais
-ao Resend durante a execução dos testes.
+  - criação de pedido avulso (`POST /orders`)
+  - consulta de pedido avulso (`GET /orders/:orderNumber`)
 
-Essa abordagem permite validar o acionamento da integração externa sem gerar
-envios reais de e-mail, reduzindo dependências externas e tornando a suíte mais
-rápida e previsível.
+- Receitas:
 
-Além dos serviços, a suíte contempla testes de integração da funcionalidade de
-pedidos avulsos:
+  - pesquisa de receitas (`GET /recipes`)
 
-- criação de pedido avulso (`POST /orders`)
-- consulta de pedido avulso (`GET /orders/:orderNumber`)
+Além da infraestrutura, dos modelos e dos testes de integração de fluxos, a
+suíte contempla testes unitários:
 
-Além das funcionalidades de pedidos avulsos, a suíte contempla testes unitários
-dos utilitários:
+- Dos utilitários:
 
-- `generateOrderNumber`
-- `calculateOrderAmount`
+  - `generateOrderNumber`
+  - `calculateOrderAmount`
+
+  Onde `generateOrderNumber` é aplicado nas funcionalidades de pedidos avulsos e
+  pedidos de assinatura, e `calculateOrderAmount` apenas na funcionalidade de
+  pedidos avulsos.
+
+- Do serviço responsável pelo envio de notificações administrativas por e-mail
+  (`services`):
+
+  - `sendUserMsgNotificationToAdmin`
+  - `sendNewPartnerNotificationToAdmin`
+
+  Que são utilizados, respectivamente, pelas funcionalidades de contato e
+  parceria.
+
+  Os fluxos de integração que acionam notificações administrativas utilizam
+  mocks do serviço compartilhado de e-mail (`email.service`), impedindo chamadas
+  reais ao Resend durante a execução dos testes.
+
+  Essa abordagem permite validar o acionamento da integração externa sem gerar
+  envios reais de e-mail, reduzindo dependências externas e tornando a suíte
+  mais rápida e previsível.
 
 ### ✔️ Cobertura Atual
 
@@ -1084,6 +1094,23 @@ integração que validam:
 - validação de obrigatoriedade do parâmetro de consulta (`email`)
 - validação do formato do número do pedido de assinatura
 - validação do formato do e-mail
+- bloqueio de parâmetros de consulta não permitidos
+- integração entre Express, Celebrate/Joi, controller e MongoDB
+
+O fluxo de pesquisa de receitas (`GET /recipes`) possui testes de integração que
+validam:
+
+- pesquisa textual através do MongoDB Text Search (`$text`)
+- recuperação de receitas por categoria
+- recuperação de receitas através de termos presentes em:
+  - título
+  - descrição
+  - ingredientes
+- ordenação dos resultados por relevância (`textScore`)
+- retorno dos campos esperados das receitas
+- retorno de `404 Not Found` quando nenhuma receita é encontrada
+- validação da obrigatoriedade do parâmetro `search`
+- rejeição de caracteres HTML básicos (`<` e `>`)
 - bloqueio de parâmetros de consulta não permitidos
 - integração entre Express, Celebrate/Joi, controller e MongoDB
 
@@ -3127,6 +3154,8 @@ termo informado.
 │     │     ├── partners/
 │     │     │     ├── partners.service.test.js
 │     │     │     └── registerPartner.test.js
+│     │     ├── recipes/
+│     │     │     └── getSearchRecipes.test.js
 │     │     ├── subscriptions/
 │     │     │     ├── createSubscription.test.js
 │     │     │     ├── createSubscriptionOrder.test.js
