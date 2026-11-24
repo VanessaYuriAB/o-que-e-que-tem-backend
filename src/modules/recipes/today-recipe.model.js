@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { MEAL_TYPES } from '../../shared/utils/constants.js';
 
 const todayRecipeSchema = new mongoose.Schema(
   /* Campos */
@@ -6,50 +7,100 @@ const todayRecipeSchema = new mongoose.Schema(
     recipes: {
       type: [
         {
-          name: {
+          title: {
             type: String,
             required: true,
-            enum: ['Sopa', 'Creme', 'Patê'],
+            trim: true,
+          },
+
+          category: {
+            type: String,
+            required: true,
+            enum: MEAL_TYPES,
+          },
+
+          description: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+
+          prepTime: {
+            type: Number,
+            required: true,
+          },
+
+          servings: {
+            type: Number,
+            required: true,
+          },
+
+          difficulty: {
+            type: String,
+            required: true,
+            enum: ['Fácil', 'Médio', 'Difícil'],
+          },
+
+          imageUrl: {
+            type: String,
+            default: '',
           },
 
           ingredients: {
             type: [
               {
+                name: {
+                  type: String,
+                  required: true,
+                  trim: true,
+                },
+                quantity: {
+                  type: String,
+                  required: true,
+                  trim: true,
+                },
+              },
+            ],
+            required: true,
+            validate: {
+              validator: (arr) => arr.length > 0,
+              message: 'A receita deve possuir ao menos um ingrediente.',
+            }, // pq 'required: true' em arrays verifica a existência do campo, ñ a qtdd de itens
+          },
+
+          instructions: {
+            type: [
+              {
                 type: String,
                 required: true,
-                match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
                 trim: true,
               },
             ],
             required: true,
             validate: {
-              validator: (ingredients) => ingredients.length > 0,
-              message: 'A receita deve possuir ao menos um ingrediente.',
-            }, // pq 'required: true' em arrays verifica a existência do campo, ñ a qtdd de itens
-          },
-
-          preparation: {
-            type: String,
-            required: true,
-            match: /^[^<>]+$/, // bloqueia HTML básico por segurança ('<' e '>')
-            trim: true,
+              validator: (arr) => arr.length > 0,
+              message:
+                'A receita deve ter pelo menos um passo no modo de preparo.',
+            },
           },
         },
       ],
+
       required: true,
+
       validate: {
         validator: (recipes) => {
           if (recipes.length !== 3) {
             return false;
           }
 
-          const names = recipes.map((recipe) => recipe.name);
+          const categories = recipes.map((recipe) => recipe.category);
 
           return (
-            new Set(names).size === 3 &&
-            names.includes('Sopa') &&
-            names.includes('Creme') &&
-            names.includes('Patê')
+            new Set(categories).size === 3 &&
+            categories.includes('sopa') &&
+            categories.includes('creme') &&
+            categories.includes('pate')
           );
         },
         message:
@@ -57,6 +108,7 @@ const todayRecipeSchema = new mongoose.Schema(
       },
     },
   },
+
   /* Opções */
   {
     timestamps: true,
