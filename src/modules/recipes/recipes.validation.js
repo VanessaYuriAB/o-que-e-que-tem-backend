@@ -10,6 +10,4 @@ const celebrateForGetSearchRecipes = celebrate({
   }).unknown(false),
 });
 
-// getTodayRecipes > '/recipes/today'
-
-export { celebrateForGetSearchRecipes };
+export default celebrateForGetSearchRecipes;

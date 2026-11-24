@@ -1,6 +1,7 @@
 import Recipe from './recipe.model.js';
 import NotFoundError from '../../shared/errors/NotFoundError.js';
 import errorsMessages from '../../shared/utils/errorsMessages.js';
+import TodayRecipe from './today-recipe.model.js';
 
 // getSearchRecipes > '/recipes' : Query: ?search=searchData
 const getSearchRecipes = async (req, res) => {
@@ -31,5 +32,36 @@ const getSearchRecipes = async (req, res) => {
 };
 
 // getTodayRecipes > '/recipes/today'
+const getTodayRecipes = async (req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-export { getSearchRecipes };
+  let todayRecipes = await TodayRecipe.findOne({
+    createdAt: { $gte: today },
+  });
+
+  if (!todayRecipes) {
+    const sopa = await Recipe.aggregate([
+      { $match: { category: 'sopa' } }, // filtra
+      { $sample: { size: 1 } }, // sorteia uma receita
+    ]); // mecanismo que permite encadear várias operações (filtrar, agrupar, ordenar, transformar, sortear, etc.)
+
+    const creme = await Recipe.aggregate([
+      { $match: { category: 'creme' } },
+      { $sample: { size: 1 } },
+    ]);
+
+    const pate = await Recipe.aggregate([
+      { $match: { category: 'pate' } },
+      { $sample: { size: 1 } },
+    ]);
+
+    todayRecipes = await TodayRecipe.create({
+      recipes: [sopa[0], creme[0], pate[0]],
+    });
+  }
+
+  res.json(todayRecipes.recipes);
+};
+
+export { getSearchRecipes, getTodayRecipes };
