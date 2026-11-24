@@ -3,8 +3,11 @@ import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import env from '../../config/env.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import roleMiddleware from '../../shared/middlewares/roleMiddleware.js';
-import { celebrateForRegisterNewProduct } from './admin.validation.js';
-import { registerNewProduct } from './admin.controller.js';
+import {
+  celebrateForDeleteProduct,
+  celebrateForRegisterNewProduct,
+} from './admin.validation.js';
+import { deleteProduct, registerNewProduct } from './admin.controller.js';
 
 // Cria um roteador para a rota principal de admin
 const router = Router();
@@ -40,7 +43,15 @@ router.post(
   registerNewProduct,
 );
 
-// deleteProduct > '/admin/menu'
+// deleteProduct > '/admin/menu/:productId'
+router.delete(
+  '/menu/:productId',
+  celebrateForAccessToken,
+  accessMiddleware,
+  roleMiddleware('admin'),
+  celebrateForDeleteProduct,
+  deleteProduct,
+);
 
 // replyUserMessage > '/admin/messages'
 

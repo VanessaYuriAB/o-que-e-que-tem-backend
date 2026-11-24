@@ -13,8 +13,13 @@ const registerNewProduct = async (req, res) => {
   return res.status(201).send(newProduct);
 };
 
-// deleteProduct > '/admin/menu'
+// deleteProduct > '/admin/menu/:productId'
+const deleteProduct = async (req, res) => {
+  await Product.findByIdAndDelete(req.params.productId);
+
+  return res.status(204).end();
+};
 
 // replyUserMessage > '/admin/messages'
 
-export { registerNewProduct };
+export { registerNewProduct, deleteProduct };

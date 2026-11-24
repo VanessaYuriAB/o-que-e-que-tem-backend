@@ -16,8 +16,13 @@ const celebrateForRegisterNewProduct = celebrate({
     .unknown(false),
 });
 
-// deleteProduct > '/admin/menu'
+// deleteProduct > '/admin/menu/:productId'
+const celebrateForDeleteProduct = celebrate({
+  params: Joi.object({
+    productId: Joi.string().hex().length(24).required(),
+  }),
+});
 
 // replyUserMessage > '/admin/messages'
 
-export { celebrateForRegisterNewProduct };
+export { celebrateForRegisterNewProduct, celebrateForDeleteProduct };
