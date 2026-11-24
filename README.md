@@ -427,9 +427,10 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Recipes
 
-| Método | Rota     | Descrição                    |
-| ------ | -------- | ---------------------------- |
-| GET    | /recipes | Pesquisa textual de receitas |
+| Método | Rota           | Descrição                                                  |
+| ------ | -------------- | ---------------------------------------------------------- |
+| GET    | /recipes       | Pesquisa textual de receitas                               |
+| GET    | /recipes/today | Recuperação de conjunto diário de recomendação de receitas |
 
 Exemplo:
 
@@ -1556,6 +1557,28 @@ Benefícios:
 - controle total sobre os dados utilizados na pesquisa;
 - possibilidade de evolução futura do catálogo de receitas sem dependências
   externas.
+
+#### Catálogo de receitas e sugestões de receitas diárias
+
+A funcionalidade de receitas utiliza duas coleções distintas:
+
+- `Recipe`
+- `TodayRecipe`
+
+A coleção `Recipe` representa o catálogo completo de receitas disponíveis para
+pesquisa.
+
+A coleção `TodayRecipe` representa o conjunto de recomendações exibidas na
+interface para um determinado dia.
+
+Cada documento de `TodayRecipe` deve conter exatamente:
+
+- uma sopa;
+- um creme;
+- um patê.
+
+As receitas são selecionadas automaticamente a partir do catálogo principal e
+persistidas no banco de dados para garantir consistência entre os usuários.
 
 ### ✔️ Validação em camadas
 
@@ -3001,6 +3024,65 @@ retornando:
 com mensagem específica informando que nenhuma receita foi localizada para o
 termo informado.
 
+#### Receitas do dia
+
+A aplicação disponibiliza um endpoint público responsável por recuperar as
+receitas recomendadas do dia:
+
+```text
+GET /recipes/today
+```
+
+A funcionalidade utiliza um catálogo próprio de receitas persistido no MongoDB e
+garante a existência de exatamente uma receita para cada categoria:
+
+- sopa
+- creme
+- patê
+
+Fluxo simplificado:
+
+```text
+GET /recipes/today
+↓
+Controller verifica se existe um documento TodayRecipe correspondente ao dia atual
+↓
+Documento encontrado?
+├─ Sim → retorna as receitas persistidas
+└─ Não
+    ↓
+    MongoDB seleciona aleatoriamente:
+      - 1 sopa
+      - 1 creme
+      - 1 patê
+    ↓
+    Documento TodayRecipe é criado
+    ↓
+    Receitas são retornadas
+```
+
+Essa estratégia garante que todos os usuários recebam o mesmo conjunto diário de
+recomendações, evitando resultados diferentes para cada acesso.
+
+A seleção das receitas é realizada através do operador `$sample` do MongoDB,
+permitindo a escolha aleatória de uma receita por categoria.
+
+Exemplo simplificado:
+
+```js
+[
+  {
+    title: 'Sopa de Batata',
+  },
+  {
+    title: 'Creme de Cenoura',
+  },
+  {
+    title: 'Patê de Ricota',
+  },
+];
+```
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -3377,7 +3459,7 @@ Deploy
 - [x] `orders.validation.js`
 - [x] `contact.validation.js`
 - [x] `partners.validation.js`
-- [ ] `recipes.validation.js`
+- [x] `recipes.validation.js`
 
 #### Usuários
 
@@ -3419,8 +3501,8 @@ Deploy
 #### Receitas
 
 - [x] Pesquisa de receitas
-- [ ] Busca de receitas de hoje
-  - [ ] Persistência das receitas
+- [x] Busca de receitas de hoje
+  - [x] Persistência das receitas
 
 #### Admin
 
