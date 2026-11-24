@@ -3,14 +3,16 @@ import { celebrateForAccessToken } from '../auth/auth.validation.js';
 import env from '../../config/env.js';
 import { accessMiddleware } from '../auth/auth.middleware.js';
 import roleMiddleware from '../../shared/middlewares/roleMiddleware.js';
+import { celebrateForRegisterNewProduct } from './admin.validation.js';
+import { registerNewProduct } from './admin.controller.js';
 
 // Cria um roteador para a rota principal de admin
 const router = Router();
 
-// ------------------------------
+// -----------------------------------------------------
 // Rotas privadas
-// (exigem autorização via role)
-// ------------------------------
+// (exigem autenticação via JWT + autorização via role)
+// -----------------------------------------------------
 
 // Rota teste para ambiente de desenvolvimento/teste > '/admin/health'
 if (env.NODE_ENV !== 'production') {
@@ -27,5 +29,19 @@ if (env.NODE_ENV !== 'production') {
     },
   );
 }
+
+// registerNewProduct > '/admin/menu'
+router.post(
+  '/menu',
+  celebrateForAccessToken,
+  accessMiddleware,
+  roleMiddleware('admin'),
+  celebrateForRegisterNewProduct,
+  registerNewProduct,
+);
+
+// deleteProduct > '/admin/menu'
+
+// replyUserMessage > '/admin/messages'
 
 export default router;
