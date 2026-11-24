@@ -3145,6 +3145,8 @@ req.user recebe o payload autenticado
 ↓
 roleMiddleware valida role = admin
 ↓
+validateContentType valida o Content-Type
+↓
 Celebrate/Joi valida os dados do produto
 ↓
 MongoDB cria o produto

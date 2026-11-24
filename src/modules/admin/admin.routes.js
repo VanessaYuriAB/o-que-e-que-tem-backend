@@ -8,6 +8,7 @@ import {
   celebrateForRegisterNewProduct,
 } from './admin.validation.js';
 import { deleteProduct, registerNewProduct } from './admin.controller.js';
+import validateContentType from '../../shared/middlewares/validateContentType.js';
 
 // Cria um roteador para a rota principal de admin
 const router = Router();
@@ -39,6 +40,7 @@ router.post(
   celebrateForAccessToken,
   accessMiddleware,
   roleMiddleware('admin'),
+  validateContentType,
   celebrateForRegisterNewProduct,
   registerNewProduct,
 );
