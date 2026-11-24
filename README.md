@@ -548,6 +548,7 @@ fluxos:
 - Receitas:
 
   - pesquisa de receitas (`GET /recipes`)
+  - recuperação de recomendação diária de receitas (`GET /recipes/today`)
 
 Além da infraestrutura, dos modelos e dos testes de integração de fluxos, a
 suíte contempla testes unitários:
@@ -1114,6 +1115,15 @@ validam:
 - rejeição de caracteres HTML básicos (`<` e `>`)
 - bloqueio de parâmetros de consulta não permitidos
 - integração entre Express, Celebrate/Joi, controller e MongoDB
+
+O fluxo de recuperação da recomendação diária de receitas (`GET /recipes/today`)
+possui testes de integração que validam:
+
+- retorno de uma receita para cada categoria (sopa, creme e patê)
+- reutilização das recomendações já persistidas para a mesma data
+- criação automática de uma nova recomendação quando não existe documento
+  correspondente à data atual
+- persistência das recomendações diárias na coleção `TodayRecipe`
 
 ### ✔️ Estratégia
 
@@ -3024,10 +3034,10 @@ retornando:
 com mensagem específica informando que nenhuma receita foi localizada para o
 termo informado.
 
-#### Receitas do dia
+#### Recomendação diária de receitas
 
-A aplicação disponibiliza um endpoint público responsável por recuperar as
-receitas recomendadas do dia:
+A aplicação disponibiliza um endpoint público responsável por recuperar a
+sugestão diária de receitas:
 
 ```text
 GET /recipes/today
@@ -3237,7 +3247,8 @@ Exemplo simplificado:
 │     │     │     ├── partners.service.test.js
 │     │     │     └── registerPartner.test.js
 │     │     ├── recipes/
-│     │     │     └── getSearchRecipes.test.js
+│     │     │     ├── getSearchRecipes.test.js
+│     │     │     └── getTodayRecipes.test.js
 │     │     ├── subscriptions/
 │     │     │     ├── createSubscription.test.js
 │     │     │     ├── createSubscriptionOrder.test.js
@@ -3519,7 +3530,7 @@ Deploy
 - [x] Pedidos avulsos
 - [x] Fale Conosco
 - [x] Mercados Parceiros
-- [ ] Receitas
+- [x] Receitas
 - [ ] Admin
 
 ### 🚧 Fase 9: Integrações Externas Extras
