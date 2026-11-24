@@ -46,7 +46,6 @@ const recipeSchema = new mongoose.Schema(
     ingredients: {
       type: [
         {
-          _id: false,
           name: {
             type: String,
             required: true,
