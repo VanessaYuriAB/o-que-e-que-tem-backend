@@ -388,9 +388,11 @@ carregando automaticamente o arquivo `.env` correspondente.
 
 - ### Admin
 
-| Método | Rota          | Descrição                               |
-| ------ | ------------- | --------------------------------------- |
-| GET    | /admin/health | Validação de autorização administrativa |
+| Método | Rota                   | Descrição                               |
+| ------ | ---------------------- | --------------------------------------- |
+| GET    | /admin/health          | Validação de autorização administrativa |
+| POST   | /admin/menu            | Cadastro de produto no cardápio         |
+| DELETE | /admin/menu/:productId | Remoção de produto do cardápio          |
 
 - ### Subscriptions
 
@@ -3093,6 +3095,116 @@ Exemplo simplificado:
 ];
 ```
 
+### ✔️ Administração
+
+A aplicação disponibiliza endpoints administrativos protegidos por autenticação
+e autorização baseada em papéis (`RBAC`).
+
+O acesso é restrito a usuários com:
+
+```text
+role: 'admin'
+```
+
+As rotas utilizam:
+
+```text
+Celebrate/Joi
+↓
+accessMiddleware
+↓
+roleMiddleware('admin')
+↓
+Controller
+```
+
+garantindo que apenas administradores autenticados consigam executar operações
+administrativas.
+
+#### Cadastro de produto
+
+Administradores podem cadastrar produtos diretamente no cardápio através do
+endpoint:
+
+```text
+POST /admin/menu
+```
+
+Fluxo simplificado:
+
+```text
+POST /admin/menu
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+roleMiddleware valida role = admin
+↓
+Celebrate/Joi valida os dados do produto
+↓
+MongoDB cria o produto
+↓
+HTTP 201 Created
+```
+
+Os dados cadastrados incluem:
+
+- nome do produto
+- categoria
+- quantidade disponível
+- mercado parceiro
+- data limite de disponibilidade
+
+A validação do payload é realizada através do Celebrate/Joi antes da criação do
+documento no MongoDB.
+
+#### Remoção de produto
+
+Administradores podem remover produtos do cardápio através do endpoint:
+
+```text
+DELETE /admin/menu/:productId
+```
+
+Fluxo simplificado:
+
+```text
+DELETE /admin/menu/:productId
+↓
+Celebrate valida presença e formato do accessToken
+↓
+accessMiddleware executa
+↓
+jwt.verify() executa
+↓
+req.user recebe o payload autenticado
+↓
+roleMiddleware valida role = admin
+↓
+Celebrate/Joi valida o parâmetro productId
+↓
+MongoDB remove o documento
+↓
+HTTP 204 No Content
+```
+
+O parâmetro `productId` deve ser um identificador válido do MongoDB
+(`ObjectId`).
+
+Exemplo:
+
+```text
+/admin/menu/6869ef6c3fbc2f6d0f4e6e6a
+```
+
+A operação não retorna corpo na resposta, seguindo a semântica do código HTTP
+`204 No Content`.
+
 [Voltar ao topo 🔝](#top)
 
 ---
@@ -3119,8 +3231,10 @@ Exemplo simplificado:
 │     │     └── validateEnv.js
 │     ├── modules/
 │     │     ├── admin/
+│     │     │     ├── admin.controller.js
 │     │     │     ├── admin.index.js
-│     │     │     └── admin.routes.js
+│     │     │     ├── admin.routes.js
+│     │     │     └── admin.validation.js
 │     │     ├── auth/
 │     │     │     ├── auth.controller.js
 │     │     │     ├── auth.index.js
@@ -3471,6 +3585,7 @@ Deploy
 - [x] `contact.validation.js`
 - [x] `partners.validation.js`
 - [x] `recipes.validation.js`
+- [ ] `admin.validation.js`
 
 #### Usuários
 
@@ -3517,9 +3632,8 @@ Deploy
 
 #### Admin
 
-- [ ] Cadastro de admin
-- [ ] Adicionar produto no cardápio
-- [ ] Remover produto do cardápio
+- [x] Adicionar produto no cardápio
+- [x] Remover produto do cardápio
 - [ ] Responder mensagens + API Externa para envio de e-mail/WhatsApp
 
 #### Testes de Integração (Supertest)
