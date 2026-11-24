@@ -705,15 +705,15 @@ O `Message Model` possui testes unitários para validação de:
 
 O `TodayRecipe Model` possui testes unitários para validação de:
 
-- campos obrigatórios (`required`)
-- valores permitidos por `enum`
-- validação de array não vazio para ingredientes
-- validação de conteúdo permitido para ingredientes e modo de preparo através de
-  expressões regulares (`match`)
+- garantia da existência de `recipes`
 - garantia da existência de exatamente três receitas por documento
-- validação da presença de exatamente uma receita de cada tipo (Sopa, Creme e
-  Patê)
-- validação de documento válido
+- validação da presença de exatamente uma receita para cada categoria
+- campos obrigatórios da receita (`required`)
+- validação de valores permitidos por `enum`
+- validação de array não vazio para ingredientes
+- validação das propriedades `name` e `quantity` para ingredientes
+- validação de array não vazio para instruções
+- validação de documentos válidos, inclusive com a propriedade `imageUrl`
 
 O `Recipe Model` possui testes unitários para validação de:
 
