@@ -555,6 +555,7 @@ fluxos:
 - Admin:
 
   - cadastro de novo produto (`POST /admin/menu`)
+  - remoção de produto (`DELETE /admin/menu/:productId`)
 
 Além da infraestrutura, dos modelos e dos testes de integração de fluxos, a
 suíte contempla testes unitários:
@@ -1146,6 +1147,21 @@ que validam:
 - validação dos valores permitidos por `enum`
 - integração entre Celebrate/Joi, `accessMiddleware`, `roleMiddleware`,
   `validateContentType`, controller e MongoDB
+
+O fluxo de remoção de produto (`DELETE /admin/menu/:productId`) possui testes de
+integração que validam:
+
+- remoção realizada com sucesso
+- exclusão do documento no MongoDB
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- bloqueio de usuários sem papel administrativo (`403 Forbidden`)
+- validação do parâmetro `productId`
+- retorno de `404 Not Found` para produto inexistente
+- integração entre Celebrate/Joi, `accessMiddleware`, `roleMiddleware`,
+  controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -3210,10 +3226,10 @@ roleMiddleware valida role = admin
 ↓
 Celebrate/Joi valida o parâmetro productId
 ↓
-MongoDB localiza e remove o documento
+MongoDB executa findByIdAndDelete()
 ↓
 Produto encontrado?
-  ├─ Sim → HTTP 204 No Content
+  ├─ Sim → documento removido → HTTP 204 No Content
   └─ Não → 404 Not Found
 ```
 
@@ -3371,6 +3387,7 @@ consultam recursos inexistentes.
 │     │     └── user.model.test.js
 │     ├── modules/
 │     │     ├── admin/
+│     │     │     ├── deleteProduct.test.js
 │     │     │     └── registerNewProduct.test.js
 │     │     ├── auth/
 │     │     │     ├── access.middleware.test.js
