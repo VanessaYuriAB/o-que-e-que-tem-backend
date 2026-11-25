@@ -552,6 +552,10 @@ fluxos:
   - pesquisa de receitas (`GET /recipes`)
   - recuperação de recomendação diária de receitas (`GET /recipes/today`)
 
+- Admin:
+
+  - cadastro de novo produto (`POST /admin/menu`)
+
 Além da infraestrutura, dos modelos e dos testes de integração de fluxos, a
 suíte contempla testes unitários:
 
@@ -1126,6 +1130,22 @@ possui testes de integração que validam:
 - criação automática de uma nova recomendação quando não existe documento
   correspondente à data atual
 - persistência das recomendações diárias na coleção `TodayRecipe`
+
+O fluxo de cadastro de produto (`POST /admin/menu`) possui testes de integração
+que validam:
+
+- cadastro realizado com sucesso
+- persistência do produto no MongoDB
+- validação de presença do cookie `accessToken`
+- validação de formato inválido do JWT
+- validação de `accessToken` expirado
+- validação de `accessToken` assinado com chave inválida
+- bloqueio de usuários sem papel administrativo (`403 Forbidden`)
+- validação do cabeçalho `Content-Type`
+- validação dos campos obrigatórios (`required`)
+- validação dos valores permitidos por `enum`
+- integração entre Celebrate/Joi, `accessMiddleware`, `roleMiddleware`,
+  `validateContentType`, controller e MongoDB
 
 ### ✔️ Estratégia
 
@@ -3343,6 +3363,8 @@ A operação não retorna corpo na resposta, seguindo a semântica do código HT
 │     │     ├── today-recipe.model.test.js
 │     │     └── user.model.test.js
 │     ├── modules/
+│     │     ├── admin/
+│     │     │     └── registerNewProduct.test.js
 │     │     ├── auth/
 │     │     │     ├── access.middleware.test.js
 │     │     │     ├── login.test.js
