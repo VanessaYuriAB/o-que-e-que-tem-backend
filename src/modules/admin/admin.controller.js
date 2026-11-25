@@ -1,4 +1,6 @@
 import Product from '../menu/product.model.js';
+import NotFoundError from '../../shared/errors/NotFoundError.js';
+import errorsMessages from '../../shared/utils/errorsMessages.js';
 
 // registerNewProduct > '/admin/menu'
 const registerNewProduct = async (req, res) => {
@@ -15,7 +17,13 @@ const registerNewProduct = async (req, res) => {
 
 // deleteProduct > '/admin/menu/:productId'
 const deleteProduct = async (req, res) => {
-  await Product.findByIdAndDelete(req.params.productId);
+  const product = await Product.findByIdAndDelete(req.params.productId);
+
+  if (!product) {
+    throw new NotFoundError(
+      `${errorsMessages.notFound} Erro ao remover produto: item não encontrado.`,
+    );
+  }
 
   return res.status(204).end();
 };

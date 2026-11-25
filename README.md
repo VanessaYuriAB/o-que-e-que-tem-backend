@@ -3210,9 +3210,11 @@ roleMiddleware valida role = admin
 ↓
 Celebrate/Joi valida o parâmetro productId
 ↓
-MongoDB remove o documento
+MongoDB localiza e remove o documento
 ↓
-HTTP 204 No Content
+Produto encontrado?
+  ├─ Sim → HTTP 204 No Content
+  └─ Não → 404 Not Found
 ```
 
 O parâmetro `productId` deve ser um identificador válido do MongoDB
@@ -3226,6 +3228,11 @@ Exemplo:
 
 A operação não retorna corpo na resposta, seguindo a semântica do código HTTP
 `204 No Content`.
+
+Quando o identificador informado possui formato válido, mas não corresponde a
+nenhum produto cadastrado, a API retorna `404 Not Found` através da exceção
+`NotFoundError`, mantendo consistência com os demais fluxos da aplicação que
+consultam recursos inexistentes.
 
 [Voltar ao topo 🔝](#top)
 
