@@ -28,7 +28,7 @@ const getSearchRecipes = async (req, res) => {
     );
   }
 
-  res.send(searchedRecipes);
+  return res.send(searchedRecipes);
 };
 
 // getTodayRecipes > '/recipes/today'
@@ -61,7 +61,7 @@ const getTodayRecipes = async (req, res) => {
     });
   }
 
-  res.json(todayRecipes.recipes);
+  return res.send(todayRecipes.recipes);
 };
 
 export { getSearchRecipes, getTodayRecipes };

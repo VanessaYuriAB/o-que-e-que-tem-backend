@@ -39,7 +39,7 @@ const updateUserProfile = async (req, res) => {
 
   await user.save();
 
-  res.send(user);
+  return res.send(user);
 };
 
 // updateSubscriptionProfile > '/users/subscriptions/me'
@@ -76,7 +76,7 @@ const updateSubscriptionProfile = async (req, res) => {
     });
 
   // Retorna o objeto user completo, contento subscriptionDetails
-  res.send(updatedSubscriptionUser);
+  return res.send(updatedSubscriptionUser);
 };
 
 // getOrdersByUserId > '/users/:userId/orders'
@@ -90,7 +90,7 @@ const getUserOrders = async (req, res) => {
 
   // Caso não existam pedidos avulsos, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
 
-  res.send(orders);
+  return res.send(orders);
 };
 
 // getSubscriptionOrdersByUserId > '/users/:userId/subscriptions/orders'
@@ -104,7 +104,7 @@ const getUserSubscriptionOrders = async (req, res) => {
 
   // Caso não existam pedidos de assinatura, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
 
-  res.send(subscriptionOrders);
+  return res.send(subscriptionOrders);
 };
 
 // getMessagesByUserId > '/users/:userId/messages'
@@ -118,7 +118,7 @@ const getUserMsgs = async (req, res) => {
 
   // Caso não existam mensagens, o retorno é []; não é um erro, e é direcionado no próprio componente no frontend
 
-  res.send(msgs);
+  return res.send(msgs);
 };
 
 export {

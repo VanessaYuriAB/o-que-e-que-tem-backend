@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
   });
 
-  res.send({ success: true });
+  return res.send({ success: true });
 };
 
 // refresh (user) > '/auth/me'
@@ -87,7 +87,7 @@ const refreshUser = async (req, res) => {
     );
   });
 
-  res.send(loggedUser);
+  return res.send(loggedUser);
 };
 
 // refresh (token) > '/auth/access'
@@ -109,7 +109,7 @@ const refreshAccess = (req, res) => {
     maxAge: 15 * 60 * 1000, // 15 min
   });
 
-  res.send({ success: true });
+  return res.send({ success: true });
 };
 
 // logout > '/auth/logout'
@@ -128,7 +128,7 @@ const logoutUser = (req, res) => {
     path: '/',
   });
 
-  res.send({ message: 'Logout realizado' });
+  return res.send({ message: 'Logout realizado' });
 };
 
 export { registerUser, loginUser, refreshUser, refreshAccess, logoutUser };

@@ -31,7 +31,7 @@ const registerPartner = async (req, res) => {
 
   await sendNewPartnerNotificationToAdmin(partnerData);
 
-  res.status(201).send(partnerData);
+  return res.status(201).send(partnerData);
 };
 
 export default registerPartner;

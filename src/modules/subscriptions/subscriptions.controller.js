@@ -112,7 +112,7 @@ const createSubscriptionOrder = async (req, res) => {
     obs: req.body.obs,
   });
 
-  res.status(201).send(subscriptionOrderData);
+  return res.status(201).send(subscriptionOrderData);
 };
 
 // getSubscriptionOrderByNumber > `/subscriptions/orders/:subscriptionOrderNumber` > Query:
@@ -127,7 +127,7 @@ const getSubscriptionOrderByNumber = async (req, res) => {
     );
   });
 
-  res.send(subscriptionOrder);
+  return res.send(subscriptionOrder);
 };
 
 export {

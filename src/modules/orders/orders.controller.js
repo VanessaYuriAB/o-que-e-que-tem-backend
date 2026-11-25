@@ -54,7 +54,7 @@ const createOrder = async (req, res) => {
     obs: req.body.obs,
   });
 
-  res.status(201).send(orderData);
+  return res.status(201).send(orderData);
 };
 
 // getOrderByNumber > `/orders/:orderNumber` > Query: ?email=user@email.com
@@ -68,7 +68,7 @@ const getOrderByNumber = async (req, res) => {
     );
   });
 
-  res.send(order);
+  return res.send(order);
 };
 
 export { createOrder, getOrderByNumber };

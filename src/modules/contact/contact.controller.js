@@ -25,7 +25,7 @@ const registerUserMsg = async (req, res) => {
 
   await sendUserMsgNotificationToAdmin(msgData);
 
-  res.status(201).send(msgData);
+  return res.status(201).send(msgData);
 };
 
 export default registerUserMsg;

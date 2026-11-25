@@ -10,7 +10,7 @@ const getMenu = async (req, res) => {
   }).lean();
 
   // Envia dados conforme contrato do endpoint no frontend
-  res.send({ itemsMenu });
+  return res.send({ itemsMenu });
 };
 
 export default getMenu;
