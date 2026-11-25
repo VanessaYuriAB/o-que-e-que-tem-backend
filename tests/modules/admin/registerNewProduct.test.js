@@ -108,7 +108,7 @@ describe('Register New Product Flow > POST "/admin/menu"', () => {
 
   // 2
   it('Exige accessToken', async () => {
-    const error = await request.post('/admin/menu').send(productPayload);
+    const error = await request.post('/admin/menu');
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(400);
@@ -122,8 +122,7 @@ describe('Register New Product Flow > POST "/admin/menu"', () => {
   it('accessToken fora do padrão JWT', async () => {
     const error = await request
       .post('/admin/menu')
-      .set('Cookie', 'accessToken=token-invalido')
-      .send(productPayload);
+      .set('Cookie', 'accessToken=token-invalido');
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(400);
@@ -147,8 +146,7 @@ describe('Register New Product Flow > POST "/admin/menu"', () => {
 
     const error = await request
       .post('/admin/menu')
-      .set('Cookie', `accessToken=${expiredToken}`)
-      .send(productPayload);
+      .set('Cookie', `accessToken=${expiredToken}`);
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(401);
@@ -170,8 +168,7 @@ describe('Register New Product Flow > POST "/admin/menu"', () => {
 
     const error = await request
       .post('/admin/menu')
-      .set('Cookie', `accessToken=${invalidToken}`)
-      .send(productPayload);
+      .set('Cookie', `accessToken=${invalidToken}`);
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(401);
@@ -202,10 +199,7 @@ describe('Register New Product Flow > POST "/admin/menu"', () => {
     cookies = login.headers['set-cookie'];
 
     // Teste
-    const error = await request
-      .post('/admin/menu')
-      .set('Cookie', cookies)
-      .send(productPayload);
+    const error = await request.post('/admin/menu').set('Cookie', cookies);
 
     expect(error.type).toMatch(/json/);
     expect(error.statusCode).toBe(403);
