@@ -5,6 +5,7 @@ import {
   DELIVERY_METHODS,
   PAYMENT_METHODS,
   PRODUCTS_CATEGORIES,
+  DELIVERY_STATUS,
 } from '../../shared/utils/constants.js';
 
 const orderSchema = new mongoose.Schema(
@@ -34,6 +35,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
       enum: DELIVERY_METHODS,
     },
+
     payment: {
       type: String,
       required: true,
@@ -153,7 +155,15 @@ const orderSchema = new mongoose.Schema(
       match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
+
+    status: {
+      type: String,
+      default: 'pendente',
+      required: true,
+      enum: DELIVERY_STATUS,
+    },
   },
+
   /* Opções */
   {
     timestamps: true,

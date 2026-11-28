@@ -4,6 +4,7 @@ import {
   MEAL_TYPES,
   DELIVERY_METHODS,
   PRODUCTS_CATEGORIES,
+  DELIVERY_STATUS,
 } from '../../shared/utils/constants.js';
 
 const subscriptionOrderSchema = new mongoose.Schema(
@@ -165,7 +166,15 @@ const subscriptionOrderSchema = new mongoose.Schema(
       match: /^[^<>]*$/, // bloqueia HTML básico por segurança ('<' e '>')
       trim: true,
     },
+
+    status: {
+      type: String,
+      default: 'pendente',
+      required: true,
+      enum: DELIVERY_STATUS,
+    },
   },
+
   /* Opções */
   {
     timestamps: true,

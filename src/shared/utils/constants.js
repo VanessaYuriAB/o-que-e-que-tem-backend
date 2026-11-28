@@ -20,6 +20,8 @@ const SUBSCRIPTION_DAYS = ['seg', 'ter', 'qua', 'qui', 'sex'];
 
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/; // garante HH:mm válido
 
+const DELIVERY_STATUS = ['pendente', 'entregue'];
+
 export {
   PRODUCTS_CATEGORIES,
   MEAL_TYPES,
@@ -28,4 +30,5 @@ export {
   SUBSCRIPTION_DURATIONS,
   SUBSCRIPTION_DAYS,
   TIME_REGEX,
+  DELIVERY_STATUS,
 };
